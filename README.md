@@ -46,8 +46,14 @@ Một API RESTful đơn giản được xây dựng bằng Python để quản l
 
 5.  **Chạy ứng dụng**:
     ```bash
-    uvicorn app.main:app --reload
+    uvicorn app.main:app --reload (--port 5500 nếu muốn mở port khác)
     ```
+6. **Nếu bị treo cổng**:
+    - Mở cmd
+    - Nhập "netstat -ano | findstr :8000"
+    - Mở Task Manager/Details
+    - Tìm kiếm các Pid trong danh sách và "End task"
+    - Quay lại bước 5
 
 ## 📝 Tài liệu API
 - Sau khi chạy ứng dụng FastAPI, truy cập `http://127.0.0.1:8000/docs` để xem tài liệu API tương tác. 

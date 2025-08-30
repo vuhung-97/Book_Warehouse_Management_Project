@@ -1,11 +1,8 @@
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from .schemas import BookType, Publisher, Book, BookWithNames
 from .crud import (
-    BookType,
-    Publisher,
-    Book,
-    BookWithNames,
     create_book_type_db, 
     get_all_book_types_db, 
     get_book_type_by_id_db, 
