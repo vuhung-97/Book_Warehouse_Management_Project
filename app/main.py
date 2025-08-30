@@ -1,35 +1,34 @@
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from crud import (
+from .crud import (
     BookType,
     Publisher,
     Book,
     BookWithNames,
-    create_book_type_db,
-    get_all_book_types_db,
-    get_book_type_by_id_db,
-    get_book_type_by_name_db,
-    update_book_type_db,
+    create_book_type_db, 
+    get_all_book_types_db, 
+    get_book_type_by_id_db, 
+    get_book_type_by_name_db, 
+    update_book_type_db, 
     delete_book_type_db,
-    create_publisher_db,
-    get_all_publishers_db,
+    create_publisher_db, 
+    get_all_publishers_db, 
     get_publisher_by_id_db,
-    get_publisher_by_name_db,
-    update_publisher_db,
+    get_publisher_by_name_db, 
+    update_publisher_db, 
     delete_publisher_db,
-    create_book_db,
-    get_all_books_db,
-    get_all_books_with_names_db,
+    create_book_db, 
+    get_all_books_with_names_db, 
     get_book_by_id_with_names_db,
-    get_books_by_name_db,
-    get_books_by_author_db,
-    get_books_by_publisher_name_db,
-    get_books_by_type_name_db,
-    get_books_by_publisher_id_db,
-    get_books_by_type_id_db,
-    update_book_db,
-    delete_book_db
+    update_book_db, 
+    delete_book_db, 
+    get_books_by_name_db, 
+    get_books_by_author_db, 
+    get_books_by_publisher_name_db, 
+    get_books_by_type_name_db, 
+    get_books_by_publisher_id_db, 
+    get_books_by_type_id_db
 )
 
 app = FastAPI(
@@ -68,7 +67,7 @@ def get_book_type_by_id(book_type_id: int):
     except Exception:
         raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
     
-@app.get("/book_types/search", response_model=BookType, sumary="Tìm loại sách theo tên")
+@app.get("/book_types/search", response_model=BookType, summary="Tìm loại sách theo tên")
 def get_book_type_by_name(name: str):
     try:
         book_type = get_book_type_by_name_db(name)

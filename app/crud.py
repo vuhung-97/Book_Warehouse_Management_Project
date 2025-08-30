@@ -1,7 +1,7 @@
 import psycopg2
 from typing import List, Optional
 from pydantic import BaseModel, Field
-from database import create_connection
+from .database import create_connection
 
 # --- Pydantic Models ---
 class BookType(BaseModel):
