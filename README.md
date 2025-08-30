@@ -27,26 +27,32 @@ Một API RESTful đơn giản được xây dựng bằng Python để quản l
 ## 🛠️ Hướng dẫn cài đặt và chạy
 1.  **Clone dự án**:
     ```bash
-    git clone <URL_repository_của_bạn>
+    git clone https://github.com/vuhung-97/Book_Warehouse_Management_Project.git
     cd <tên_thư_mục_dự_án>
     ```
 
 2.  **Kích hoạt môi trường ảo**:
     * **Windows**: `venv\Scripts\activate`
-    * **macOS/Linux**: `source venv/bin/activate`
 
 3.  **Cài đặt các thư viện**:
     ```bash
-    pip install -r requirements.txt
+    pip install -r requirements_python.txt
     ```
 
-4.  **Chạy ứng dụng**:
-    * **Với Flask**: `python app.py`
-    * **Với FastAPI**: `uvicorn main:app --reload`
+4.  **Cài đặt cơ sở dữ liệu**:
+    ```bash
+    python app\database.py
+    ```
+
+5.  **Chạy ứng dụng**:
+    ```bash
+    uvicorn app.main:app --reload
+    ```
 
 ## 📝 Tài liệu API
-- Sau khi chạy ứng dụng FastAPI, truy cập `http://127.0.0.1:8000/docs` để xem tài liệu API tương tác. (Chỉ áp dụng với FastAPI)
+- Sau khi chạy ứng dụng FastAPI, truy cập `http://127.0.0.1:8000/docs` để xem tài liệu API tương tác. 
+- Truy cập `http://127.0.0.1:8000/redoc` để xem tài liệu api dạng redoc
 
 ---
 
-Bạn có thể chỉnh sửa `README.md` để phù hợp với dự án của mình, ví dụ như thay đổi framework hoặc thêm các bước cụ thể hơn. Chúc bạn thành công với dự án!
+Chúc bạn thành công với dự án!
