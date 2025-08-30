@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.env
+
+# VS Code
+.vscode/
+
+# Thư mục chứa dữ liệu hệ thống
+data/
+*.db
