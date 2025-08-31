@@ -2,7 +2,7 @@ import psycopg2
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from .database import create_connection
-from schemas import BookType, Publisher, Book, BookWithNames
+from .schemas import BookType, Publisher, Book, BookWithNames
 
 # ----------------------------------------
 #               BOOK TYPES CRUD

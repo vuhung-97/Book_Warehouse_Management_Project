@@ -61,6 +61,8 @@ def get_book_type_by_id(book_type_id: int):
         if not book_type:
             raise HTTPException(status_code=404, detail="Không tìm thấy loại sách")
         return book_type
+    except HTTPException as e:
+        raise e
     except Exception:
         raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
     
@@ -71,6 +73,8 @@ def get_book_type_by_name(name: str):
         if not book_type:
             raise HTTPException(status_code=404, detail="Không tìm thấy loại sách")
         return book_type
+    except HTTPException as e:
+        raise e
     except Exception:
         raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
 
@@ -81,6 +85,8 @@ def update_book_type(book_type_id: int, book_type: BookType):
         if not updated_book_type:
             raise HTTPException(status_code=404, detail="Không tìm thấy loại sách")
         return updated_book_type
+    except HTTPException as e:
+        raise e
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception:
@@ -93,6 +99,8 @@ def delete_book_type(book_type_id: int):
         if not deleted:
             raise HTTPException(status_code=404, detail="Không tìm thấy loại sách")
         return {"message": "Loại sách đã được xóa thành công"}
+    except HTTPException as e:
+        raise e
     except Exception:
         raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
 
@@ -123,6 +131,8 @@ def get_publisher_by_id(publisher_id: int):
         if not publisher:
             raise HTTPException(status_code=404, detail="Không tìm thấy nhà xuất bản")
         return publisher
+    except HTTPException as e:
+        raise e
     except Exception:
         raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
 
@@ -133,6 +143,8 @@ def get_publisher_by_name(name: str):
         if not publisher:
             raise HTTPException(status_code=404, detail="Không tìm thấy nhà xuất bản")
         return publisher
+    except HTTPException as e:
+        raise e
     except Exception:
         raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
 
@@ -143,6 +155,8 @@ def update_publisher(publisher_id: int, publisher: Publisher):
         if not updated_publisher:
             raise HTTPException(status_code=404, detail="Không tìm thấy nhà xuất bản")
         return updated_publisher
+    except HTTPException as e:
+        raise e
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception:
@@ -155,6 +169,8 @@ def delete_publisher(publisher_id: int):
         if not deleted:
             raise HTTPException(status_code=404, detail="Không tìm thấy nhà xuất bản")
         return {"message": "Nhà xuất bản đã được xóa thành công"}
+    except HTTPException as e:
+        raise e
     except Exception:
         raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
 
@@ -185,6 +201,8 @@ def get_book_by_id(book_id: int):
         if not book:
             raise HTTPException(status_code=404, detail="Không tìm thấy sách")
         return book
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi server nội bộ: {e}")
 
@@ -195,6 +213,8 @@ def update_book(book_id: int, updated_book: Book):
         if not book:
             raise HTTPException(status_code=404, detail="Không tìm thấy sách")
         return book
+    except HTTPException as e:
+        raise e
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception:
@@ -207,6 +227,8 @@ def delete_book(book_id: int):
         if not deleted:
             raise HTTPException(status_code=404, detail="Không tìm thấy sách")
         return {"message": "Sách đã được xóa thành công"}
+    except HTTPException as e:
+        raise e
     except Exception:
         raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
 
@@ -217,6 +239,8 @@ def get_books_by_name(book_name: str):
         if not books:
             raise HTTPException(status_code=404, detail="Không tìm thấy sách nào cho tên này")
         return books
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi server nội bộ: {e}")
 
@@ -227,6 +251,8 @@ def get_books_by_author(author: str):
         if not books:
             raise HTTPException(status_code=404, detail="Không tìm thấy sách nào cho tác giả này")
         return books
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi server nội bộ: {e}")
 
@@ -237,6 +263,8 @@ def get_books_by_publisher_name(publisher_name: str):
         if not books:
             raise HTTPException(status_code=404, detail="Không tìm thấy sách nào cho nhà xuất bản này")
         return books
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi server nội bộ: {e}")
 
@@ -247,6 +275,8 @@ def get_books_by_type_name(book_type_name: str):
         if not books:
             raise HTTPException(status_code=404, detail="Không tìm thấy sách nào cho loại sách này")
         return books
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi server nội bộ: {e}")
     
@@ -257,6 +287,8 @@ def get_books_by_publisher_id(publisher_id: int):
         if not books:
             raise HTTPException(status_code=404, detail="Không tìm thấy sách nào cho nhà xuất bản này")
         return books
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi server nội bộ: {e}")
     
@@ -267,5 +299,7 @@ def get_books_by_type_id(type_id: int):
         if not books:
             raise HTTPException(status_code=404, detail="Không tìm thấy sách nào cho loại sách này")
         return books
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi server nội bộ: {e}")
