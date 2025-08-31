@@ -46,7 +46,7 @@ Một API RESTful đơn giản được xây dựng bằng Python để quản l
 
 5.  **Chạy ứng dụng**:
     ```bash
-    uvicorn app.main:app --reload (--port 5500 nếu muốn mở port khác)
+    uvicorn app.main:api --reload (--port 5500 nếu muốn mở port khác)
     ```
 6. **Nếu bị treo cổng**:
     - Mở cmd

@@ -2,18 +2,9 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 # --- Pydantic Models ---
-class BookType(BaseModel):
-    id: Optional[int]
-    name: str
 
-class Publisher(BaseModel):
-    id: Optional[int]
-    name: str
-    address: Optional[str]
-    tax_code: Optional[str]
-
-class Book(BaseModel):
-    id: Optional[int]
+# Model sử dụng khi code
+class BookBase(BaseModel):
     name: str
     author: Optional[str]
     year: Optional[int]
@@ -23,6 +14,14 @@ class Book(BaseModel):
     description: Optional[str]
     publisher_id: Optional[int]
     book_type_id: Optional[int]
+
+class BookTypeBase(BaseModel):
+    name: str
+
+class PublisherBase(BaseModel):
+    name: str
+    address: Optional[str]
+    tax_code: Optional[str]
 
 class BookWithNames(BaseModel):
     id: int
@@ -35,3 +34,16 @@ class BookWithNames(BaseModel):
     description: Optional[str]
     publisher_name: Optional[str] = Field(None, description="Tên nhà xuất bản")
     book_type_name: Optional[str] = Field(None, description="Tên loại sách")
+
+# Model sử dụng khi lấy dữ liệu từ DB
+class BookType(BookTypeBase):
+    id: Optional[int]
+
+class Publisher(PublisherBase):
+    id: Optional[int]
+
+class Book(BookBase):
+    id: Optional[int]
+
+class Config:
+    from_attributes = True

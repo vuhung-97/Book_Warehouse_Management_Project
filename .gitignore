@@ -11,3 +11,6 @@ venv/
 # Thư mục chứa dữ liệu hệ thống
 data/
 *.db
+
+# Thư mục rác
+ERROR.txt

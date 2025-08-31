@@ -6,7 +6,8 @@ body {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 900px;
+    /* Tăng chiều rộng để phù hợp với các cột mới */
     margin: 0 auto;
     background-color: #fff;
     padding: 20px;
@@ -19,19 +20,50 @@ h2 {
     text-align: center;
 }
 
+#show-form-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#show-form-btn:hover {
+    background-color: #0056b3;
+}
+
 .form-section {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    background-color: #fff;
     margin-bottom: 20px;
     padding: 20px;
     border: 1px solid #ddd;
     border-radius: 5px;
 }
 
+.form-section.hidden {
+    display: none;
+}
+
 #book-form input,
+#book-form textarea,
+#book-form select,
 #book-form button {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
     box-sizing: border-box;
+}
+
+#book-form label {
+    display: block;
+    margin-bottom: 5px;
 }
 
 #book-form button {
@@ -41,8 +73,16 @@ h2 {
     cursor: pointer;
 }
 
+#book-form button#cancel-btn {
+    background-color: #6c757d;
+}
+
 #book-form button:hover {
     background-color: #218838;
+}
+
+#book-form button#cancel-btn:hover {
+    background-color: #5a6268;
 }
 
 .table-section {

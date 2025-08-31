@@ -12,15 +12,31 @@
     <div class="container">
         <h1>Quản lý Kho Sách</h1>
 
-        <div class="form-section">
+        <button id="show-form-btn">Thêm Sách Mới</button>
+
+        <div class="form-section hidden" id="book-form-container">
             <h2>Thêm/Cập nhật Sách</h2>
             <form id="book-form">
                 <input type="hidden" id="book-id">
+
                 <input type="text" id="book-name" placeholder="Tên sách" required>
                 <input type="text" id="book-author" placeholder="Tác giả">
                 <input type="number" id="book-year" placeholder="Năm xuất bản">
+                <input type="number" id="book-amount" placeholder="Số lượng">
+                <input type="number" id="book-price" step="0.01" placeholder="Giá">
+                <input type="text" id="book-image" placeholder="Link ảnh">
+                <textarea id="book-description" placeholder="Mô tả"></textarea>
+
+                <label for="book-publisher">Nhà xuất bản:</label>
+                <select id="book-publisher-select">
+                </select>
+
+                <label for="book-type">Loại sách:</label>
+                <select id="book-type-select">
+                </select>
+
                 <button type="submit" id="submit-btn">Thêm Sách</button>
-                <button type="button" id="cancel-btn" style="display:none;">Hủy</button>
+                <button type="button" id="cancel-btn">Hủy</button>
             </form>
         </div>
 
@@ -32,6 +48,10 @@
                         <th>Tên Sách</th>
                         <th>Tác giả</th>
                         <th>Năm</th>
+                        <th>Số lượng</th>
+                        <th>Giá</th>
+                        <th>Nhà XB</th>
+                        <th>Loại Sách</th>
                         <th>Hành động</th>
                     </tr>
                 </thead>

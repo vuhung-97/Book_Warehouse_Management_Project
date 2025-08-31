@@ -2,13 +2,13 @@ import psycopg2
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from .database import create_connection
-from .schemas import BookType, Publisher, Book, BookWithNames
+from .schemas import BookType, Publisher, Book, BookWithNames, BookBase, BookTypeBase, PublisherBase
 
 # ----------------------------------------
 #               BOOK TYPES CRUD
 # ----------------------------------------
 
-def create_book_type_db(book_type: BookType) -> BookType:
+def create_book_type_db(book_type: BookTypeBase) -> BookType:
     conn = create_connection()
     if not conn:
         raise Exception("Không thể kết nối database")
@@ -19,9 +19,9 @@ def create_book_type_db(book_type: BookType) -> BookType:
                         VALUES (%s) 
                         RETURNING id;
                         """, (book_type.name,))
-            book_type.id = cur.fetchone()[0]
+            id = cur.fetchone()[0]
             conn.commit()
-            return book_type
+            return {**book_type.model_dump(), "id": id}
     except psycopg2.IntegrityError:
         raise ValueError("Loại sách đã tồn tại.")
     finally:
@@ -84,7 +84,7 @@ def get_book_type_by_name_db(book_type_name: str) -> List[BookType]:
     finally:
         conn.close()
 
-def update_book_type_db(book_type_id: int, new_name: str) -> Optional[BookType]:
+def update_book_type_db(book_type_id: int, book_type: BookTypeBase) -> Optional[BookType]:
     conn = create_connection()
     if not conn:
         raise Exception("Không thể kết nối database")
@@ -95,11 +95,11 @@ def update_book_type_db(book_type_id: int, new_name: str) -> Optional[BookType]:
                         SET name = %s 
                         WHERE id = %s 
                         RETURNING id, name;
-                        """, (new_name, book_type_id))
+                        """, (book_type.name, book_type_id))
             row = cur.fetchone()
             if row:
                 conn.commit()
-                return BookType(id=row[0], name=row[1])
+                return {"id": row[0], "name": row[1]}
             return None
     except psycopg2.IntegrityError:
         raise ValueError("Loại sách đã tồn tại.")
@@ -127,7 +127,7 @@ def delete_book_type_db(book_type_id: int) -> bool:
 #              PUBLISHERS CRUD
 # ----------------------------------------
 
-def create_publisher_db(publisher: Publisher) -> Publisher:
+def create_publisher_db(publisher: PublisherBase) -> Publisher:
     conn = create_connection()
     if not conn:
         raise Exception("Không thể kết nối database")
@@ -142,11 +142,11 @@ def create_publisher_db(publisher: Publisher) -> Publisher:
                             publisher.address,
                             publisher.tax_code)
                         )
-            publisher.id = cur.fetchone()[0]
+            id = cur.fetchone()[0]
             conn.commit()
-            return publisher
-    except psycopg2.IntegrityError:
-        raise ValueError("Nhà xuất bản đã tồn tại.")
+            return {**publisher.model_dump(), "id": id}
+    except psycopg2.IntegrityError as e:
+        raise ValueError(e.pgerror)
     finally:
         conn.close()
 
@@ -216,7 +216,7 @@ def get_publisher_by_name_db(publisher_name: str) -> List[Publisher]:
     finally:
         conn.close()
 
-def update_publisher_db(publisher_id: int, new_publisher: Publisher) -> Optional[Publisher]:
+def update_publisher_db(publisher_id: int, new_publisher: PublisherBase) -> Optional[Publisher]:
     conn = create_connection()
     if not conn:
         raise Exception("Không thể kết nối database")
@@ -235,7 +235,7 @@ def update_publisher_db(publisher_id: int, new_publisher: Publisher) -> Optional
                         )
             if cur.fetchone():
                 conn.commit()
-                return new_publisher
+                return {**new_publisher.model_dump(), "id": publisher_id}
             return None
     except psycopg2.IntegrityError:
         raise ValueError("Nhà xuất bản đã tồn tại.")
@@ -263,7 +263,7 @@ def delete_publisher_db(publisher_id: int) -> bool:
 #                 BOOKS CRUD
 # ----------------------------------------
 
-def create_book_db(book: Book) -> Book:
+def create_book_db(book: BookBase) -> Book:
     conn = create_connection()
     if not conn:
         raise Exception("Không thể kết nối database")
@@ -284,11 +284,11 @@ def create_book_db(book: Book) -> Book:
                             book.publisher_id,
                             book.book_type_id)
                         )
-            book.id = cur.fetchone()[0]
+            id = cur.fetchone()[0]
             conn.commit()
-            return book
-    except psycopg2.IntegrityError:
-        raise ValueError("Dữ liệu sách không hợp lệ. Vui lòng kiểm tra publisher_id và book_type_id.")
+            return {**book.model_dump(), "id": id}
+    except psycopg2.IntegrityError as e:
+        raise ValueError("Dữ liệu sách không hợp lệ.")
     finally:
         conn.close()
 
@@ -594,7 +594,7 @@ def get_books_by_type_id_db(type_id: int) -> List[BookWithNames]:
     finally:
         conn.close()
 
-def update_book_db(book_id: int, updated_book: Book) -> Optional[Book]:
+def update_book_db(book_id: int, updated_book: BookBase) -> Optional[Book]:
     conn = create_connection()
     if not conn:
         raise Exception("Không thể kết nối database")
@@ -618,7 +618,7 @@ def update_book_db(book_id: int, updated_book: Book) -> Optional[Book]:
             if not cur.fetchone():
                 return None
             conn.commit()
-            return updated_book
+            return {**updated_book.model_dump(), "id": book_id}
     except psycopg2.IntegrityError:
         raise ValueError("Dữ liệu cập nhật không hợp lệ.")
     finally:
