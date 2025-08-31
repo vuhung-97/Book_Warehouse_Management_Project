@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Kho Sách</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Quản lý Kho Sách</h1>
+
+        <div class="form-section">
+            <h2>Thêm/Cập nhật Sách</h2>
+            <form id="book-form">
+                <input type="hidden" id="book-id">
+                <input type="text" id="book-name" placeholder="Tên sách" required>
+                <input type="text" id="book-author" placeholder="Tác giả">
+                <input type="number" id="book-year" placeholder="Năm xuất bản">
+                <button type="submit" id="submit-btn">Thêm Sách</button>
+                <button type="button" id="cancel-btn" style="display:none;">Hủy</button>
+            </form>
+        </div>
+
+        <div class="table-section">
+            <h2>Danh sách Sách</h2>
+            <table id="book-table">
+                <thead>
+                    <tr>
+                        <th>Tên Sách</th>
+                        <th>Tác giả</th>
+                        <th>Năm</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
