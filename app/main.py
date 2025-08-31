@@ -2,7 +2,10 @@ from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 from .database import get_db, Base, engine
-from . import crud, schemas, models
+from . import crud, schemas
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+import os
 
 # Create database tables if they don't exist
 Base.metadata.create_all(bind=engine)
@@ -12,6 +15,20 @@ api = FastAPI(
     description="Một API đơn giản để quản lý thông tin sách với PostgreSQL.",
     version="1.0.0"
 )
+
+# Cấu hình CORS để cho phép các yêu cầu từ frontend
+load_dotenv()
+
+origins = os.getenv("FRONTEND_URLS", "").split(",")
+
+api.add_middleware(
+    CORSMiddleware,
+    allow_origins=[origin.strip() for origin in origins if origin.strip()],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # ----------------------------------------
 #              BOOK TYPES ENDPOINTS
@@ -130,6 +147,13 @@ def get_all_books(db: Session = Depends(get_db)):
             book_type_name=book_type_name
         ))
     return books_with_names
+
+@api.get("/books/simple{book_id}", response_model=schemas.Book, summary="Tìm sách theo ID với tên liên kết")
+def get_book_by_id(book_id: int, db:Session = Depends(get_db)):
+    book = crud.get_book_by_id_db(book_id, db)
+    if not book:
+        raise HTTPException(status_code=404, detail="Không tìm thấy sách")
+    return book
 
 @api.get("/books/{book_id}", response_model=schemas.BookWithNames, summary="Tìm sách theo ID với tên liên kết")
 def get_book_by_id(book_id: int, db: Session = Depends(get_db)):

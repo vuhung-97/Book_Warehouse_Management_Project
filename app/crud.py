@@ -89,6 +89,9 @@ def create_book_db(book: schemas.BookBase, db: Session) -> models.Book:
 def get_all_books_with_names_db(db: Session) -> List[models.Book]:
     return db.query(models.Book).all()
 
+def get_book_by_id_db(book_id: int, db:Session) -> Optional[models.Book]:
+    return db.query(models.Book).filter(models.Book.id == book_id).first()
+
 def get_book_by_id_with_names_db(book_id: int, db: Session) -> Optional[models.Book]:
     return db.query(models.Book).filter(models.Book.id == book_id).first()
 
