@@ -1,5 +1,8 @@
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+import os
 from pydantic import BaseModel
 from .schemas import BookType, Publisher, Book, BookWithNames
 from .crud import (
@@ -28,10 +31,27 @@ from .crud import (
     get_books_by_type_id_db
 )
 
+# Khởi tạo ứng dụng FastAPI
 app = FastAPI(
     title="API Quản lý Kho Sách",
     description="Một API đơn giản để quản lý thông tin sách với PostgreSQL.",
     version="1.0.0"
+)
+
+# Tải các biến môi trường từ file .env
+load_dotenv()
+
+# Cấu hình CORS
+origins = [
+    os.getenv("FRONTEND_URL") # URL của frontend
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ----------------------------------------
