@@ -1,679 +1,128 @@
-import psycopg2
+from sqlalchemy.orm import Session
 from typing import List, Optional
-from pydantic import BaseModel, Field
-from .database import create_connection
-from .schemas import BookType, Publisher, Book, BookWithNames, BookBase, BookTypeBase, PublisherBase
+from . import models, schemas
 
 # ----------------------------------------
 #               BOOK TYPES CRUD
 # ----------------------------------------
 
-def create_book_type_db(book_type: BookTypeBase) -> BookType:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        INSERT INTO book_types (name) 
-                        VALUES (%s) 
-                        RETURNING id;
-                        """, (book_type.name,))
-            id = cur.fetchone()[0]
-            conn.commit()
-            return {**book_type.model_dump(), "id": id}
-    except psycopg2.IntegrityError as e:
-        raise ValueError(e.pgerror)
-    finally:
-        conn.close()
+def create_book_type_db(db: Session, book_type: schemas.BookTypeBase) -> models.BookType:
+    db_book_type = models.BookType(name=book_type.name)
+    db.add(db_book_type)
+    db.commit()
+    db.refresh(db_book_type)
+    return db_book_type
 
-def get_all_book_types_db() -> List[BookType]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        SELECT id, name 
-                        FROM book_types;
-                        """)
-            rows = cur.fetchall()
-            book_types = [
-                BookType(
-                    id=row[0], 
-                    name=row[1]
-                ) for row in rows
-            ]
-            return book_types
-    finally:
-        conn.close()
+def get_all_book_types_db(db: Session) -> List[models.BookType]:
+    return db.query(models.BookType).all()
 
-def get_book_type_by_id_db(book_type_id: int) -> Optional[BookType]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        SELECT id, name 
-                        FROM book_types 
-                        WHERE id = %s;
-                        """, (book_type_id,))
-            row = cur.fetchone()
-            if row:
-                return BookType(id=row[0], name=row[1])
-            return None
-    finally:
-        conn.close()
+def get_book_type_by_id_db(book_type_id: int, db: Session) -> Optional[models.BookType]:
+    return db.query(models.BookType).filter(models.BookType.id == book_type_id).first()
 
-def get_book_type_by_name_db(book_type_name: str) -> List[BookType]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            search_query = f"%{book_type_name}%"
-            cur.execute("""
-                        SELECT id, name 
-                        FROM book_types 
-                        WHERE name ILIKE %s;
-                        """, (search_query,))
-            rows = cur.fetchall()
+def get_book_type_by_name_db(book_type_name: str, db: Session) -> List[models.BookType]:
+    return db.query(models.BookType).filter(models.BookType.name.ilike(f"%{book_type_name}%")).all()
 
-            book_types = [
-                BookType(
-                    id=row[0], 
-                    name=row[1]
-                ) for row in rows
-            ]
-            return book_types
-    finally:
-        conn.close()
+def update_book_type_db(book_type_id: int, book_type: schemas.BookTypeBase, db: Session) -> Optional[models.BookType]:
+    db_book_type = db.query(models.BookType).filter(models.BookType.id == book_type_id).first()
+    if db_book_type:
+        db_book_type.name = book_type.name
+        db.commit()
+        db.refresh(db_book_type)
+    return db_book_type
 
-def update_book_type_db(book_type_id: int, book_type: BookTypeBase) -> Optional[BookType]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        UPDATE book_types 
-                        SET name = %s 
-                        WHERE id = %s 
-                        RETURNING id, name;
-                        """, (book_type.name, book_type_id))
-            row = cur.fetchone()
-            if row:
-                conn.commit()
-                return {"id": row[0], "name": row[1]}
-            return None
-    except psycopg2.IntegrityError:
-        raise ValueError("Loại sách đã tồn tại.")
-    finally:
-        conn.close()
-
-def delete_book_type_db(book_type_id: int) -> bool:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        DELETE FROM book_types 
-                        WHERE id = %s 
-                        RETURNING id;
-                        """, (book_type_id,))
-            deleted = cur.fetchone() is not None
-            conn.commit()
-            return deleted
-    finally:
-        conn.close()
+def delete_book_type_db(book_type_id: int, db: Session) -> bool:
+    db_book_type = db.query(models.BookType).filter(models.BookType.id == book_type_id).first()
+    if db_book_type:
+        db.delete(db_book_type)
+        db.commit()
+        return True
+    return False
 
 # ----------------------------------------
 #              PUBLISHERS CRUD
 # ----------------------------------------
 
-def create_publisher_db(publisher: PublisherBase) -> Publisher:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        INSERT INTO publishers (name, address, tax_code) 
-                        VALUES (%s, %s, %s) 
-                        RETURNING id;
-                        """, (
-                            publisher.name,
-                            publisher.address,
-                            publisher.tax_code)
-                        )
-            id = cur.fetchone()[0]
-            conn.commit()
-            return {**publisher.model_dump(), "id": id}
-    except psycopg2.IntegrityError as e:
-        raise ValueError(e.pgerror)
-    finally:
-        conn.close()
+def create_publisher_db(publisher: schemas.PublisherBase, db: Session) -> models.Publisher:
+    db_publisher = models.Publisher(name=publisher.name, address=publisher.address, tax_code=publisher.tax_code)
+    db.add(db_publisher)
+    db.commit()
+    db.refresh(db_publisher)
+    return db_publisher
 
-def get_all_publishers_db() -> List[Publisher]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        SELECT id, name, address, tax_code 
-                        FROM publishers;
-                        """)
-            rows = cur.fetchall()
-            publishers = [
-                Publisher(
-                    id=row[0], 
-                    name=row[1], 
-                    address=row[2], 
-                    tax_code=row[3]
-                ) for row in rows
-            ]
-            return publishers
-    finally:
-        conn.close()
+def get_all_publishers_db(db: Session) -> List[models.Publisher]:
+    return db.query(models.Publisher).all()
 
-def get_publisher_by_id_db(publisher_id: int) -> Optional[Publisher]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        SELECT id, name, address, tax_code 
-                        FROM publishers 
-                        WHERE id = %s;
-                        """, (publisher_id,))
-            row = cur.fetchone()
-            if row:
-                return Publisher(id=row[0], name=row[1], address=row[2], tax_code=row[3])
-            return None
-    finally:
-        conn.close()
+def get_publisher_by_id_db(publisher_id: int, db: Session) -> Optional[models.Publisher]:
+    return db.query(models.Publisher).filter(models.Publisher.id == publisher_id).first()
 
-def get_publisher_by_name_db(publisher_name: str) -> List[Publisher]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            search_query = f"%{publisher_name}%"
-            cur.execute("""
-                        SELECT id, name, address, tax_code 
-                        FROM publishers 
-                        WHERE name ILIKE %s;
-                        """, (search_query,))
-            rows = cur.fetchall()
-            publishers = [
-                Publisher(
-                    id=row[0], 
-                    name=row[1], 
-                    address=row[2], 
-                    tax_code=row[3]
-                ) for row in rows
-            ]
-            return publishers
-    finally:
-        conn.close()
+def get_publisher_by_name_db(publisher_name: str, db: Session) -> List[models.Publisher]:
+    return db.query(models.Publisher).filter(models.Publisher.name.ilike(f"%{publisher_name}%")).all()
 
-def update_publisher_db(publisher_id: int, new_publisher: PublisherBase) -> Optional[Publisher]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        UPDATE publishers 
-                        SET name = %s, address = %s, tax_code = %s 
-                        WHERE id = %s 
-                        RETURNING id;
-                        """, (
-                            new_publisher.name,
-                            new_publisher.address,
-                            new_publisher.tax_code,
-                            publisher_id)
-                        )
-            if cur.fetchone():
-                conn.commit()
-                return {**new_publisher.model_dump(), "id": publisher_id}
-            return None
-    except psycopg2.IntegrityError as e:
-        raise ValueError(e.pgerror)
-    finally:
-        conn.close()
+def update_publisher_db(publisher_id: int, new_publisher: schemas.Publisher, db: Session) -> Optional[models.Publisher]:
+    db_publisher = db.query(models.Publisher).filter(models.Publisher.id == publisher_id).first()
+    if db_publisher:
+        for key, value in new_publisher.model_dump(exclude_unset=True).items():
+            setattr(db_publisher, key, value)
+        db.commit()
+        db.refresh(db_publisher)
+    return db_publisher
 
-def delete_publisher_db(publisher_id: int) -> bool:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        DELETE FROM publishers 
-                        WHERE id = %s 
-                        RETURNING id;
-                        """, (publisher_id,))
-            deleted = cur.fetchone() is not None
-            conn.commit()
-            return deleted
-    finally:
-        conn.close()
+def delete_publisher_db(publisher_id: int, db: Session) -> bool:
+    db_publisher = db.query(models.Publisher).filter(models.Publisher.id == publisher_id).first()
+    if db_publisher:
+        db.delete(db_publisher)
+        db.commit()
+        return True
+    return False
 
 # ----------------------------------------
 #                 BOOKS CRUD
 # ----------------------------------------
 
-def create_book_db(book: BookBase) -> Book:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        INSERT INTO books (name, author, year, amount, price, image, description, publisher_id, book_type_id)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) 
-                        RETURNING id;
-                        """, (
-                            book.name,
-                            book.author,
-                            book.year,
-                            book.amount,
-                            book.price,
-                            book.image,
-                            book.description,
-                            book.publisher_id,
-                            book.book_type_id)
-                        )
-            id = cur.fetchone()[0]
-            conn.commit()
-            return {**book.model_dump(), "id": id}
-    except psycopg2.IntegrityError as e:
-        raise ValueError(e.pgerror)
-    finally:
-        conn.close()
+def create_book_db(book: schemas.BookBase, db: Session) -> models.Book:
+    db_book = models.Book(**book.model_dump())
+    db.add(db_book)
+    db.commit()
+    db.refresh(db_book)
+    return db_book
 
-def get_all_books_db() -> List[Book]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        SELECT id, name, author, year, amount, price, image, description, publisher_id, book_type_id 
-                        FROM books;
-                        """)
-            books = [
-                Book(
-                    id=row[0],
-                    name=row[1],
-                    author=row[2],
-                    year=row[3],
-                    amount=row[4],
-                    price=float(row[5]),
-                    image=row[6],
-                    description=row[7],
-                    publisher_id=row[8],
-                    book_type_id=row[9]
-                ) for row in cur.fetchall()
-            ]
-            return books
-    finally:
-        conn.close()
+def get_all_books_with_names_db(db: Session) -> List[models.Book]:
+    return db.query(models.Book).all()
 
-def get_all_books_with_names_db() -> List[BookWithNames]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        SELECT
-                            b.id, b.name, b.author, b.year, b.amount, b.price, b.image, b.description,
-                            p.name AS publisher_name, bt.name AS book_type_name
-                        FROM books AS b
-                        LEFT JOIN publishers AS p ON b.publisher_id = p.id
-                        LEFT JOIN book_types AS bt ON b.book_type_id = bt.id;
-                        """)
-            rows = cur.fetchall()
-            books = [
-                BookWithNames(
-                    id=row[0],
-                    name=row[1],
-                    author=row[2],
-                    year=row[3],
-                    amount=row[4],
-                    price=float(row[5]) if row[5] is not None else None,
-                    image=row[6],
-                    description=row[7],
-                    publisher_name=row[8],
-                    book_type_name=row[9]
-                ) for row in rows
-            ]
-            return books
-    finally:
-        conn.close()
+def get_book_by_id_with_names_db(book_id: int, db: Session) -> Optional[models.Book]:
+    return db.query(models.Book).filter(models.Book.id == book_id).first()
 
-def get_book_by_id_db(book_id: int) -> Optional[Book]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        SELECT
-                            b.id, b.name, b.author, b.year, b.amount, b.price, b.image, b.description,
-                            b.publisher_id, b.book_type_id
-                        FROM books AS b
-                        WHERE b.id = %s;
-                        """, (book_id,))
-            row = cur.fetchone()
-            if not row:
-                return None
-            return Book(
-                id=row[0],
-                name=row[1],
-                author=row[2],
-                year=row[3],
-                amount=row[4],
-                price=float(row[5]) if row[5] is not None else None,
-                image=row[6],
-                description=row[7],
-                publisher_id=row[8],
-                book_type_id=row[9]
-            )
-    finally:
-        conn.close()
+def get_books_by_name_db(book_name: str, db: Session) -> List[models.Book]:
+    return db.query(models.Book).filter(models.Book.name.ilike(f"%{book_name}%")).all()
 
-def get_book_by_id_with_names_db(book_id: int) -> Optional[BookWithNames]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        SELECT
-                            b.id, b.name, b.author, b.year, b.amount, b.price, b.image, b.description,
-                            p.name AS publisher_name, bt.name AS book_type_name
-                        FROM books AS b
-                        LEFT JOIN publishers AS p ON b.publisher_id = p.id
-                        LEFT JOIN book_types AS bt ON b.book_type_id = bt.id
-                        WHERE b.id = %s;
-                        """, (book_id,))
-            row = cur.fetchone()
-            if not row:
-                return None
-            return BookWithNames(
-                id=row[0],
-                name=row[1],
-                author=row[2],
-                year=row[3],
-                amount=row[4],
-                price=float(row[5]) if row[5] is not None else None,
-                image=row[6],
-                description=row[7],
-                publisher_name=row[8],
-                book_type_name=row[9]
-            )
-    finally:
-        conn.close()
+def get_books_by_author_db(author: str, db: Session) -> List[models.Book]:
+    return db.query(models.Book).filter(models.Book.author.ilike(f"%{author}%")).all()
 
-def get_books_by_name_db(book_name: str) -> List[BookWithNames]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            search_query = f"%{book_name}%"
-            cur.execute("""
-                        SELECT
-                            b.id, b.name, b.author, b.year, b.amount, b.price, b.image, b.description,
-                            p.name AS publisher_name, bt.name AS book_type_name
-                        FROM books AS b
-                        LEFT JOIN publishers AS p ON b.publisher_id = p.id
-                        LEFT JOIN book_types AS bt ON b.book_type_id = bt.id
-                        WHERE b.name ILIKE %s;
-                        """, (search_query,))
-            rows = cur.fetchall()
-            books = [
-                BookWithNames(
-                    id=row[0],
-                    name=row[1],
-                    author=row[2],
-                    year=row[3],
-                    amount=row[4],
-                    price=float(row[5]) if row[5] is not None else None,
-                    image=row[6],
-                    description=row[7],
-                    publisher_name=row[8],
-                    book_type_name=row[9]
-                ) for row in rows
-            ]
-            return books
-    finally:
-        conn.close()
+def get_books_by_publisher_name_db(publisher_name: str, db: Session) -> List[models.Book]:
+    return db.query(models.Book).join(models.Publisher).filter(models.Publisher.name.ilike(f"%{publisher_name}%")).all()
 
-def get_books_by_author_db(author: str) -> List[BookWithNames]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            search_query = f"%{author}%"
-            cur.execute("""
-                        SELECT
-                            b.id, b.name, b.author, b.year, b.amount, b.price, b.image, b.description,
-                            p.name AS publisher_name, bt.name AS book_type_name
-                        FROM books AS b
-                        LEFT JOIN publishers AS p ON b.publisher_id = p.id
-                        LEFT JOIN book_types AS bt ON b.book_type_id = bt.id
-                        WHERE b.author ILIKE %s;
-                        """, (search_query,))
-            rows = cur.fetchall()
-            books = [
-                BookWithNames(
-                    id=row[0],
-                    name=row[1],
-                    author=row[2],
-                    year=row[3],
-                    amount=row[4],
-                    price=float(row[5]) if row[5] is not None else None,
-                    image=row[6],
-                    description=row[7],
-                    publisher_name=row[8],
-                    book_type_name=row[9]
-                ) for row in rows
-            ]
-            return books
-    finally:
-        conn.close()
+def get_books_by_type_name_db(type_name: str, db: Session) -> List[models.Book]:
+    return db.query(models.Book).join(models.BookType).filter(models.BookType.name.ilike(f"%{type_name}%")).all()
 
-def get_books_by_publisher_name_db(publisher_name: str) -> List[BookWithNames]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            search_query = f"%{publisher_name}%"
-            cur.execute("""
-                        SELECT
-                            b.id, b.name, b.author, b.year, b.amount, b.price, b.image, b.description,
-                            p.name AS publisher_name, bt.name AS book_type_name
-                        FROM books AS b
-                        LEFT JOIN publishers AS p ON b.publisher_id = p.id
-                        LEFT JOIN book_types AS bt ON b.book_type_id = bt.id
-                        WHERE p.name ILIKE %s;
-                        """, (search_query,))
-            rows = cur.fetchall()
-            books = [
-                BookWithNames(
-                    id=row[0],
-                    name=row[1],
-                    author=row[2],
-                    year=row[3],
-                    amount=row[4],
-                    price=float(row[5]) if row[5] is not None else None,
-                    image=row[6],
-                    description=row[7],
-                    publisher_name=row[8],
-                    book_type_name=row[9]
-                ) for row in rows
-            ]
-            return books
-    finally:
-        conn.close()
+def get_books_by_publisher_id_db(publisher_id: int, db: Session) -> List[models.Book]:
+    return db.query(models.Book).filter(models.Book.publisher_id == publisher_id).all()
 
-def get_books_by_type_name_db(type_name: str) -> List[BookWithNames]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            search_query = f"%{type_name}%"
-            cur.execute("""
-                        SELECT
-                            b.id, b.name, b.author, b.year, b.amount, b.price, b.image, b.description,
-                            p.name AS publisher_name, bt.name AS book_type_name
-                        FROM books AS b
-                        LEFT JOIN publishers AS p ON b.publisher_id = p.id
-                        LEFT JOIN book_types AS bt ON b.book_type_id = bt.id
-                        WHERE bt.name ILIKE %s;
-                        """, (search_query,))
-            rows = cur.fetchall()
-            books = [
-                BookWithNames(
-                    id=row[0],
-                    name=row[1],
-                    author=row[2],
-                    year=row[3],
-                    amount=row[4],
-                    price=float(row[5]) if row[5] is not None else None,
-                    image=row[6],
-                    description=row[7],
-                    publisher_name=row[8],
-                    book_type_name=row[9]
-                ) for row in rows
-            ]
-            return books
-    finally:
-        conn.close()
+def get_books_by_type_id_db(type_id: int, db: Session) -> List[models.Book]:
+    return db.query(models.Book).filter(models.Book.book_type_id == type_id).all()
 
-def get_books_by_publisher_id_db(publisher_id: int) -> List[BookWithNames]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        SELECT 
-                            b.id, b.name, b.author, b.year, b.amount, b.price, b.image, b.description,
-                            p.name AS publisher_name, bt.name AS book_type_name
-                        FROM books AS b
-                        LEFT JOIN publishers AS p ON b.publisher_id = p.id
-                        LEFT JOIN book_types AS bt ON b.book_type_id = bt.id
-                        WHERE b.publisher_id = %s;
-                        """, (publisher_id,))
-            rows = cur.fetchall()
-            books = [
-                BookWithNames(
-                    id=row[0], 
-                    name=row[1], 
-                    author=row[2], 
-                    year=row[3], 
-                    amount=row[4], 
-                    price=float(row[5]) if row[5] is not None else None,
-                    image=row[6], 
-                    description=row[7], 
-                    publisher_name=row[8], 
-                    book_type_name=row[9]
-                ) for row in rows
-            ]
-            return books
-    finally:
-        conn.close()
+def update_book_db(book_id: int, updated_book: schemas.BookBase, db: Session) -> Optional[models.Book]:
+    db_book = db.query(models.Book).filter(models.Book.id == book_id).first()
+    if db_book:
+        for key, value in updated_book.model_dump(exclude_unset=True).items():
+            setattr(db_book, key, value)
+        db.commit()
+        db.refresh(db_book)
+    return db_book
 
-def get_books_by_type_id_db(type_id: int) -> List[BookWithNames]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        SELECT 
-                            b.id, b.name, b.author, b.year, b.amount, b.price, b.image, b.description,
-                            p.name AS publisher_name, bt.name AS book_type_name
-                        FROM books AS b
-                        LEFT JOIN publishers AS p ON b.publisher_id = p.id
-                        LEFT JOIN book_types AS bt ON b.book_type_id = bt.id
-                        WHERE b.book_type_id = %s;
-                        """, (type_id,))
-            rows = cur.fetchall()
-            books = [
-                BookWithNames(
-                    id=row[0], 
-                    name=row[1], 
-                    author=row[2], 
-                    year=row[3], 
-                    amount=row[4], 
-                    price=float(row[5]) if row[5] is not None else None,
-                    image=row[6], 
-                    description=row[7], 
-                    publisher_name=row[8], 
-                    book_type_name=row[9]
-                ) for row in rows
-            ]
-            return books
-    finally:
-        conn.close()
-
-def update_book_db(book_id: int, updated_book: BookBase) -> Optional[Book]:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        UPDATE books SET
-                        name = %s, author = %s, year = %s, amount = %s, price = %s, image = %s, description = %s, publisher_id = %s, book_type_id = %s
-                        WHERE id = %s RETURNING id;
-                        """, (
-                            updated_book.name, 
-                            updated_book.author, 
-                            updated_book.year, 
-                            updated_book.amount, 
-                            updated_book.price, 
-                            updated_book.image, 
-                            updated_book.description, 
-                            updated_book.publisher_id, 
-                            updated_book.book_type_id, 
-                            book_id))
-            if not cur.fetchone():
-                return None
-            conn.commit()
-            return {**updated_book.model_dump(), "id": book_id}
-    except psycopg2.IntegrityError as e:
-        raise ValueError(e.pgerror)
-    finally:
-        conn.close()
-
-def delete_book_db(book_id: int) -> bool:
-    conn = create_connection()
-    if not conn:
-        raise Exception("Không thể kết nối database")
-    try:
-        with conn.cursor() as cur:
-            cur.execute("""
-                        DELETE FROM books 
-                        WHERE id = %s 
-                        RETURNING id;
-                        """, (book_id,))
-            deleted = cur.fetchone() is not None
-            conn.commit()
-            return deleted
-    finally:
-        conn.close()
+def delete_book_db(book_id: int, db: Session) -> bool:
+    db_book = db.query(models.Book).filter(models.Book.id == book_id).first()
+    if db_book:
+        db.delete(db_book)
+        db.commit()
+        return True
+    return False

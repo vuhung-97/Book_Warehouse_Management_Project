@@ -1,10 +1,23 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
-# --- Pydantic Models ---
+# Pydantic models for request bodies and response models
 
-# Model sử dụng khi code
-class BookBase(BaseModel):
+class BookTypeBase(BaseModel):
+    name: str
+
+class BookType(BookTypeBase):
+    id: Optional[int]
+
+class PublisherBase(BaseModel):
+    name: str
+    address: Optional[str]
+    tax_code: Optional[str]
+
+class Publisher(PublisherBase):
+    id: Optional[int]
+
+class BookBase(BaseModel):    
     name: str
     author: Optional[str]
     year: Optional[int]
@@ -15,13 +28,8 @@ class BookBase(BaseModel):
     publisher_id: Optional[int]
     book_type_id: Optional[int]
 
-class BookTypeBase(BaseModel):
-    name: str
-
-class PublisherBase(BaseModel):
-    name: str
-    address: Optional[str]
-    tax_code: Optional[str]
+class Book(BookBase):
+    id: Optional[int]
 
 class BookWithNames(BaseModel):
     id: int
@@ -35,15 +43,5 @@ class BookWithNames(BaseModel):
     publisher_name: Optional[str] = Field(None, description="Tên nhà xuất bản")
     book_type_name: Optional[str] = Field(None, description="Tên loại sách")
 
-# Model sử dụng khi lấy dữ liệu từ DB
-class BookType(BookTypeBase):
-    id: Optional[int]
-
-class Publisher(PublisherBase):
-    id: Optional[int]
-
-class Book(BookBase):
-    id: Optional[int]
-
-class Config:
-    from_attributes = True
+    class Config:
+        orm_mode = True # This tells Pydantic to read data from ORM objects
