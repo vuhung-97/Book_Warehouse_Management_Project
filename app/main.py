@@ -40,16 +40,16 @@ def create_book_type(book_type: BookTypeBase):
         return crud.create_book_type_db(book_type)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception:
-        raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api.get("/book_types", response_model=List[BookType], summary="Lấy tất cả loại sách")
 def get_all_book_types():
     try:
         return crud.get_all_book_types_db()
-    except Exception:
-        raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
-        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api.get("/book_types/{book_type_id}", response_model=BookType, summary="Tìm loại sách theo ID")
 def get_book_type_by_id(book_type_id: int):
     try:
@@ -59,25 +59,25 @@ def get_book_type_by_id(book_type_id: int):
         return book_type
     except HTTPException as e:
         raise e
-    except Exception:
-        raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
-    
-@api.get("/book_types/search", response_model=BookType, summary="Tìm loại sách theo tên")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+            
+@api.get("/book_types/search/book_type_name", response_model=List[BookType], summary="Tìm loại sách theo tên")
 def get_book_type_by_name(name: str):
     try:
-        book_type = crud.get_book_type_by_name_db(name)
-        if not book_type:
+        book_types = crud.get_book_type_by_name_db(name)
+        if not book_types:
             raise HTTPException(status_code=404, detail="Không tìm thấy loại sách")
-        return book_type
+        return book_types
     except HTTPException as e:
         raise e
-    except Exception:
-        raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api.put("/book_types/{book_type_id}", response_model=BookType, summary="Cập nhật loại sách")
 def update_book_type(book_type_id: int, book_type: BookTypeBase):
     try:
-        updated_book_type = crud.update_book_type_db(book_type_id, book_type.name)
+        updated_book_type = crud.update_book_type_db(book_type_id, book_type)
         if not updated_book_type:
             raise HTTPException(status_code=404, detail="Không tìm thấy loại sách")
         return updated_book_type
@@ -85,8 +85,8 @@ def update_book_type(book_type_id: int, book_type: BookTypeBase):
         raise e
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception:
-        raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api.delete("/book_types/{book_type_id}", summary="Xóa loại sách")
 def delete_book_type(book_type_id: int):
@@ -97,8 +97,8 @@ def delete_book_type(book_type_id: int):
         return {"message": "Loại sách đã được xóa thành công"}
     except HTTPException as e:
         raise e
-    except Exception:
-        raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # ----------------------------------------
 #              PUBLISHERS ENDPOINTS
@@ -110,15 +110,27 @@ def create_publisher(publisher: PublisherBase):
         return crud.create_publisher_db(publisher)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception:
-        raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api.get("/publishers", response_model=List[Publisher], summary="Lấy tất cả nhà xuất bản")
 def get_all_publishers():
     try:
         return crud.get_all_publishers_db()
-    except Exception:
-        raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api.get("/publishers/search/publisher_name", response_model=List[Publisher], summary="Tìm nhà xuất bản theo tên")
+def get_publisher_by_name(name: str):
+    try:
+        publishers = crud.get_publisher_by_name_db(name)
+        if not publishers:
+            raise HTTPException(status_code=404, detail="Không tìm thấy nhà xuất bản")
+        return publishers
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api.get("/publishers/{publisher_id}", response_model=Publisher, summary="Tìm nhà xuất bản theo ID")
 def get_publisher_by_id(publisher_id: int):
@@ -129,20 +141,8 @@ def get_publisher_by_id(publisher_id: int):
         return publisher
     except HTTPException as e:
         raise e
-    except Exception:
-        raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
-
-@api.get("/publishers/search", response_model=Publisher, summary="Tìm nhà xuất bản theo tên")
-def get_publisher_by_name(name: str):
-    try:
-        publisher = crud.get_publisher_by_name_db(name)
-        if not publisher:
-            raise HTTPException(status_code=404, detail="Không tìm thấy nhà xuất bản")
-        return publisher
-    except HTTPException as e:
-        raise e
-    except Exception:
-        raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api.put("/publishers/{publisher_id}", response_model=Publisher, summary="Cập nhật nhà xuất bản")
 def update_publisher(publisher_id: int, publisher: PublisherBase):
@@ -155,8 +155,8 @@ def update_publisher(publisher_id: int, publisher: PublisherBase):
         raise e
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception:
-        raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api.delete("/publishers/{publisher_id}", summary="Xóa nhà xuất bản")
 def delete_publisher(publisher_id: int):
@@ -167,8 +167,8 @@ def delete_publisher(publisher_id: int):
         return {"message": "Nhà xuất bản đã được xóa thành công"}
     except HTTPException as e:
         raise e
-    except Exception:
-        raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # ----------------------------------------
 #                 BOOKS ENDPOINTS
@@ -180,8 +180,8 @@ def create_book(book: BookBase):
         return crud.create_book_db(book)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception:
-        raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi server nội bộ: {e}")
 
 @api.get("/books", response_model=List[BookWithNames], summary="Lấy tất cả sách với tên liên kết")
 def get_all_books():
@@ -213,8 +213,8 @@ def update_book(book_id: int, updated_book: BookBase):
         raise e
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception:
-        raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi server nội bộ {e}")
 
 @api.delete("/books/{book_id}", summary="Xóa sách")
 def delete_book(book_id: int):
@@ -225,8 +225,8 @@ def delete_book(book_id: int):
         return {"message": "Sách đã được xóa thành công"}
     except HTTPException as e:
         raise e
-    except Exception:
-        raise HTTPException(status_code=500, detail="Lỗi server nội bộ")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi server nội bộ {e}")
 
 @api.get("/books/search/name", response_model=List[BookWithNames], summary="Tìm sách theo tên sách")
 def get_books_by_name(book_name: str):

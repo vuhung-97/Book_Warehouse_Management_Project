@@ -22,8 +22,8 @@ def create_book_type_db(book_type: BookTypeBase) -> BookType:
             id = cur.fetchone()[0]
             conn.commit()
             return {**book_type.model_dump(), "id": id}
-    except psycopg2.IntegrityError:
-        raise ValueError("Loại sách đã tồn tại.")
+    except psycopg2.IntegrityError as e:
+        raise ValueError(e.pgerror)
     finally:
         conn.close()
 
@@ -79,7 +79,13 @@ def get_book_type_by_name_db(book_type_name: str) -> List[BookType]:
                         WHERE name ILIKE %s;
                         """, (search_query,))
             rows = cur.fetchall()
-            book_types = [BookType(id=row[0], name=row[1]) for row in rows]
+
+            book_types = [
+                BookType(
+                    id=row[0], 
+                    name=row[1]
+                ) for row in rows
+            ]
             return book_types
     finally:
         conn.close()
@@ -237,8 +243,8 @@ def update_publisher_db(publisher_id: int, new_publisher: PublisherBase) -> Opti
                 conn.commit()
                 return {**new_publisher.model_dump(), "id": publisher_id}
             return None
-    except psycopg2.IntegrityError:
-        raise ValueError("Nhà xuất bản đã tồn tại.")
+    except psycopg2.IntegrityError as e:
+        raise ValueError(e.pgerror)
     finally:
         conn.close()
 
@@ -288,7 +294,7 @@ def create_book_db(book: BookBase) -> Book:
             conn.commit()
             return {**book.model_dump(), "id": id}
     except psycopg2.IntegrityError as e:
-        raise ValueError("Dữ liệu sách không hợp lệ.")
+        raise ValueError(e.pgerror)
     finally:
         conn.close()
 
@@ -619,8 +625,8 @@ def update_book_db(book_id: int, updated_book: BookBase) -> Optional[Book]:
                 return None
             conn.commit()
             return {**updated_book.model_dump(), "id": book_id}
-    except psycopg2.IntegrityError:
-        raise ValueError("Dữ liệu cập nhật không hợp lệ.")
+    except psycopg2.IntegrityError as e:
+        raise ValueError(e.pgerror)
     finally:
         conn.close()
 
