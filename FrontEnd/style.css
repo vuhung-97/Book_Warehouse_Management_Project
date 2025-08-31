@@ -113,8 +113,13 @@ th {
     color: white;
 }
 
-.edit-btn {
+.edit-btn,
+.delete-btn {
     background-color: #007bff;
+    width: 100%;
+    margin-bottom: 5px;
+    border-radius: 3px;
+    transition: all 0.3s ease-in-out;
 }
 
 .delete-btn {
@@ -123,8 +128,10 @@ th {
 
 .edit-btn:hover {
     background-color: #0056b3;
+    transform: translateY(-2px);
 }
 
 .delete-btn:hover {
     background-color: #c82333;
+    transform: translateY(-2px);
 }

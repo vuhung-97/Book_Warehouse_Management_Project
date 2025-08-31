@@ -359,6 +359,37 @@ def get_all_books_with_names_db() -> List[BookWithNames]:
     finally:
         conn.close()
 
+def get_book_by_id_db(book_id: int) -> Optional[Book]:
+    conn = create_connection()
+    if not conn:
+        raise Exception("Không thể kết nối database")
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                        SELECT
+                            b.id, b.name, b.author, b.year, b.amount, b.price, b.image, b.description,
+                            b.publisher_id, b.book_type_id
+                        FROM books AS b
+                        WHERE b.id = %s;
+                        """, (book_id,))
+            row = cur.fetchone()
+            if not row:
+                return None
+            return Book(
+                id=row[0],
+                name=row[1],
+                author=row[2],
+                year=row[3],
+                amount=row[4],
+                price=float(row[5]) if row[5] is not None else None,
+                image=row[6],
+                description=row[7],
+                publisher_id=row[8],
+                book_type_id=row[9]
+            )
+    finally:
+        conn.close()
+
 def get_book_by_id_with_names_db(book_id: int) -> Optional[BookWithNames]:
     conn = create_connection()
     if not conn:

@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('edit-btn')) {
             const bookId = e.target.dataset.id;
             try {
-                const response = await fetch(`${API_URL}/books/${bookId}`);
+                const response = await fetch(`${API_URL}/books/simple/${bookId}`);
                 const book = await response.json();
                 bookIdInput.value = book.id;
                 bookNameInput.value = book.name;

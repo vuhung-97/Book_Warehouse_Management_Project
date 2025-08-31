@@ -190,6 +190,18 @@ def get_all_books():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi server nội bộ: {e}")
 
+@api.get("/books/simple/{book_id}", response_model=Book, summary="Tìm sách theo ID (không có tên liên kết)")
+def get_book_by_id_simple(book_id: int):
+    try:
+        book = crud.get_book_by_id_db(book_id)
+        if not book:
+            raise HTTPException(status_code=404, detail="Không tìm thấy sách")
+        return book
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi server nội bộ: {e}")
+
 @api.get("/books/{book_id}", response_model=BookWithNames, summary="Tìm sách theo ID với tên liên kết")
 def get_book_by_id(book_id: int):
     try:
