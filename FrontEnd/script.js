@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('book-form');
     const tableBody = document.querySelector('#book-table tbody');
     const bookFormContainer = document.getElementById('book-form-container');
+    const titleForm = bookFormContainer.getElementsByTagName('h3')[0];
     const showFormBtn = document.getElementById('show-form-btn');
     const bookIdInput = document.getElementById('book-id');
     const bookNameInput = document.getElementById('book-name');
@@ -17,6 +18,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const bookTypeSelect = document.getElementById('book-type-select');
     const submitBtn = document.getElementById('submit-btn');
     const cancelBtn = document.getElementById('cancel-btn');
+    const closeBtn = document.getElementById('close-btn');
+    const leftMenu = document.querySelector('.left-menu');
+    const mainContainer = document.querySelector('.container');
+    const menuListItems = document.getElementById('menu-list').getElementsByTagName('a');
+    const notificationBox = document.getElementById('notification-box');
+
+    // Tạo hàm để hiển thị thông báo
+    const showNotification = (message) => {
+        notificationBox.textContent = message;
+
+        // Đảm bảo thông báo đã ở trạng thái ẩn trước khi hiển thị lại
+        notificationBox.classList.remove('visible');
+
+        // Thêm một độ trễ nhỏ để reset hiệu ứng, đảm bảo nó chạy lại đúng cách
+        setTimeout(() => {
+            notificationBox.classList.add('visible');
+        }, 10); // Độ trễ rất nhỏ
+
+        // Tự động ẩn thông báo sau 3 giây
+        setTimeout(() => {
+            notificationBox.classList.remove('visible');
+        }, 3000); // 3000ms = 3 giây
+    };
 
     // Hàm để tải và điền dữ liệu vào dropdown
     const fetchPublishersAndTypes = async () => {
@@ -29,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const bookTypes = await bookTypesRes.json();
 
             // Điền dữ liệu vào dropdown Nhà xuất bản
-            publisherSelect.innerHTML = '<option value="">-- Chọn Nhà xuất bản --</option>';
+            publisherSelect.innerHTML = '<option value="">-- Chọn --</option>';
             publishers.forEach(p => {
                 const option = document.createElement('option');
                 option.value = p.id;
@@ -38,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Điền dữ liệu vào dropdown Loại sách
-            bookTypeSelect.innerHTML = '<option value="">-- Chọn Loại sách --</option>';
+            bookTypeSelect.innerHTML = '<option value="">-- Chọn --</option>';
             bookTypes.forEach(t => {
                 const option = document.createElement('option');
                 option.value = t.id;
@@ -50,6 +74,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Thêm event listener cho nút đóng menu
+    closeBtn.addEventListener('click', () => {
+        leftMenu.classList.toggle('collapsed');
+        mainContainer.classList.toggle('expanded');
+        if (leftMenu.classList.contains('collapsed')) {
+            closeBtn.innerHTML = '&#9776;'; // Biểu tượng menu
+        } else {
+            closeBtn.innerHTML = '&times;'; // Biểu tượng đóng
+        }
+    });
+
     // Hàm để tải và hiển thị danh sách sách
     const fetchBooks = async () => {
         try {
@@ -59,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
             books.forEach(book => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${book.name}</td>
+                    <td>${book.name} <img src="${book.image}"></td>
                     <td>${book.author || ''}</td>
                     <td>${book.year || ''}</td>
                     <td>${book.amount || 0}</td>
@@ -103,12 +138,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(bookData)
                 });
                 if (response.ok) {
-                    alert('Cập nhật sách thành công!');
+                    showNotification('Cập nhật sách thành công!');
                     resetForm();
                     fetchBooks();
                 } else {
                     const error = await response.json();
-                    alert(`Lỗi: ${error.detail}`);
+                    showNotification(`Lỗi: ${error.detail}`);
                 }
             } catch (error) {
                 console.error('Lỗi khi cập nhật sách:', error);
@@ -123,12 +158,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(bookData)
                 });
                 if (response.ok) {
-                    alert('Thêm sách thành công!');
+                    showNotification('Thêm sách thành công!');
                     resetForm();
                     fetchBooks();
                 } else {
                     const error = await response.json();
-                    alert(`Lỗi: ${error.detail}`);
+                    showNotification(`Lỗi: ${error.detail}`);
                 }
             } catch (error) {
                 console.error('Lỗi khi thêm sách:', error);
@@ -144,11 +179,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     const response = await fetch(`${API_URL}/books/${bookId}`, { method: 'DELETE' });
                     if (response.ok) {
-                        alert('Xóa sách thành công!');
+                        showNotification('Xóa sách thành công!');
                         fetchBooks();
                     } else {
                         const error = await response.json();
-                        alert(`Lỗi: ${error.detail}`);
+                        showNotification(`Lỗi: ${error.detail}`);
                     }
                 } catch (error) {
                     console.error('Lỗi khi xóa sách:', error);
@@ -168,12 +203,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 bookAmountInput.value = book.amount;
                 bookPriceInput.value = book.price;
                 bookImageInput.value = book.image;
+                bookDescriptionInput.value = book.description || '';
                 publisherSelect.value = book.publisher_id || '';
                 bookTypeSelect.value = book.book_type_id || '';
 
                 submitBtn.textContent = 'Cập nhật Sách';
+                titleForm.textContent = 'Cập nhật Sách';
                 bookFormContainer.classList.remove('hidden');
-                showFormBtn.textContent = 'Ẩn Form Thêm Sách';
+                showFormBtn.textContent = 'Đang sửa sách ...';
             } catch (error) {
                 console.error('Lỗi khi tải thông tin sách:', error);
             }
@@ -189,13 +226,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Ẩn/hiện form khi click vào nút "Thêm Sách Mới"
     showFormBtn.addEventListener('click', () => {
+        titleForm.textContent = 'Thêm Sách Mới';
         bookFormContainer.classList.toggle('hidden');
         if (bookFormContainer.classList.contains('hidden')) {
-            showFormBtn.disabled = false;
             showFormBtn.textContent = 'Thêm Sách Mới';
             resetForm();
         } else {
-            showFormBtn.disabled = true;
             showFormBtn.textContent = 'Đang thêm sách ...';
         }
     });

@@ -9,57 +9,113 @@
 </head>
 
 <body>
-    <div class="container">
-        <h1>Quản lý Kho Sách</h1>
-
-        <button id="show-form-btn">Thêm Sách Mới</button>
-
-        <div class="form-section hidden" id="book-form-container">
-            <h2>Thêm/Cập nhật Sách</h2>
-            <form id="book-form">
-                <input type="hidden" id="book-id">
-
-                <input type="text" id="book-name" placeholder="Tên sách" required>
-                <input type="text" id="book-author" placeholder="Tác giả">
-                <input type="number" id="book-year" placeholder="Năm xuất bản">
-                <input type="number" id="book-amount" placeholder="Số lượng">
-                <input type="number" id="book-price" step="0.01" placeholder="Giá">
-                <input type="text" id="book-image" placeholder="Link ảnh">
-                <textarea id="book-description" placeholder="Mô tả"></textarea>
-
-                <label for="book-publisher">Nhà xuất bản:</label>
-                <select id="book-publisher-select">
-                </select>
-
-                <label for="book-type">Loại sách:</label>
-                <select id="book-type-select">
-                </select>
-
-                <button type="submit" id="submit-btn">Thêm Sách</button>
-                <button type="button" id="cancel-btn">Hủy</button>
-            </form>
+    <header class="header">
+        <h1>Quản lý Kho sách</h1>
+    </header>
+    <div id="notification-box" class="notification-box hidden">
+        Cập nhật thành công!
+    </div>
+    <div class="all-container">
+        <div class="left-menu">
+            <div class="head-menu">
+                <h2>Menu</h2>
+                <button id="close-btn">&times;</button>
+            </div>
+            <div class="content-menu">
+                <ul id="menu-list">
+                    <li><a href="#">1. Quản lý Sách</a></li>
+                    <li><a href="#">2. Quản lý Nhà xuất bản</a></li>
+                    <li><a href="#">3. Quản lý Thể loại sách</a></li>
+                </ul>
+            </div>
         </div>
 
-        <div class="table-section">
-            <h2>Danh sách Sách</h2>
-            <table id="book-table">
-                <thead>
-                    <tr>
-                        <th>Tên Sách</th>
-                        <th>Tác giả</th>
-                        <th>Năm</th>
-                        <th>Số lượng</th>
-                        <th>Giá</th>
-                        <th>Nhà XB</th>
-                        <th>Loại Sách</th>
-                        <th>Hành động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+        <div class="container">
+
+            <div class="table-section">
+                <div class="table-header">
+                    <h2>Danh sách Sách</h2>
+                    <button id="show-form-btn">Thêm Sách Mới</button>
+                </div>
+                <table id="book-table">
+                    <thead>
+                        <tr>
+                            <th width="32%">Tên sách</th>
+                            <th width="13%">Tác giả</th>
+                            <th width="7%">Năm XB</th>
+                            <th width="7%">Số lượng</th>
+                            <th width="10%">Đơn giá</th>
+                            <th width="10%">Nhà XB</th>
+                            <th width="10%">Loại sách</th>
+                            <th width="10%">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+
+    <div class="form-section hidden" id="book-form-container">
+        <h3>Thêm/Cập nhật Sách</h3>
+        <form id="book-form">
+            <input type="hidden" id="book-id">
+            <fieldset class="field-info">
+                <legend>Thông tin Sách</legend>
+                <div class="input-group">
+                    <input type="text" id="book-name" placeholder=" " required>
+                    <label for="book-name">Tên sách</label>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" id="book-author" placeholder=" " required>
+                    <label for="book-author">Tên tác giả</label>
+                </div>
+
+                <div class="input-group">
+                    <input type="number" id="book-year" placeholder=" " required>
+                    <label for="book-year">Năm xuất bản</label>
+                </div>
+
+                <div class="input-group">
+                    <input type="number" id="book-amount" placeholder=" " required>
+                    <label for="book-amount">Số lượng</label>
+                </div>
+
+                <div class="input-group">
+                    <input type="number" id="book-price" placeholder=" " required>
+                    <label for="book-price">Đơn giá sách</label>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" id="book-image" placeholder=" " required>
+                    <label for="book-image">URL hình ảnh</label>
+                </div>
+
+                <div class="input-group">
+                    <textarea id="book-description" placeholder=" "></textarea>
+                    <label for="book-description">Mô tả sách</label>
+                </div>
+            </fieldset>
+
+            <fieldset class="field-info">
+                <legend>Nhà xuất bản</legend>
+                <select id="book-publisher-select">
+                </select>
+            </fieldset>
+
+            <fieldset class="field-info">
+                <legend>Thể loại sách</legend>
+                <select id="book-type-select">
+                </select>
+            </fieldset>
+
+            <button type="submit" id="submit-btn">Thêm Sách</button>
+            <button type="button" id="cancel-btn">Hủy</button>
+        </form>
+    </div>
+
     <script src="script.js"></script>
 </body>
 
