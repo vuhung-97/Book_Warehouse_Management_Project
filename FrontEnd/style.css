@@ -1,3 +1,8 @@
+* {
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+}
+
 :root {
     --primary-color: #008080;
     /* Deep teal for primary actions */
@@ -29,7 +34,6 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
     background-color: var(--background-color);
     margin: 0;
     padding: 0 20px;
@@ -132,6 +136,12 @@ div.all-container {
     width: 50px;
 }
 
+.left-menu.collapsed h2,
+.left-menu.collapsed li,
+.left-menu.collapsed a {
+    opacity: 0;
+}
+
 .left-menu li,
 .left-menu a {
     white-space: nowrap;
@@ -205,7 +215,6 @@ h3 {
 #book-form select,
 #book-form button {
     width: 100%;
-    padding: 10px;
     margin-bottom: 7px;
     box-sizing: border-box;
 }
@@ -216,6 +225,7 @@ h3 {
     border-bottom: 2px solid var(--border-color);
     transition: all 0.3s ease;
     font-size: 1rem;
+    padding: 10px;
 }
 
 #book-form select:focus,
@@ -274,6 +284,17 @@ th {
 #book-table tbody tr:nth-child(odd) {
     background-color: var(--color-row);
     /* màu cho hàng lẻ */
+}
+
+#book-table {
+    border-collapse: separate;
+    /* thay vì collapse */
+    border-spacing: 0;
+    /* tránh hở viền */
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
+    /* để bo góc che được background của các ô */
 }
 
 .action-buttons button {
@@ -372,8 +393,8 @@ fieldset {
 }
 
 img {
-    width: 50px;
-    height: auto;
+    width: 100px;
+    height: 150px;
     margin-left: 10px;
     vertical-align: middle;
     border-radius: 5px;

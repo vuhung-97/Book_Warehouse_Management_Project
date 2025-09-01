@@ -94,13 +94,18 @@ document.addEventListener('DOMContentLoaded', () => {
             books.forEach(book => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${book.name} <img src="${book.image}"></td>
-                    <td>${book.author || ''}</td>
-                    <td>${book.year || ''}</td>
-                    <td>${book.amount || 0}</td>
-                    <td>${book.price || 0}</td>
-                    <td>${book.publisher_name || 'N/A'}</td>
-                    <td>${book.book_type_name || 'N/A'}</td>
+                    <td>
+                        <div style="display: flex; justify-content: space-between;">
+                            <label style="margin: auto 0;">${book.name}</label>
+                            <img src="${book.image}">
+                        </div>                        
+                    </td>
+                    <td><label margin="0 auto">${book.author || ''}</label></td>
+                    <td><label margin="0 auto">${book.year || ''}</label></td>
+                    <td><label margin="0 auto">${book.amount || 0}</label></td>
+                    <td><label margin="0 auto">${book.price || 0}</label></td>
+                    <td><label margin="0 auto">${book.publisher_name || 'N/A'}</label></td>
+                    <td><label margin="0 auto">${book.book_type_name || 'N/A'}</label></td>
                     <td class="action-buttons">
                         <button class="edit-btn" data-id="${book.id}">Sửa</button>
                         <button class="delete-btn" data-id="${book.id}">Xóa</button>
@@ -246,4 +251,45 @@ document.addEventListener('DOMContentLoaded', () => {
     // Tải danh sách sách và dropdown khi trang web được load
     fetchPublishersAndTypes();
     fetchBooks();
+
+    // Sắp xếp danh sách sách
+    const table = document.getElementById("book-table");
+    const headers = table.querySelectorAll("th");
+    const tbody = table.querySelector("tbody");
+
+    // Biến lưu trạng thái sắp xếp
+    let sortDirections = {};
+
+    headers.forEach((header, index) => {
+        header.addEventListener("click", () => {
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+            const currentDir = sortDirections[index] === "asc" ? "desc" : "asc";
+            sortDirections[index] = currentDir;
+
+            rows.sort((a, b) => {
+                let cellA = a.children[index];
+                let cellB = b.children[index];
+
+                cellA = cellA.querySelector("label").innerText.trim().toLowerCase();
+                cellB = cellB.querySelector("label").innerText.trim().toLowerCase();
+
+                let valA, valB;
+                if (isNaN(cellA) || isNaN(cellB)) {
+                    valA = cellA;
+                    valB = cellB;
+                } else {
+                    valA = parseFloat(cellA);
+                    valB = parseFloat(cellB);
+                }
+
+                if (valA < valB) return currentDir === "asc" ? -1 : 1;
+                if (valA > valB) return currentDir === "asc" ? 1 : -1;
+                return 0;
+            });
+
+            // Xóa tbody cũ và gắn lại các hàng theo thứ tự mới
+            tbody.innerHTML = "";
+            rows.forEach(row => tbody.appendChild(row));
+        });
+    });
 });
