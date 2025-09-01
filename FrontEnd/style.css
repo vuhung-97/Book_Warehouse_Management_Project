@@ -216,7 +216,10 @@ h3 {
 #book-form button {
     width: 100%;
     margin-bottom: 7px;
-    box-sizing: border-box;
+}
+
+#book-form button {
+    padding: 10px;
 }
 
 #book-form select {
@@ -310,8 +313,8 @@ th {
     background-color: var(--primary-color);
     width: 100%;
     margin-bottom: 5px;
-    border-radius: 3px;
-    transition: all 0.3s ease-in-out;
+    border-radius: 10px;
+    transition: all 0.3s ease;
 }
 
 .delete-btn {
@@ -320,12 +323,10 @@ th {
 
 .edit-btn:hover {
     background-color: var(--primary-hover);
-    transform: translateY(-2px);
 }
 
 .delete-btn:hover {
     background-color: var(--accent-hover);
-    transform: translateY(-2px);
 }
 
 fieldset {
