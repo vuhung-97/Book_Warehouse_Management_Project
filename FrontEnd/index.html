@@ -11,6 +11,9 @@
 <body>
     <header class="header">
         <h1>Quản lý Kho sách</h1>
+        <div class="current-time">
+            <span id="current-time"></span>
+        </div>
     </header>
     <div id="notification-box" class="notification-box hidden">
         Cập nhật thành công!
@@ -31,15 +34,19 @@
         </div>
 
         <div class="container">
-
             <div class="table-section">
                 <div class="table-header">
                     <h2>Danh sách Sách</h2>
+                    <div class="pagination">
+                        <button id="prev-btn" class="pagination-btn" disabled>&laquo; Trước</button>
+                        <div id="page-numbers"></div>
+                        <button id="next-btn" class="pagination-btn">&raquo; Sau</button>
+                    </div>
                     <button id="show-form-btn">Thêm Sách Mới</button>
                 </div>
                 <table id="book-table">
                     <thead>
-                        <tr height="50px">
+                        <tr height="70px">
                             <th width="32%">Tên sách</th>
                             <th width="13%">Tác giả</th>
                             <th width="7%">Năm XB</th>
@@ -47,7 +54,7 @@
                             <th width="10%">Đơn giá</th>
                             <th width="10%">Nhà XB</th>
                             <th width="10%">Loại sách</th>
-                            <th width="10%">Hành động</th>
+                            <th width="10%"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -94,7 +101,7 @@
                 </div>
 
                 <div class="input-group">
-                    <textarea id="book-description" placeholder=" "></textarea>
+                    <textarea id="book-description" placeholder=""></textarea>
                     <label for="book-description">Mô tả sách</label>
                 </div>
             </fieldset>

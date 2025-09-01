@@ -42,6 +42,7 @@ body {
 
 header.header {
     display: flex;
+    position: relative;
     align-items: center;
     justify-content: center;
     margin-bottom: 10px;
@@ -52,6 +53,16 @@ header.header {
     background-color: var(--card-background);
     border-radius: 0 0 20px 20px;
     box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+#current-time {
+    position: absolute;
+    right: 20px;
+    /* Căn lề phải */
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    /* Sử dụng biến màu đã định nghĩa */
 }
 
 div.all-container {
@@ -427,4 +438,64 @@ img {
     transform: translateX(-50%) translateY(0);
     /* Di chuyển xuống vị trí ban đầu */
     opacity: 1;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.pagination button {
+    color: var(--background-color);
+    background-color: var(--primary-color);
+    border: 1px solid var(--border-color);
+}
+
+.pagination button:hover {
+    color: var(--background-color);
+    background-color: var(--primary-hover);
+}
+
+.pagination-btn {
+    padding: 8px 12px;
+    margin: 0 5px;
+    border: 1px solid var(--border-color);
+    background-color: var(--primary-color);
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.pagination-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.pagination-btn:disabled {
+    background-color: var(--border-color);
+    cursor: not-allowed;
+    color: var(--text-secondary);
+}
+
+.page-number-btn {
+    padding: 8px 12px;
+    margin: 0 2px;
+    border: 1px solid var(--border-color);
+    background-color: var(--primary-color);
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.page-number-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.page-number-btn.active {
+    background-color: var(--secondary-color);
+    color: var(--background-color);
+    border-color: var(--border-color);
+}
+
+#page-numbers {
+    display: flex;
 }

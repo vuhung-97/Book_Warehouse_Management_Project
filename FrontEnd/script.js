@@ -89,33 +89,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const fetchBooks = async () => {
         try {
             const response = await fetch(`${API_URL}/books`);
-            const books = await response.json();
-            tableBody.innerHTML = '';
-            books.forEach(book => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>
-                        <div style="display: flex; justify-content: space-between;">
-                            <label style="margin: auto 0;">${book.name}</label>
-                            <img src="${book.image}">
-                        </div>                        
-                    </td>
-                    <td><label margin="0 auto">${book.author || ''}</label></td>
-                    <td><label margin="0 auto">${book.year || ''}</label></td>
-                    <td><label margin="0 auto">${book.amount || 0}</label></td>
-                    <td><label margin="0 auto">${book.price || 0}</label></td>
-                    <td><label margin="0 auto">${book.publisher_name || 'N/A'}</label></td>
-                    <td><label margin="0 auto">${book.book_type_name || 'N/A'}</label></td>
-                    <td class="action-buttons">
-                        <button class="edit-btn" data-id="${book.id}">Sửa</button>
-                        <button class="delete-btn" data-id="${book.id}">Xóa</button>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
+            allBooks = await response.json();
+            displayBooks();
         } catch (error) {
             console.error('Lỗi khi tải sách:', error);
         }
+    };
+
+    const displayBooks = () => {
+        tableBody.innerHTML = '';
+        const startIndex = (currentPage - 1) * BOOKS_PER_PAGE;
+        const endIndex = startIndex + BOOKS_PER_PAGE;
+        const booksToDisplay = allBooks.slice(startIndex, endIndex);
+
+        booksToDisplay.forEach(book => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label>${book.name}</label>
+                        <img src="${book.image}">
+                    </div>
+                </td>
+                <td><label>${book.author || ''}</label></td>
+                <td><label>${book.year || ''}</label></td>
+                <td><label>${book.amount || 0}</label></td>
+                <td><label>${book.price || 0}</label></td>
+                <td><label>${book.publisher_name || 'N/A'}</label></td>
+                <td><label>${book.book_type_name || 'N/A'}</label></td>
+                <td class="action-buttons">
+                    <button class="edit-btn" data-id="${book.id}">Sửa</button>
+                    <button class="delete-btn" data-id="${book.id}">Xóa</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        createPaginationControls();
     };
 
     // Hàm để thêm hoặc cập nhật sách
@@ -262,24 +272,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     headers.forEach((header, index) => {
         header.addEventListener("click", () => {
-            const rows = Array.from(tbody.querySelectorAll("tr"));
             const currentDir = sortDirections[index] === "asc" ? "desc" : "asc";
             sortDirections[index] = currentDir;
 
-            rows.sort((a, b) => {
-                let cellA = a.children[index];
-                let cellB = b.children[index];
-
-                cellA = cellA.querySelector("label").innerText.trim().toLowerCase();
-                cellB = cellB.querySelector("label").innerText.trim().toLowerCase();
-
+            allBooks.sort((a, b) => {
                 let valA, valB;
-                if (isNaN(cellA) || isNaN(cellB)) {
-                    valA = cellA;
-                    valB = cellB;
+                const keys = ['name', 'author', 'year', 'amount', 'price', 'publisher_name', 'book_type_name'];
+                const key = keys[index];
+
+                if (key === 'name' || key === 'author' || key === 'publisher_name' || key === 'book_type_name') {
+                    valA = a[key] ? a[key].toLowerCase() : '';
+                    valB = b[key] ? b[key].toLowerCase() : '';
+                } else if (key === 'year' || key === 'amount' || key === 'price') {
+                    valA = a[key] !== null ? a[key] : (currentDir === "asc" ? Infinity : -Infinity);
+                    valB = b[key] !== null ? b[key] : (currentDir === "asc" ? Infinity : -Infinity);
                 } else {
-                    valA = parseFloat(cellA);
-                    valB = parseFloat(cellB);
+                    return 0;
                 }
 
                 if (valA < valB) return currentDir === "asc" ? -1 : 1;
@@ -287,9 +295,83 @@ document.addEventListener('DOMContentLoaded', () => {
                 return 0;
             });
 
-            // Xóa tbody cũ và gắn lại các hàng theo thứ tự mới
-            tbody.innerHTML = "";
-            rows.forEach(row => tbody.appendChild(row));
+            currentPage = 1;
+            displayBooks();
         });
     });
+
+    const paginationContainer = document.querySelector('.pagination');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const pageNumbersContainer = document.getElementById('page-numbers');
+
+    const BOOKS_PER_PAGE = 10;
+    let allBooks = [];
+    let currentPage = 1;
+
+    const createPaginationControls = () => {
+        const totalPages = Math.ceil(allBooks.length / BOOKS_PER_PAGE);
+        pageNumbersContainer.innerHTML = '';
+
+        for (let i = 1; i <= totalPages; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.textContent = i;
+            pageBtn.classList.add('page-number-btn');
+            if (i === currentPage) {
+                pageBtn.classList.add('active');
+            }
+            pageBtn.addEventListener('click', () => {
+                currentPage = i;
+                displayBooks();
+            });
+            pageNumbersContainer.appendChild(pageBtn);
+        }
+
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+    };
+
+    // Sự kiện cho nút 'Trước' và 'Sau'
+    prevBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            displayBooks();
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        const totalPages = Math.ceil(allBooks.length / BOOKS_PER_PAGE);
+        if (currentPage < totalPages) {
+            currentPage++;
+            displayBooks();
+        }
+    });
+
+    // Hàm thêm sách mới
+    // Sau khi thêm sách, hãy gọi lại fetchBooks()
+    form.addEventListener('submit', async (e) => {
+        // ... (giữ nguyên logic thêm/cập nhật)
+        if (response.ok) {
+            showNotification('Thêm/Cập nhật sách thành công!');
+            resetForm();
+            fetchBooks(); // Gọi lại để tải toàn bộ danh sách mới
+        }
+        // ...
+    });
+
+    // Hàm xóa sách
+    tableBody.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('delete-btn')) {
+            // ...
+            if (response.ok) {
+                showNotification('Xóa sách thành công!');
+                fetchBooks(); // Gọi lại để tải toàn bộ danh sách mới
+            }
+            // ...
+        }
+    });
+
+    // Tải danh sách sách và dropdown khi trang web được load
+    fetchPublishersAndTypes();
+    fetchBooks(currentPage); // Pass the initial page number
 });
