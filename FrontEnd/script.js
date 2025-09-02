@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- API and DOM Element Constants ---
-    const API_URL = 'http://127.0.0.1:8000';
 
+    // Khai báo root css
+    const root = document.documentElement;
     // Form chính và các thành phần bảng
     const form = document.getElementById('book-form');
     const tableBody = document.querySelector('#main-table tbody');
@@ -35,6 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const leftMenu = document.querySelector('.left-menu');
     const mainContainer = document.querySelector('.container');
     const menuListItems = document.querySelectorAll('#menu-list a');
+    const search = document.getElementById('search');
+    const searchIcon = document.getElementById('search-icon');
 
     // Phân trang
     const paginationContainer = document.querySelector('.pagination');
@@ -54,17 +56,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Hàm chính ---
 
+    /*
+    * Modal Yêu cầu xóa
+    */
+
+    // Xử lý nút Hủy trong modal
+    modalCancelBtn.addEventListener('click', () => {
+        confirmationModal.classList.add('modal-hidden');
+    });
+
     /**
      * Hiển thị một thông báo tạm thời cho người dùng.
      */
     const showNotification = (message, isNotif = true) => {
-        notificationBox.textContent = message;
-
+        notificationBox.innerHTML = message;
 
         if (!isNotif)
-            notificationBox.style.backgroundColor = "#f44336";
+            notificationBox.style.backgroundColor = getComputedStyle(root).getPropertyValue('--secondary-color').trim();
         else
-            notificationBox.style.backgroundColor = "#2196f3";
+            notificationBox.style.backgroundColor = getComputedStyle(root).getPropertyValue('--primary-color').trim();
 
         notificationBox.classList.remove('visible');
         setTimeout(() => {
@@ -281,6 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('active')
             const titleHeader = document.getElementById('title-header');
             const tr = document.querySelector('#main-table tr');
+            bookFormContainer.classList.add('hidden');
             switch (btn.id) {
                 case 'BookTypes':
                     titleHeader.innerText = 'Danh sách thể loại sách';
@@ -340,14 +351,13 @@ document.addEventListener('DOMContentLoaded', () => {
         closeBtn.innerHTML = leftMenu.classList.contains('collapsed') ? '&#9776;' : '&times;';
     });
 
-    // Ẩn/hiện bookForm
+    // Click button Thêm sách mới để hiện/reset bookForm
     showFormBtn.addEventListener('click', () => {
-        bookFormContainer.classList.toggle('hidden');
+        bookFormContainer.classList.remove('hidden');
         if (bookFormContainer.classList.contains('hidden')) {
             showFormBtn.textContent = 'Thêm sách mới';
             resetForm();
         } else {
-            showFormBtn.textContent = 'Đang thêm sách ...';
             resetForm();
         }
     });
@@ -364,27 +374,43 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const bookId = bookIdInput.value;
+
+        // Kiểm tra thông tin đưa vào
+        let bookAmount = parseInt(bookAmountInput.value, 10) || 0;
+        let bookPrice = parseFloat(bookPriceInput.value) || 0.00;
+        let bookYear = parseInt(bookYearInput.value, 10) || null;
+        if (bookAmount < 0 || bookPrice < 0 || (bookYear != null && bookYear < 1900)) {
+            let error = "";
+            if (bookAmount < 0) {
+                bookAmountInput.value = 0;
+                bookAmount = 0;
+                error += "Số lượng sách phải lớn hơn 0.<br>";
+            }
+            if (bookPrice < 1000) {
+                bookPriceInput.value = 10;
+                bookPrice = 0;
+                error += " Đơn giá sách phải lớn hơn 0.<br>";
+            }
+            if (bookYear < 1900) {
+                bookYearInput.value = 1900;
+                bookYear = 1900;
+                error += " Năm xuất bản phải lớn hơn 1900.";
+            }
+            showNotification(error.trim(), false);
+            return;
+        }
+
         const bookData = {
             name: bookNameInput.value,
             author: bookAuthorInput.value || null,
-            year: parseInt(bookYearInput.value, 10) || null,
-            amount: parseInt(bookAmountInput.value, 10) || 0,
-            price: parseFloat(bookPriceInput.value) || 0.00,
+            year: bookYear,
+            amount: bookAmount,
+            price: bookPrice,
             image: bookImageInput.value || null,
             description: bookDescriptionInput.value || null,
             publisher_id: publisherSelect.value ? parseInt(publisherSelect.value) : null,
             book_type_id: bookTypeSelect.value ? parseInt(bookTypeSelect.value) : null
         };
-
-        // Kiểm tra thông tin đưa vào
-        if (bookData.amount < 0 || bookData.price < 0 || bookData.year < 1900) {
-            let error;
-            if (bookData.year < 1900) error = 'Năm nhập vào không hợp lệ (năm > 1900).';
-            else if (bookData.amount < 0) error = 'Số lượng sách phải lớn hơn 0.';
-            else error = 'Giá sách phải lớn hơn 0.';
-            showNotification(error, false);
-            return;
-        }
 
         let response;
         try {
@@ -407,7 +433,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 showNotification(bookId ? 'Cập nhật sách thành công!' : 'Thêm sách thành công!');
                 resetForm();
-                //bookFormContainer.classList.add('hidden');
                 fetchBooks();
             } else {
                 const error = await response.json();
@@ -448,8 +473,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 bookTypeSelect.value = book.book_type_id || '';
 
                 // Thay đổi UI khi cập nhật sách
-                submitBtn.textContent = 'Cập nhật Sách';
-                titleForm.textContent = 'Cập nhật Sách';
+                submitBtn.textContent = 'Cập nhật sách';
+                titleForm.textContent = 'Cập nhật sách';
                 bookFormContainer.classList.remove('hidden');
             } catch (error) {
                 console.error('Error fetching book details for edit:', error);
@@ -513,14 +538,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    /*
-    * Modal Yêu cầu xóa
-    */
-    // Xử lý nút Hủy trong modal
-    modalCancelBtn.addEventListener('click', () => {
-        confirmationModal.classList.add('modal-hidden');
-    });
-
     // Xử lý nút Xóa trong modal
     modalConfirmBtn.addEventListener('click', async (e) => {
         const bookId = e.target.dataset.id;
@@ -542,7 +559,82 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Xử lý nút Search
+    searchIcon.addEventListener('click', () => {
+        const searchInput = search.querySelector('input');
+        if (searchInput) {
+            const query = searchInput.value.trim();
+            if (!query) {
+                searchInput.classList.remove('open');
+                setTimeout(() => searchInput.remove(), 300); // đợi animation kết thúc
+            } else {
+                SearchBook(query);
+            }
+        }
+    });
+
+
+
+    // Click vào khung search sẽ mở rộng phần input nhập liệu
+    search.parentElement.addEventListener('click', () => {
+        let searchInput = search.querySelector('input');
+        if (!searchInput) {
+            // Tạo input mới bằng createElement
+            searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            searchInput.placeholder = 'Tìm kiếm...';
+            search.appendChild(searchInput);
+
+            // Delay một chút trước khi thêm class để transition chạy
+            setTimeout(() => searchInput.classList.add('open'), 10);
+            searchInput.focus();
+
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const query = searchInput.value.trim();
+                    if (!query) {
+                        searchInput.classList.remove('open');
+                        setTimeout(() => searchInput.remove(), 300); // đợi animation kết thúc
+                    } else {
+                        SearchBook(query);
+                    }
+                }
+            });
+        }
+    });
+
+    // Tìm kiếm
+    async function SearchBook(value) {
+        try {
+            const urls = [
+                `${API_URL}/books/search/name?book_name=${value}`,
+                `${API_URL}/books/search/publisher?publisher_name=${value}`,
+                `${API_URL}/books/search/author?author=${value}`,
+                `${API_URL}/books/search/type?book_type_name=${value}`
+            ];
+
+            const responses = await Promise.all(urls.map(url => fetch(url)));
+            allBooks = (await Promise.all(responses.map(res => res.json())))
+                .filter(arr => Array.isArray(arr) && arr.length > 0)
+                .flat()
+                .filter(book => book != null); // loại bỏ null/undefined
+
+            if (allBooks.length > 0)
+                showNotification(`Hoàn thành!`);
+            else {
+                throw new Error(`Không tìm thấy nội dung khớp với từ khóa <br>${value}</br>`);
+
+            }
+            console.log(allBooks);
+
+            displayBooks();
+
+        } catch (error) {
+            showNotification(`Lỗi: ${error}`, false);
+        }
+    }
+
     // --- Khởi tạo ---
     fetchPublishersAndTypes();
-
+    document.getElementById("Books").click();
 });

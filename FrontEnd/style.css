@@ -131,7 +131,11 @@ header.header h1 {
     margin: 0;
 }
 
+/* tìm kiếm */
 .search-container {
+    display: flex;
+    gap: 5px;
+    justify-content: space-around;
     position: relative;
     transform: translateX(-7px);
     align-items: center;
@@ -139,6 +143,7 @@ header.header h1 {
     border-radius: 20px;
     padding: 5px 15px;
     background-color: #f5f5f5;
+    transition: all 0.3s ease;
 }
 
 .search-container input {
@@ -148,12 +153,24 @@ header.header h1 {
     flex-grow: 1;
     font-size: 16px;
     padding-left: 10px;
+    width: 0;
+    transition: all 0.3s ease;
+}
+
+.search-container input.open {
+    width: 200px;
+}
+
+.seach-container input:focus {
+    border: 1px solid var(--color-right);
 }
 
 .search-icon {
     color: #888;
     font-size: 20px;
 }
+
+
 
 /*--- Left Menu / Sidebar ---*/
 .left-menu {
@@ -502,12 +519,12 @@ th {
 .notification-box {
     position: fixed;
     top: 0;
-    right: 0;
-    transform: translateX(-50%) translateY(-100%);
+    left: 20px;
+    transform: translateY(-100%);
     padding: 15px 30px;
-    background-color: #28a745;
+    background-color: var(--primary-color);
     color: white;
-    border-radius: 0 0 8px 8px;
+    border-radius: 0 0 20px 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
@@ -518,7 +535,7 @@ th {
 }
 
 .notification-box.visible {
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
     opacity: 1;
 }
 
