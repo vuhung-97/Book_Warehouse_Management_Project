@@ -1,11 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- API and DOM Element Constants ---
     const API_URL = 'http://127.0.0.1:8000';
 
+    // Form chính và các thành phần bảng
     const form = document.getElementById('book-form');
-    const tableBody = document.querySelector('#book-table tbody');
+    const tableBody = document.querySelector('#main-table tbody');
     const bookFormContainer = document.getElementById('book-form-container');
     const titleForm = bookFormContainer.getElementsByTagName('h3')[0];
     const showFormBtn = document.getElementById('show-form-btn');
+    const notificationBox = document.getElementById('notification-box');
+    const confirmationModal = document.getElementById('confirmation-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+    // Các trường input
     const bookIdInput = document.getElementById('book-id');
     const bookNameInput = document.getElementById('book-name');
     const bookAuthorInput = document.getElementById('book-author');
@@ -16,33 +25,59 @@ document.addEventListener('DOMContentLoaded', () => {
     const bookDescriptionInput = document.getElementById('book-description');
     const publisherSelect = document.getElementById('book-publisher-select');
     const bookTypeSelect = document.getElementById('book-type-select');
+
+    // Button của Form
     const submitBtn = document.getElementById('submit-btn');
     const cancelBtn = document.getElementById('cancel-btn');
+
+    // Các thành phần bố cục và điều hướng
     const closeBtn = document.getElementById('close-btn');
     const leftMenu = document.querySelector('.left-menu');
     const mainContainer = document.querySelector('.container');
-    const menuListItems = document.getElementById('menu-list').getElementsByTagName('a');
-    const notificationBox = document.getElementById('notification-box');
+    const menuListItems = document.querySelectorAll('#menu-list a');
 
-    // Tạo hàm để hiển thị thông báo
-    const showNotification = (message) => {
+    // Phân trang
+    const paginationContainer = document.querySelector('.pagination');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const pageNumbersContainer = document.getElementById('page-numbers');
+
+    // Biến toàn cục
+    let allBooks = [];
+    let allPublishers = [];
+    let allBookTypes = [];
+    let currentPage = 1;
+    let sortDirections = {};
+    let headers;
+    const BOOKS_PER_PAGE = 10;
+
+
+    // --- Hàm chính ---
+
+    /**
+     * Hiển thị một thông báo tạm thời cho người dùng.
+     */
+    const showNotification = (message, isNotif = true) => {
         notificationBox.textContent = message;
 
-        // Đảm bảo thông báo đã ở trạng thái ẩn trước khi hiển thị lại
-        notificationBox.classList.remove('visible');
 
-        // Thêm một độ trễ nhỏ để reset hiệu ứng, đảm bảo nó chạy lại đúng cách
+        if (!isNotif)
+            notificationBox.style.backgroundColor = "#f44336";
+        else
+            notificationBox.style.backgroundColor = "#2196f3";
+
+        notificationBox.classList.remove('visible');
         setTimeout(() => {
             notificationBox.classList.add('visible');
-        }, 10); // Độ trễ rất nhỏ
-
-        // Tự động ẩn thông báo sau 3 giây
+        }, 10);
         setTimeout(() => {
             notificationBox.classList.remove('visible');
-        }, 3000); // 3000ms = 3 giây
+        }, 3000);
     };
 
-    // Hàm để tải và điền dữ liệu vào dropdown
+    /**
+     * Lấy dữ liệu nhà xuất bản và loại sách từ API và điền vào các menu thả xuống.
+     */
     const fetchPublishersAndTypes = async () => {
         try {
             const [publishersRes, bookTypesRes] = await Promise.all([
@@ -52,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const publishers = await publishersRes.json();
             const bookTypes = await bookTypesRes.json();
 
-            // Điền dữ liệu vào dropdown Nhà xuất bản
+            // Lấy nội dung điền vào dropdown nhà xuất bản
             publisherSelect.innerHTML = '<option value="">-- Chọn --</option>';
             publishers.forEach(p => {
                 const option = document.createElement('option');
@@ -61,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 publisherSelect.appendChild(option);
             });
 
-            // Điền dữ liệu vào dropdown Loại sách
+            // Lấy nội dung điền vào dropdown loại sách
             bookTypeSelect.innerHTML = '<option value="">-- Chọn --</option>';
             bookTypes.forEach(t => {
                 const option = document.createElement('option');
@@ -70,32 +105,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 bookTypeSelect.appendChild(option);
             });
         } catch (error) {
-            console.error('Lỗi khi tải dữ liệu dropdown:', error);
+            console.error('Error fetching dropdown data:', error);
         }
     };
 
-    // Thêm event listener cho nút đóng menu
-    closeBtn.addEventListener('click', () => {
-        leftMenu.classList.toggle('collapsed');
-        mainContainer.classList.toggle('expanded');
-        if (leftMenu.classList.contains('collapsed')) {
-            closeBtn.innerHTML = '&#9776;'; // Biểu tượng menu
-        } else {
-            closeBtn.innerHTML = '&times;'; // Biểu tượng đóng
-        }
-    });
-
-    // Hàm để tải và hiển thị danh sách sách
+    /**
+     * Fetch toàn bộ bảng books trong CSDL vào biến allBooks
+     * sử dụng displayBooks() để hiển thị lên GUI
+     */
     const fetchBooks = async () => {
         try {
             const response = await fetch(`${API_URL}/books`);
             allBooks = await response.json();
             displayBooks();
+            setupSorting(allBooks, displayBooks);
         } catch (error) {
-            console.error('Lỗi khi tải sách:', error);
+            showNotification(`Lỗi: ${error}`, false);
+            console.error('Error fetching books:', error);
         }
     };
 
+    /**
+     * Hiển thị một phần của allBooks trên bảng dựa theo trang hiện tại.
+     */
     const displayBooks = () => {
         tableBody.innerHTML = '';
         const startIndex = (currentPage - 1) * BOOKS_PER_PAGE;
@@ -105,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         booksToDisplay.forEach(book => {
             const row = document.createElement('tr');
             row.innerHTML = `
+                <td><label>${book.id}</label></td>
                 <td>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <label>${book.name}</label>
@@ -128,187 +161,90 @@ document.addEventListener('DOMContentLoaded', () => {
         createPaginationControls();
     };
 
-    // Hàm để thêm hoặc cập nhật sách
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const bookId = bookIdInput.value;
-        const bookData = {
-            name: bookNameInput.value,
-            author: bookAuthorInput.value || null,
-            year: parseInt(bookYearInput.value, 10) || null,
-            amount: parseInt(bookAmountInput.value, 10) || 0,
-            price: parseFloat(bookPriceInput.value) || 0.00,
-            image: bookImageInput.value || null,
-            description: bookDescriptionInput.value || null,
-            publisher_id: publisherSelect.value ? parseInt(publisherSelect.value) : null,
-            book_type_id: bookTypeSelect.value ? parseInt(bookTypeSelect.value) : null
-        };
-
-        if (bookId) {
-            // Cập nhật sách
-            try {
-                const response = await fetch(`${API_URL}/books/${bookId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(bookData)
-                });
-                if (response.ok) {
-                    showNotification('Cập nhật sách thành công!');
-                    resetForm();
-                    fetchBooks();
-                } else {
-                    const error = await response.json();
-                    showNotification(`Lỗi: ${error.detail}`);
-                }
-            } catch (error) {
-                console.error('Lỗi khi cập nhật sách:', error);
-            }
-        } else {
-            // Thêm sách mới
-            try {
-                console.log(bookData);
-                const response = await fetch(`${API_URL}/books`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(bookData)
-                });
-                if (response.ok) {
-                    showNotification('Thêm sách thành công!');
-                    resetForm();
-                    fetchBooks();
-                } else {
-                    const error = await response.json();
-                    showNotification(`Lỗi: ${error.detail}`);
-                }
-            } catch (error) {
-                console.error('Lỗi khi thêm sách:', error);
-            }
+    /**
+     * Fetch toàn bộ bảng publishers trong CSDL vào biến allPublishers
+     * sử dụng displayPublisher() để hiển thị lên GUI
+     */
+    const fetchPublishers = async () => {
+        try {
+            const response = await fetch(`${API_URL}/publishers`);
+            allPublishers = await response.json();
+            displayPublishers();
+            setupSorting(allPublishers, displayPublishers);
+        } catch (error) {
+            showNotification(`Lỗi: ${error}`, false);
+            console.error('Error fetching publishers:', error);
         }
-    });
+    };
 
-    // Bắt sự kiện click vào nút Sửa hoặc Xóa
-    tableBody.addEventListener('click', async (e) => {
-        if (e.target.classList.contains('delete-btn')) {
-            const bookId = e.target.dataset.id;
-            if (confirm('Bạn có chắc chắn muốn xóa sách này không?')) {
-                try {
-                    const response = await fetch(`${API_URL}/books/${bookId}`, { method: 'DELETE' });
-                    if (response.ok) {
-                        showNotification('Xóa sách thành công!');
-                        fetchBooks();
-                    } else {
-                        const error = await response.json();
-                        showNotification(`Lỗi: ${error.detail}`);
-                    }
-                } catch (error) {
-                    console.error('Lỗi khi xóa sách:', error);
-                }
-            }
+    // Hàm displayPublishers
+    const displayPublishers = () => {
+        tableBody.innerHTML = '';
+        allPublishers.forEach(publisher => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><label>${publisher.id}</label></td>
+                <td><label>${publisher.name}</label></td>
+                <td><label>${publisher.address || ''}</label></td>
+                <td><label>${publisher.tax_code}</label></td>
+                <td><label></label></td>
+                <td class="action-buttons">
+                    <button class="edit-btn" data-id="${publisher.id}">Sửa</button>
+                    <button class="delete-btn" data-id="${publisher.id}">Xóa</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    /**
+     * Fetch toàn bộ bảng publishers trong CSDL vào biến allPublishers
+     * sử dụng displayPublisher() để hiển thị lên GUI
+     */
+    const fetchBookTypes = async () => {
+        try {
+            const response = await fetch(`${API_URL}/book_types`);
+            allBookTypes = await response.json();
+            displayBookTypes();
+            setupSorting(allBookTypes, displayBookTypes);
+        } catch (error) {
+            showNotification(`Lỗi: ${error}`, false);
+            console.error('Error fetching publishers:', error);
         }
+    };
 
-        if (e.target.classList.contains('edit-btn')) {
-            const bookId = e.target.dataset.id;
-            try {
-                const response = await fetch(`${API_URL}/books/simple${bookId}`);
-                const book = await response.json();
-                bookIdInput.value = book.id;
-                bookNameInput.value = book.name;
-                bookAuthorInput.value = book.author;
-                bookYearInput.value = book.year;
-                bookAmountInput.value = book.amount;
-                bookPriceInput.value = book.price;
-                bookImageInput.value = book.image;
-                bookDescriptionInput.value = book.description || '';
-                publisherSelect.value = book.publisher_id || '';
-                bookTypeSelect.value = book.book_type_id || '';
+    // Hàm displayPublishers
+    const displayBookTypes = () => {
+        tableBody.innerHTML = '';
+        allBookTypes.forEach(booktype => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><label>${booktype.id}</label></td>
+                <td><label>${booktype.name}</label></td>
+                <td><label></label></td>
+                <td class="action-buttons">
+                    <button class="edit-btn" data-id="${booktype.id}">Sửa</button>
+                    <button class="delete-btn" data-id="${booktype.id}">Xóa</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
 
-                submitBtn.textContent = 'Cập nhật Sách';
-                titleForm.textContent = 'Cập nhật Sách';
-                bookFormContainer.classList.remove('hidden');
-                showFormBtn.textContent = 'Đang sửa sách ...';
-            } catch (error) {
-                console.error('Lỗi khi tải thông tin sách:', error);
-            }
-        }
-    });
-
-    // Hàm để reset form về trạng thái ban đầu
+    /**
+     * Reset bookForm về trạng thái mặc định.
+     */
     const resetForm = () => {
         form.reset();
         bookIdInput.value = '';
-        submitBtn.textContent = 'Thêm Sách';
+        submitBtn.textContent = 'Thêm sách';
+        titleForm.textContent = 'Thêm sách mới';
+        showFormBtn.textContent = 'Thêm sách mới';
     };
 
-    // Ẩn/hiện form khi click vào nút "Thêm Sách Mới"
-    showFormBtn.addEventListener('click', () => {
-        titleForm.textContent = 'Thêm Sách Mới';
-        bookFormContainer.classList.toggle('hidden');
-        if (bookFormContainer.classList.contains('hidden')) {
-            showFormBtn.textContent = 'Thêm Sách Mới';
-            resetForm();
-        } else {
-            showFormBtn.textContent = 'Đang thêm sách ...';
-        }
-    });
-
-    cancelBtn.addEventListener('click', () => {
-        resetForm();
-        bookFormContainer.classList.add('hidden');
-        showFormBtn.textContent = 'Thêm Sách Mới';
-        showFormBtn.disabled = false;
-    });
-
-    // Tải danh sách sách và dropdown khi trang web được load
-    fetchPublishersAndTypes();
-    fetchBooks();
-
-    // Sắp xếp danh sách sách
-    const table = document.getElementById("book-table");
-    const headers = table.querySelectorAll("th");
-    const tbody = table.querySelector("tbody");
-
-    // Biến lưu trạng thái sắp xếp
-    let sortDirections = {};
-
-    headers.forEach((header, index) => {
-        header.addEventListener("click", () => {
-            const currentDir = sortDirections[index] === "asc" ? "desc" : "asc";
-            sortDirections[index] = currentDir;
-
-            allBooks.sort((a, b) => {
-                let valA, valB;
-                const keys = ['name', 'author', 'year', 'amount', 'price', 'publisher_name', 'book_type_name'];
-                const key = keys[index];
-
-                if (key === 'name' || key === 'author' || key === 'publisher_name' || key === 'book_type_name') {
-                    valA = a[key] ? a[key].toLowerCase() : '';
-                    valB = b[key] ? b[key].toLowerCase() : '';
-                } else if (key === 'year' || key === 'amount' || key === 'price') {
-                    valA = a[key] !== null ? a[key] : (currentDir === "asc" ? Infinity : -Infinity);
-                    valB = b[key] !== null ? b[key] : (currentDir === "asc" ? Infinity : -Infinity);
-                } else {
-                    return 0;
-                }
-
-                if (valA < valB) return currentDir === "asc" ? -1 : 1;
-                if (valA > valB) return currentDir === "asc" ? 1 : -1;
-                return 0;
-            });
-
-            currentPage = 1;
-            displayBooks();
-        });
-    });
-
-    const paginationContainer = document.querySelector('.pagination');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const pageNumbersContainer = document.getElementById('page-numbers');
-
-    const BOOKS_PER_PAGE = 10;
-    let allBooks = [];
-    let currentPage = 1;
-
+    /**
+     * Tạo nút phân trang động.
+     */
     const createPaginationControls = () => {
         const totalPages = Math.ceil(allBooks.length / BOOKS_PER_PAGE);
         pageNumbersContainer.innerHTML = '';
@@ -331,7 +267,237 @@ document.addEventListener('DOMContentLoaded', () => {
         nextBtn.disabled = currentPage === totalPages;
     };
 
-    // Sự kiện cho nút 'Trước' và 'Sau'
+
+    /*
+    * --- Sự kiện ---
+    */
+
+    // Điều khiển lựa chọn trong left-menu
+    menuListItems.forEach((btn, index) => {
+        btn.addEventListener("click", () => {
+            menuListItems.forEach(e => {
+                e.classList.remove('active');
+            })
+            btn.classList.add('active')
+            const titleHeader = document.getElementById('title-header');
+            const tr = document.querySelector('#main-table tr');
+            switch (btn.id) {
+                case 'BookTypes':
+                    titleHeader.innerText = 'Danh sách thể loại sách';
+                    paginationContainer.style.visibility = 'hidden';
+                    showFormBtn.innerText = 'Thêm thể loại mới'
+                    tr.innerHTML = `
+                        <th width="10%"><label data-key="id">ID</label></th>
+                        <th width="30%"><label data-key="name">Thể loại</label></th>
+                        <th width="20%"><label data-key="Amount">Số lượng đầu sách</label></th>
+                        <th width="10%"></th>
+                    `;
+                    headers = document.querySelectorAll("#main-table thead th");
+                    fetchBookTypes();
+                    break;
+
+                case 'Publishers':
+                    titleHeader.innerText = 'Danh sách Nhà xuất bản';
+                    paginationContainer.style.visibility = 'hidden';
+                    showFormBtn.innerText = 'Thêm NXB mới'
+                    tr.innerHTML = `
+                        <th width="10%"><label data-key="id">ID</label></th>
+                        <th width="15%"><label data-key="name">Nhà xuất bản</label></th>
+                        <th width="35%"><label data-key="address">Địa chỉ</label></th>
+                        <th width="15%"><label data-key="tax_code">Mã số thuế</label></th>
+                        <th width="15%"><label data-key="Amount">Số lượng đầu sách</label></th>
+                        <th width="10%"></th>
+                    `;
+                    headers = document.querySelectorAll("#main-table thead th");
+                    fetchPublishers();
+                    break;
+                default:
+                    titleHeader.innerText = 'Danh sách sách trong kho';
+                    paginationContainer.style.visibility = 'visible';
+                    showFormBtn.innerText = 'Thêm sách mới'
+                    tr.innerHTML = `
+                        <th width="5%"><label data-key="id">ID</label></th>
+                        <th width="27%"><label data-key="name">Tên sách</label></th>
+                        <th width="13%"><label data-key="author">Tác giả</label></th>
+                        <th width="7%"><label data-key="year">Năm XB</label></th>
+                        <th width="7%"><label data-key="amount">Số lượng</label></th>
+                        <th width="10%"><label data-key="price">Đơn giá</label></th>
+                        <th width="10%"><label data-key="publisher_name">Nhà xuất bản</label></th>
+                        <th width="10%"><label data-key="book_type_name">Thể loại</label></th>
+                        <th width="10%"> </th>
+                    `;
+                    headers = document.querySelectorAll("#main-table thead th");
+                    fetchBooks();
+                    break;
+            }
+        })
+    });
+
+    // Đóng/mở left-menu và thay đổi kích thước main-container.
+    closeBtn.addEventListener('click', () => {
+        leftMenu.classList.toggle('collapsed');
+        mainContainer.classList.toggle('expanded');
+        closeBtn.innerHTML = leftMenu.classList.contains('collapsed') ? '&#9776;' : '&times;';
+    });
+
+    // Ẩn/hiện bookForm
+    showFormBtn.addEventListener('click', () => {
+        bookFormContainer.classList.toggle('hidden');
+        if (bookFormContainer.classList.contains('hidden')) {
+            showFormBtn.textContent = 'Thêm sách mới';
+            resetForm();
+        } else {
+            showFormBtn.textContent = 'Đang thêm sách ...';
+            resetForm();
+        }
+    });
+
+    // Thoát và ẩn bookForm
+    cancelBtn.addEventListener('click', () => {
+        resetForm();
+        bookFormContainer.classList.add('hidden');
+        showFormBtn.textContent = 'Thêm sách mới';
+        showFormBtn.disabled = false;
+    });
+
+    // Điều khiển sự kiện thêm và sửa sách
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const bookId = bookIdInput.value;
+        const bookData = {
+            name: bookNameInput.value,
+            author: bookAuthorInput.value || null,
+            year: parseInt(bookYearInput.value, 10) || null,
+            amount: parseInt(bookAmountInput.value, 10) || 0,
+            price: parseFloat(bookPriceInput.value) || 0.00,
+            image: bookImageInput.value || null,
+            description: bookDescriptionInput.value || null,
+            publisher_id: publisherSelect.value ? parseInt(publisherSelect.value) : null,
+            book_type_id: bookTypeSelect.value ? parseInt(bookTypeSelect.value) : null
+        };
+
+        // Kiểm tra thông tin đưa vào
+        if (bookData.amount < 0 || bookData.price < 0 || bookData.year < 1900) {
+            let error;
+            if (bookData.year < 1900) error = 'Năm nhập vào không hợp lệ (năm > 1900).';
+            else if (bookData.amount < 0) error = 'Số lượng sách phải lớn hơn 0.';
+            else error = 'Giá sách phải lớn hơn 0.';
+            showNotification(error, false);
+            return;
+        }
+
+        let response;
+        try {
+            if (bookId) {
+                // Cập nhật
+                response = await fetch(`${API_URL}/books/${bookId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bookData)
+                });
+            } else {
+                // Thêm mới
+                response = await fetch(`${API_URL}/books`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bookData)
+                });
+            }
+
+            if (response.ok) {
+                showNotification(bookId ? 'Cập nhật sách thành công!' : 'Thêm sách thành công!');
+                resetForm();
+                //bookFormContainer.classList.add('hidden');
+                fetchBooks();
+            } else {
+                const error = await response.json();
+                showNotification(`Lỗi: ${error.detail}`, false);
+            }
+        } catch (error) {
+            console.error('Error adding/updating book:', error);
+            showNotification('An error occurred. Please try again.', false);
+        }
+    });
+
+    // Điều khiển bắt sự kiện sửa, xóa sách
+    tableBody.addEventListener('click', async (e) => {
+        const bookId = e.target.dataset.id;
+        const response = await fetch(`${API_URL}/books/simple${bookId}`);
+        const book = await response.json();
+
+        if (e.target.classList.contains('delete-btn')) {
+            // Hiển thị modal xác nhận
+            modalMessage.innerHTML = `Bạn có chắc chắn muốn xóa sách <b>"${book.name}"</b> không?`;
+            confirmationModal.classList.remove('modal-hidden');
+
+            // Gắn bookId vào nút xác nhận để sử dụng sau
+            modalConfirmBtn.dataset.id = bookId;
+        }
+        if (e.target.classList.contains('edit-btn')) {
+            try {
+                // Điền thông tin sách vào form
+                bookIdInput.value = book.id;
+                bookNameInput.value = book.name;
+                bookAuthorInput.value = book.author;
+                bookYearInput.value = book.year;
+                bookAmountInput.value = book.amount;
+                bookPriceInput.value = book.price;
+                bookImageInput.value = book.image;
+                bookDescriptionInput.value = book.description || '';
+                publisherSelect.value = book.publisher_id || '';
+                bookTypeSelect.value = book.book_type_id || '';
+
+                // Thay đổi UI khi cập nhật sách
+                submitBtn.textContent = 'Cập nhật Sách';
+                titleForm.textContent = 'Cập nhật Sách';
+                bookFormContainer.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error fetching book details for edit:', error);
+            }
+        }
+    });
+
+    // Sắp xếp
+    function setupSorting(array, func) {
+        headers.forEach((header, index) => {
+            header.addEventListener("click", () => {
+
+                const currentDir = sortDirections[index] === "asc" ? "desc" : "asc";
+
+                const key = header.querySelector('label').dataset.key;
+                if (!key) return;
+
+                sortDirections[index] = currentDir;
+
+                array.sort((a, b) => {
+                    let valA = a[key];
+                    let valB = b[key];
+
+                    // Xử lý giá trị null/undefined để đảm bảo chúng được sắp xếp đúng
+                    if (valA === null || valA === undefined) valA = (currentDir === "asc" ? Infinity : -Infinity);
+                    if (valB === null || valB === undefined) valB = (currentDir === "asc" ? Infinity : -Infinity);
+
+                    // Chuyển về chữ thường khi so sánh chuỗi
+                    if (typeof valA === 'string' && typeof valB === 'string') {
+                        valA = valA.toLowerCase();
+                        valB = valB.toLowerCase();
+                    }
+
+                    if (valA < valB) {
+                        return currentDir === "asc" ? -1 : 1;
+                    }
+                    if (valA > valB) {
+                        return currentDir === "asc" ? 1 : -1;
+                    }
+                    return 0;
+                });
+
+                func();
+            });
+        });
+    }
+
+    // Điều khiển phân trang (Previous và Next buttons)
     prevBtn.addEventListener('click', () => {
         if (currentPage > 1) {
             currentPage--;
@@ -347,31 +513,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Hàm thêm sách mới
-    // Sau khi thêm sách, hãy gọi lại fetchBooks()
-    form.addEventListener('submit', async (e) => {
-        // ... (giữ nguyên logic thêm/cập nhật)
-        if (response.ok) {
-            showNotification('Thêm/Cập nhật sách thành công!');
-            resetForm();
-            fetchBooks(); // Gọi lại để tải toàn bộ danh sách mới
-        }
-        // ...
+    /*
+    * Modal Yêu cầu xóa
+    */
+    // Xử lý nút Hủy trong modal
+    modalCancelBtn.addEventListener('click', () => {
+        confirmationModal.classList.add('modal-hidden');
     });
 
-    // Hàm xóa sách
-    tableBody.addEventListener('click', async (e) => {
-        if (e.target.classList.contains('delete-btn')) {
-            // ...
+    // Xử lý nút Xóa trong modal
+    modalConfirmBtn.addEventListener('click', async (e) => {
+        const bookId = e.target.dataset.id;
+        try {
+            const response = await fetch(`${API_URL}/books/${bookId}`, { method: 'DELETE' });
+
             if (response.ok) {
                 showNotification('Xóa sách thành công!');
-                fetchBooks(); // Gọi lại để tải toàn bộ danh sách mới
+                fetchBooks();
+            } else {
+                const error = await response.json();
+                showNotification(`Lỗi: ${error.detail}`, false);
             }
-            // ...
+        } catch (error) {
+            showNotification(`Lỗi: ${error}`, false);
+            console.error('Error deleting book:', error);
+        } finally {
+            confirmationModal.classList.add('modal-hidden'); // Ẩn modal sau khi xử lý
         }
     });
 
-    // Tải danh sách sách và dropdown khi trang web được load
+    // --- Khởi tạo ---
     fetchPublishersAndTypes();
-    fetchBooks(currentPage); // Pass the initial page number
+
 });

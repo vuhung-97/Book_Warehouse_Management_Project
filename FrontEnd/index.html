@@ -6,18 +6,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Kho Sách</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
 <body>
     <header class="header">
         <h1>Quản lý Kho sách</h1>
-        <div class="current-time">
-            <span id="current-time"></span>
+        <div class="search-container">
+            <i class="search-icon fas fa-search"></i>
+            <!-- <input type="text" placeholder="Tìm kiếm..."> -->
         </div>
     </header>
+
     <div id="notification-box" class="notification-box hidden">
         Cập nhật thành công!
     </div>
+
+    <div id="confirmation-modal" class="modal modal-hidden">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+            <div class="modal-buttons">
+                <button id="modal-cancel-btn" class="btn cancel-btn">Hủy</button>
+                <button id="modal-confirm-btn" class="btn confirm-btn">Xóa</button>
+            </div>
+        </div>
+    </div>
+
     <div class="all-container">
         <div class="left-menu">
             <div class="head-menu">
@@ -26,9 +40,9 @@
             </div>
             <div class="content-menu">
                 <ul id="menu-list">
-                    <li><a href="#">1. Quản lý Sách</a></li>
-                    <li><a href="#">2. Quản lý Nhà xuất bản</a></li>
-                    <li><a href="#">3. Quản lý Thể loại sách</a></li>
+                    <li><a id="Books">1. Quản lý Sách</a></li>
+                    <li><a id="Publishers">2. Quản lý Nhà xuất bản</a></li>
+                    <li><a id="BookTypes">3. Quản lý Thể loại sách</a></li>
                 </ul>
             </div>
         </div>
@@ -36,26 +50,17 @@
         <div class="container">
             <div class="table-section">
                 <div class="table-header">
-                    <h2>Danh sách Sách</h2>
+                    <h2 id="title-header">Danh sách Sách</h2>
                     <div class="pagination">
                         <button id="prev-btn" class="pagination-btn" disabled>&laquo; Trước</button>
                         <div id="page-numbers"></div>
                         <button id="next-btn" class="pagination-btn">&raquo; Sau</button>
                     </div>
-                    <button id="show-form-btn">Thêm Sách Mới</button>
+                    <button id="show-form-btn">Thêm sách mới</button>
                 </div>
-                <table id="book-table">
+                <table id="main-table">
                     <thead>
-                        <tr height="70px">
-                            <th width="32%">Tên sách</th>
-                            <th width="13%">Tác giả</th>
-                            <th width="7%">Năm XB</th>
-                            <th width="7%">Số lượng</th>
-                            <th width="10%">Đơn giá</th>
-                            <th width="10%">Nhà XB</th>
-                            <th width="10%">Loại sách</th>
-                            <th width="10%"></th>
-                        </tr>
+                        <tr height="70px"></tr>
                     </thead>
                     <tbody>
                     </tbody>
@@ -76,27 +81,27 @@
                 </div>
 
                 <div class="input-group">
-                    <input type="text" id="book-author" placeholder=" " required>
+                    <input type="text" id="book-author" placeholder=" ">
                     <label for="book-author">Tên tác giả</label>
                 </div>
 
                 <div class="input-group">
-                    <input type="number" id="book-year" placeholder=" " required>
+                    <input type="number" id="book-year" placeholder=" ">
                     <label for="book-year">Năm xuất bản</label>
                 </div>
 
                 <div class="input-group">
-                    <input type="number" id="book-amount" placeholder=" " required>
+                    <input type="number" id="book-amount" placeholder=" ">
                     <label for="book-amount">Số lượng</label>
                 </div>
 
                 <div class="input-group">
-                    <input type="number" id="book-price" placeholder=" " required>
+                    <input type="number" id="book-price" placeholder=" ">
                     <label for="book-price">Đơn giá sách</label>
                 </div>
 
                 <div class="input-group">
-                    <input type="text" id="book-image" placeholder=" " required>
+                    <input type="text" id="book-image" placeholder=" ">
                     <label for="book-image">URL hình ảnh</label>
                 </div>
 

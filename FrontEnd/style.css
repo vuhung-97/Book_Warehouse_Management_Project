@@ -1,12 +1,13 @@
+/*--- General Styles and Variables ---*/
 * {
     font-family: Arial, sans-serif;
     box-sizing: border-box;
 }
 
 :root {
-    --primary-color: #008080;
+    --primary-color: #018f8f;
     /* Deep teal for primary actions */
-    --primary-hover: #006666;
+    --primary-hover: #015050;
     /* Darker teal for hover states */
     --secondary-color: #ff6f61;
     /* Warm coral for secondary actions */
@@ -31,6 +32,8 @@
     --border-color: #d3dce6;
     /* Light blue-gray for borders */
     --color-row: #e6f2ff;
+    --color-right: #2196f3;
+    --color-error: #f44336;
 }
 
 body {
@@ -40,11 +43,76 @@ body {
     box-sizing: border-box;
 }
 
+h1,
+h3 {
+    color: var(--text-primary);
+    text-align: center;
+}
+
+h3 {
+    margin-block-start: 0.5rem;
+}
+
+img {
+    width: 100px;
+    height: 150px;
+    margin-left: 10px;
+    vertical-align: middle;
+    border-radius: 5px;
+    box-shadow: 0 0 5px var(--shadow-color);
+    object-fit: cover;
+}
+
+/*--- Layout and Structure ---*/
+div.all-container {
+    display: flex;
+    gap: 20px;
+}
+
+.container {
+    width: 60%;
+    margin: 0 auto 0 15%;
+    background-color: var(--card-background);
+    padding: 20px;
+    box-shadow: 0 0 10px var(--shadow-color);
+    box-sizing: border-box;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.container.expanded {
+    width: calc(74% - 50px);
+    margin-left: calc(50px + 0.7%);
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form-section {
+    position: fixed;
+    width: 24%;
+    top: 60px;
+    right: 20px;
+    background-color: var(--card-background);
+    margin-bottom: 20px;
+    padding: 20px;
+    border: none;
+    border-radius: 20px;
+    box-sizing: border-box;
+}
+
+.form-section.hidden {
+    display: none;
+}
+
+/*--- Header ---*/
 header.header {
     display: flex;
-    position: relative;
+    justify-content: flex-end;
     align-items: center;
-    justify-content: center;
     margin-bottom: 10px;
     width: 100%;
     height: 50px;
@@ -55,21 +123,39 @@ header.header {
     box-shadow: 0 2px 5px var(--shadow-color);
 }
 
-#current-time {
+header.header h1 {
     position: absolute;
-    right: 20px;
-    /* Căn lề phải */
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    /* Sử dụng biến màu đã định nghĩa */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
 }
 
-div.all-container {
-    display: flex;
-    gap: 20px;
+.search-container {
+    position: relative;
+    transform: translateX(-7px);
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 5px 15px;
+    background-color: #f5f5f5;
 }
 
+.search-container input {
+    border: none;
+    outline: none;
+    background-color: transparent;
+    flex-grow: 1;
+    font-size: 16px;
+    padding-left: 10px;
+}
+
+.search-icon {
+    color: #888;
+    font-size: 20px;
+}
+
+/*--- Left Menu / Sidebar ---*/
 .left-menu {
     width: 14%;
     position: fixed;
@@ -130,7 +216,8 @@ div.all-container {
     font-weight: 500;
     color: var(--background-color);
     transition: all 0.3s ease;
-    border-radius: 20px
+    border-radius: 20px;
+    overflow: hidden;
 }
 
 .left-menu a:hover,
@@ -158,69 +245,7 @@ div.all-container {
     white-space: nowrap;
 }
 
-.container {
-    width: 60%;
-    margin: 0 auto 0 15%;
-    background-color: var(--card-background);
-    padding: 20px;
-    box-shadow: 0 0 10px var(--shadow-color);
-    box-sizing: border-box;
-    border-radius: 20px;
-    transition: all 0.3s ease;
-}
-
-.container.expanded {
-    width: calc(74% - 50px);
-    margin-left: calc(50px + 0.7%);
-}
-
-.table-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-h1,
-h3 {
-    color: var(--text-primary);
-    text-align: center;
-}
-
-h3 {
-    margin-block-start: 0.5rem;
-}
-
-#show-form-btn {
-    display: block;
-    padding: 10px 20px;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-#show-form-btn:hover {
-    background-color: var(--primary-hover);
-}
-
-.form-section {
-    position: fixed;
-    width: 24%;
-    top: 60px;
-    right: 20px;
-    background-color: var(--card-background);
-    margin-bottom: 20px;
-    padding: 20px;
-    border: none;
-    border-radius: 20px;
-    box-sizing: border-box;
-}
-
-.form-section.hidden {
-    display: none;
-}
-
+/*--- Form Elements ---*/
 #book-form input,
 #book-form textarea,
 #book-form select,
@@ -276,68 +301,6 @@ h3 {
 
 #book-form button#cancel-btn:hover {
     background-color: #4b5255;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th,
-td {
-    border: 1px solid var(--border-color);
-    padding: 8px;
-    text-align: left;
-}
-
-th {
-    background-color: var(--background-color);
-    text-align: center;
-}
-
-#book-table tbody tr:nth-child(odd) {
-    background-color: var(--color-row);
-    /* màu cho hàng lẻ */
-}
-
-#book-table {
-    border-collapse: separate;
-    /* thay vì collapse */
-    border-spacing: 0;
-    /* tránh hở viền */
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    overflow: hidden;
-    /* để bo góc che được background của các ô */
-}
-
-.action-buttons button {
-    padding: 5px 10px;
-    margin-right: 5px;
-    cursor: pointer;
-    border: none;
-    color: white;
-}
-
-.edit-btn,
-.delete-btn {
-    background-color: var(--primary-color);
-    width: 100%;
-    margin-bottom: 5px;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-}
-
-.delete-btn {
-    background-color: var(--accent-color);
-}
-
-.edit-btn:hover {
-    background-color: var(--primary-hover);
-}
-
-.delete-btn:hover {
-    background-color: var(--accent-hover);
 }
 
 fieldset {
@@ -404,47 +367,86 @@ fieldset {
     color: var(--primary-color);
 }
 
-img {
-    width: 100px;
-    height: 150px;
-    margin-left: 10px;
-    vertical-align: middle;
-    border-radius: 5px;
-    box-shadow: 0 0 5px var(--shadow-color);
-    object-fit: cover;
-}
-
-.notification-box {
-    position: fixed;
-    top: 0;
-    /* Bắt đầu từ mép trên màn hình */
-    right: 0px;
-    transform: translateX(-50%) translateY(-100%);
-    /* Di chuyển ra ngoài vùng nhìn thấy */
-    padding: 15px 30px;
-    background-color: #28a745;
+#show-form-btn {
+    display: block;
+    padding: 10px 20px;
+    background-color: var(--primary-color);
     color: white;
-    border-radius: 0 0 8px 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#show-form-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+/*--- Table Styles ---*/
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    border: 1px solid var(--border-color);
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: var(--background-color);
     text-align: center;
-    font-weight: bold;
-    opacity: 0;
 }
 
-/* Class để hiển thị thông báo với hiệu ứng di chuyển xuống */
-.notification-box.visible {
-    transform: translateX(-50%) translateY(0);
-    /* Di chuyển xuống vị trí ban đầu */
-    opacity: 1;
+#main-table tbody tr:nth-child(odd) {
+    background-color: var(--color-row);
 }
 
+#main-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.action-buttons button {
+    padding: 5px 10px;
+    margin-right: 5px;
+    cursor: pointer;
+    border: none;
+    color: white;
+}
+
+.edit-btn,
+.delete-btn {
+    background-color: var(--primary-color);
+    width: 100%;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.delete-btn {
+    background-color: var(--color-error);
+}
+
+.edit-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.delete-btn:hover {
+    background-color: var(--accent-hover);
+}
+
+/*--- Pagination ---*/
 .pagination {
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 20px 0;
+    visibility: hidden;
 }
 
 .pagination button {
@@ -467,10 +469,6 @@ img {
     border-radius: 5px;
 }
 
-.pagination-btn:hover {
-    background-color: var(--primary-hover);
-}
-
 .pagination-btn:disabled {
     background-color: var(--border-color);
     cursor: not-allowed;
@@ -487,7 +485,7 @@ img {
 }
 
 .page-number-btn:hover {
-    background-color: var(--primary-hover);
+    background-color: var(--secondary-color);
 }
 
 .page-number-btn.active {
@@ -498,4 +496,84 @@ img {
 
 #page-numbers {
     display: flex;
+}
+
+/*--- Notification Box ---*/
+.notification-box {
+    position: fixed;
+    top: 0;
+    right: 0;
+    transform: translateX(-50%) translateY(-100%);
+    padding: 15px 30px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    text-align: center;
+    font-weight: bold;
+    opacity: 0;
+    z-index: 1000;
+}
+
+.notification-box.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+/* Lớp phủ mờ nền */
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--shadow-color);
+}
+
+/* Nội dung bên trong modal */
+.modal-content {
+    background-color: var(--background-color);
+    padding: 20px;
+    border-radius: 30px;
+    box-shadow: 0 4px 6px var(--shadow-color);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.modal-content p {
+    margin: 0 0 20px;
+    font-size: 1.1em;
+    color: var(--text-primary);
+}
+
+/* Các nút trong modal */
+.modal-buttons .btn {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.modal-buttons .confirm-btn {
+    background-color: var(--color-error);
+    color: var(--background-color);
+}
+
+.modal-buttons .cancel-btn {
+    background-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+/* Ẩn modal */
+.modal-hidden {
+    display: none;
 }
