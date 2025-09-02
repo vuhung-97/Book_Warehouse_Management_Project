@@ -130,7 +130,7 @@ def create_book(book: schemas.BookBase, db: Session = Depends(get_db)):
 @api.get("/books", response_model=List[schemas.BookWithNames], summary="Lấy tất cả sách với tên liên kết")
 def get_all_books(db: Session = Depends(get_db)):
     books_with_names = []
-    books = crud.get_all_books_with_names_db(db)
+    books = crud.get_all_books_db(db)
     for book in books:
         book_type_name = book.book_type.name if book.book_type else None
         publisher_name = book.publisher.name if book.publisher else None
@@ -148,7 +148,7 @@ def get_all_books(db: Session = Depends(get_db)):
         ))
     return books_with_names
 
-@api.get("/books/simple{book_id}", response_model=schemas.Book, summary="Tìm sách theo ID với tên liên kết")
+@api.get("/books/simple{book_id}", response_model=schemas.Book, summary="Tìm sách theo ID")
 def get_book_by_id(book_id: int, db:Session = Depends(get_db)):
     book = crud.get_book_by_id_db(book_id, db)
     if not book:
@@ -157,7 +157,7 @@ def get_book_by_id(book_id: int, db:Session = Depends(get_db)):
 
 @api.get("/books/{book_id}", response_model=schemas.BookWithNames, summary="Tìm sách theo ID với tên liên kết")
 def get_book_by_id(book_id: int, db: Session = Depends(get_db)):
-    book = crud.get_book_by_id_with_names_db(book_id, db)
+    book = crud.get_book_by_id_db(book_id, db)
     if not book:
         raise HTTPException(status_code=404, detail="Không tìm thấy sách")
 
