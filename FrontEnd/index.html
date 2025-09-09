@@ -12,13 +12,15 @@
 <body>
     <header class="header">
         <h1>Quản lý Kho sách</h1>
-        <div class="search-container">
-            <i class="search-icon fas fa-search"></i>
-            <!-- <input type="text" placeholder="Tìm kiếm..."> -->
+        <div class="search-container" id="search-container">
+            <div class="search" id="search">
+                <input id="searchInput" type="text" placeholder="Tìm kiếm ... ">
+            </div>
+            <i class="search-icon fas fa-search" id="search-icon"></i>
         </div>
     </header>
 
-    <div id="notification-box" class="notification-box hidden">
+    <div id="notification-box" class="notification-box">
         Cập nhật thành công!
     </div>
 
@@ -40,9 +42,9 @@
             </div>
             <div class="content-menu">
                 <ul id="menu-list">
-                    <li><a id="Books">1. Quản lý Sách</a></li>
-                    <li><a id="Publishers">2. Quản lý Nhà xuất bản</a></li>
-                    <li><a id="BookTypes">3. Quản lý Thể loại sách</a></li>
+                    <li><a id="books">1. Quản lý Sách</a></li>
+                    <li><a id="publishers">2. Quản lý Nhà xuất bản</a></li>
+                    <li><a id="book_types">3. Quản lý Thể loại sách</a></li>
                 </ul>
             </div>
         </div>
@@ -69,66 +71,31 @@
         </div>
     </div>
 
-    <div class="form-section hidden" id="book-form-container">
-        <h3>Thêm/Cập nhật Sách</h3>
-        <form id="book-form">
-            <input type="hidden" id="book-id">
-            <fieldset class="field-info">
-                <legend>Thông tin Sách</legend>
-                <div class="input-group">
-                    <input type="text" id="book-name" placeholder=" " required>
-                    <label for="book-name">Tên sách</label>
-                </div>
-
-                <div class="input-group">
-                    <input type="text" id="book-author" placeholder=" ">
-                    <label for="book-author">Tên tác giả</label>
-                </div>
-
-                <div class="input-group">
-                    <input type="number" id="book-year" placeholder=" ">
-                    <label for="book-year">Năm xuất bản</label>
-                </div>
-
-                <div class="input-group">
-                    <input type="number" id="book-amount" placeholder=" ">
-                    <label for="book-amount">Số lượng</label>
-                </div>
-
-                <div class="input-group">
-                    <input type="number" id="book-price" placeholder=" ">
-                    <label for="book-price">Đơn giá sách</label>
-                </div>
-
-                <div class="input-group">
-                    <input type="text" id="book-image" placeholder=" ">
-                    <label for="book-image">URL hình ảnh</label>
-                </div>
-
-                <div class="input-group">
-                    <textarea id="book-description" placeholder=""></textarea>
-                    <label for="book-description">Mô tả sách</label>
-                </div>
+    <div class="form-section hidden" id="information-form-container">
+        <h3></h3>
+        <form id="information-form">
+            <input type="hidden" id="info-id">
+            <fieldset class="field-info" id="field-info">
             </fieldset>
-
-            <fieldset class="field-info">
+            <fieldset class="field-info" id="pub-info">
                 <legend>Nhà xuất bản</legend>
                 <select id="book-publisher-select">
                 </select>
             </fieldset>
 
-            <fieldset class="field-info">
+            <fieldset class="field-info" id="type-info">
                 <legend>Thể loại sách</legend>
                 <select id="book-type-select">
                 </select>
             </fieldset>
 
-            <button type="submit" id="submit-btn">Thêm Sách</button>
+            <button type="submit" id="submit-btn">Thêm</button>
             <button type="button" id="cancel-btn">Hủy</button>
         </form>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
+    <!-- <script type="module" src="./js/moduls/main.js"></script> -->
 </body>
 
 </html>

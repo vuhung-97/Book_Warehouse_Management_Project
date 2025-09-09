@@ -148,14 +148,14 @@ def get_all_books(db: Session = Depends(get_db)):
         ))
     return books_with_names
 
-@api.get("/books/simple{book_id}", response_model=schemas.Book, summary="Tìm sách theo ID")
+@api.get("/books/{book_id}", response_model=schemas.Book, summary="Tìm sách theo ID")
 def get_book_by_id(book_id: int, db:Session = Depends(get_db)):
     book = crud.get_book_by_id_db(book_id, db)
     if not book:
         raise HTTPException(status_code=404, detail="Không tìm thấy sách")
     return book
 
-@api.get("/books/{book_id}", response_model=schemas.BookWithNames, summary="Tìm sách theo ID với tên liên kết")
+@api.get("/books/add_name{book_id}", response_model=schemas.BookWithNames, summary="Tìm sách theo ID với tên liên kết")
 def get_book_by_id(book_id: int, db: Session = Depends(get_db)):
     book = crud.get_book_by_id_db(book_id, db)
     if not book:
