@@ -7,13 +7,17 @@ const titleForm = informationFormContainer.getElementsByTagName('h3')[0];
 const informationField = document.getElementById('field-info');
 const publisherInfo = document.getElementById('pub-info');
 const booktypeInfo = document.getElementById('type-info');
+const searchContainer = document.getElementById('search-container');
+
+export const tableBody = document.querySelector('#main-table tbody');
 
 export const CreateBookTypeGUI = () => {
     titleHeader.innerText = 'Danh sách thể loại sách';
     paginationContainer.classList.add('hidden');
     publisherInfo.classList.add('hidden');
     booktypeInfo.classList.add('hidden');
-    showFormBtn.innerText = 'Thêm thể loại mới'
+    searchContainer.classList.add('hidden');
+    showFormBtn.innerText = 'Thêm thể loại mới';
     tr.innerHTML = `
                         <th width="10%"><label data-key="id">ID</label></th>
                         <th width="50%"><label data-key="name">Thể loại</label></th>
@@ -34,6 +38,7 @@ export const CreateBookGUI = () => {
     paginationContainer.classList.remove('hidden');
     publisherInfo.classList.remove('hidden');
     booktypeInfo.classList.remove('hidden');
+    searchContainer.classList.remove('hidden');
     showFormBtn.innerText = 'Thêm sách mới'
     tr.innerHTML = `
                         <th width="6%"><label data-key="id">ID</label></th>
@@ -91,6 +96,7 @@ export const CreatePublisherGUI = () => {
     paginationContainer.classList.add('hidden');
     publisherInfo.classList.add('hidden');
     booktypeInfo.classList.add('hidden');
+    searchContainer.classList.add('hidden');
     showFormBtn.innerText = 'Thêm NXB mới'
     tr.innerHTML = `
                             <th width="10%"><label data-key="id">ID</label></th>

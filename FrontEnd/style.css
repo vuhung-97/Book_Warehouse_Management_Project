@@ -85,6 +85,14 @@ div.all-container {
     margin-left: calc(50px + 0.7%);
 }
 
+.table-responsive-container {
+    width: 100%;
+}
+
+.overflow-x-auto {
+    overflow-x: auto;
+}
+
 .table-header {
     display: flex;
     justify-content: space-between;
