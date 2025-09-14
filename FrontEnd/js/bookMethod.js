@@ -19,7 +19,8 @@ const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
 
 
-const BOOKS_PER_PAGE = 3;
+const BOOKS_PER_PAGE = 1;
+const PAGES_WILL_SHOW = 5;
 let allBooks = [];
 let currentPage = 1;
 
@@ -251,11 +252,28 @@ export const addOrUpdatebook = async () => {
  * 
  */
 
+// Số nút phân trang hiển thị tối đa là PAGE_WILL_SHOW, trang hiện tại sẽ luôn ở giữa nếu có thể
 const createPaginationControls = () => {
     const totalPages = Math.ceil(allBooks.length / BOOKS_PER_PAGE);
     pageNumbersContainer.innerHTML = '';
 
-    for (let i = 1; i <= totalPages; i++) {
+    let start = 1;
+    let end = totalPages;
+
+    if (totalPages > PAGES_WILL_SHOW) {
+        if (currentPage <= Math.ceil(PAGES_WILL_SHOW / 2)) {
+            end = PAGES_WILL_SHOW;
+        }
+        else if (currentPage >= totalPages - Math.floor(PAGES_WILL_SHOW / 2)) {
+            start = totalPages - PAGES_WILL_SHOW + 1;
+        }
+        else {
+            start = currentPage - Math.floor(PAGES_WILL_SHOW / 2);
+            end = currentPage + Math.floor(PAGES_WILL_SHOW / 2);
+        }
+    }
+
+    for (let i = start; i <= end; i++) {
         const pageBtn = document.createElement('button');
         pageBtn.textContent = i;
         pageBtn.classList.add('page-number-btn');
@@ -272,7 +290,6 @@ const createPaginationControls = () => {
     prevBtn.disabled = currentPage === 1;
     nextBtn.disabled = currentPage === totalPages;
 };
-
 
 /*
 *
