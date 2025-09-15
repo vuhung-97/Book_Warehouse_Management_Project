@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List, Optional
 from . import models, schemas
 
@@ -13,8 +14,22 @@ def create_book_type_db(db: Session, book_type: schemas.BookTypeBase) -> models.
     db.refresh(db_book_type)
     return db_book_type
 
-def get_all_book_types_db(db: Session) -> List[models.BookType]:
-    return db.query(models.BookType).all()
+def get_all_book_types_db(db: Session) -> List:
+    results = db.query(
+        models.BookType,
+        func.count(models.Book.id).label("book_count")
+    ).outerjoin(
+        models.Book, models.BookType.id == models.Book.book_type_id
+    ).group_by(
+        models.BookType.id
+    ).all()
+
+    booktypes = []
+    for booktype, book_count in results:
+        booktype.amount = book_count
+        booktypes.append(booktype)
+    return booktypes
+
 
 def get_book_type_by_id_db(book_type_id: int, db: Session) -> Optional[models.BookType]:
     return db.query(models.BookType).filter(models.BookType.id == book_type_id).first()
@@ -49,8 +64,24 @@ def create_publisher_db(publisher: schemas.PublisherBase, db: Session) -> models
     db.refresh(db_publisher)
     return db_publisher
 
-def get_all_publishers_db(db: Session) -> List[models.Publisher]:
-    return db.query(models.Publisher).all()
+def get_all_publishers_db(db: Session) -> List:
+    results = db.query(
+        models.Publisher,
+        func.count(models.Book.id).label("book_count")
+    ).outerjoin(
+        models.Book, models.Publisher.id == models.Book.publisher_id
+    ).group_by(
+        models.Publisher.id
+    ).all()
+
+    # Gán số lượng sách vào thuộc tính 'amount' của mỗi object Publisher
+    # Schema 'Publisher' của bạn đã có sẵn trường 'amount' nên rất tiện lợi
+    publishers = []
+    for publisher, book_count in results:
+        publisher.amount = book_count
+        publishers.append(publisher)
+        
+    return publishers
 
 def get_publisher_by_id_db(publisher_id: int, db: Session) -> Optional[models.Publisher]:
     return db.query(models.Publisher).filter(models.Publisher.id == publisher_id).first()
@@ -89,7 +120,7 @@ def create_book_db(book: schemas.BookBase, db: Session) -> models.Book:
 def get_all_books_db(db: Session) -> List[models.Book]:
     return db.query(models.Book).all()
 
-def get_book_by_id_db(book_id: int, db:Session) -> Optional[models.Book]:
+def get_book_by_id_db(book_id: int, db: Session) -> Optional[models.Book]:
     return db.query(models.Book).filter(models.Book.id == book_id).first()
 
 def get_books_by_name_db(book_name: str, db: Session) -> List[models.Book]:

@@ -82,7 +82,7 @@ export const displayBookTypes = (allBookTypes) => {
 
         const amountCell = document.createElement('td');
         const amountLabel = document.createElement('label');
-        amountLabel.textContent = '';
+        amountLabel.textContent = booktype.amount;
         amountCell.appendChild(amountLabel);
 
         const buttonCell = document.createElement('td');
