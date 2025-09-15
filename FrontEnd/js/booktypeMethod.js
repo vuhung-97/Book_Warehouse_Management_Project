@@ -46,9 +46,9 @@ export const booktypeGUI = () => {
 
 /*
  *
- * Fetch toàn bộ bảng BookType trong CSDL vào biến allPublishers
- * sử dụng displayBookType() để hiển thị lên GUI
- * 
+ * Fetch toàn bộ bảng BookType trong CSDL vào biến allBookTypes
+ * sử dụng displayBookTypes() để hiển thị lên GUI
+ *
  */
 
 export const fetchBookTypes = async (headers) => {
@@ -59,25 +59,50 @@ export const fetchBookTypes = async (headers) => {
         setupSorting(headers, displayBookTypes);
     } catch (error) {
         showNotification(`Lỗi: ${error}`, false);
-        console.error('Error fetching publishers:', error);
+        console.error('Error fetching book types:', error);
     }
 };
 
-// Hàm displayPublishers
-export const displayBookTypes = (allbooktypes) => {
-    changeArray(allbooktypes);
+// Hàm displayBookTypes
+export const displayBookTypes = (allBookTypes) => {
+    changeArray(allBookTypes);
     tableBody.innerHTML = '';
-    allbooktypes.forEach(booktype => {
+    allBookTypes.forEach(booktype => {
         const row = document.createElement('tr');
-        row.innerHTML = `
-                <td><label>${booktype.id}</label></td>
-                <td><label>${booktype.name}</label></td>
-                <td><label></label></td>
-                <td class="action-buttons">
-                    <button class="edit-btn" data-id="${booktype.id}">Sửa</button>
-                    <button class="delete-btn" data-id="${booktype.id}">Xóa</button>
-                </td>
-            `;
+
+        const idCell = document.createElement('td');
+        const idLabel = document.createElement('label');
+        idLabel.textContent = booktype.id;
+        idCell.appendChild(idLabel);
+
+        const nameCell = document.createElement('td');
+        const nameLabel = document.createElement('label');
+        nameLabel.textContent = booktype.name;
+        nameCell.appendChild(nameLabel);
+
+        const amountCell = document.createElement('td');
+        const amountLabel = document.createElement('label');
+        amountLabel.textContent = '';
+        amountCell.appendChild(amountLabel);
+
+        const buttonCell = document.createElement('td');
+        buttonCell.classList.add('action-buttons');
+        const editButton = document.createElement('button');
+        editButton.classList.add('edit-btn');
+        editButton.setAttribute('data-id', booktype.id);
+        editButton.textContent = 'Sửa';
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('delete-btn');
+        deleteButton.setAttribute('data-id', booktype.id);
+        deleteButton.textContent = 'Xóa';
+        buttonCell.appendChild(editButton);
+        buttonCell.appendChild(deleteButton);
+
+        row.appendChild(idCell);
+        row.appendChild(nameCell);
+        row.appendChild(amountCell);
+        row.appendChild(buttonCell);
+
         tableBody.appendChild(row);
     });
 };

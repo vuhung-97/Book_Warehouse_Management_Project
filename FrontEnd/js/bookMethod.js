@@ -24,10 +24,12 @@ const PAGES_WILL_SHOW = 5;
 let allBooks = [];
 let currentPage = 1;
 
-/*
- *
+const sanitizeInput = (input) => {
+    return input.replace(/[<>\"']/g, '');
+};
+
+/**
  * Lấy dữ liệu nhà xuất bản và loại sách từ API và điền vào các menu thả xuống.
- * 
  */
 
 export const fetchPublishersAndTypes = async () => {
@@ -36,6 +38,9 @@ export const fetchPublishersAndTypes = async () => {
             fetch(`${API_URL}/publishers`),
             fetch(`${API_URL}/book_types`)
         ]);
+        if(!publishersRes.ok || !bookTypesRes.ok){
+            throw new Error('Không thể tải dữ liệu bookTypes, publishers từ server.');
+        }
         const publishers = await publishersRes.json();
         const bookTypes = await bookTypesRes.json();
 
@@ -58,13 +63,13 @@ export const fetchPublishersAndTypes = async () => {
         });
     } catch (error) {
         console.error('Error fetching dropdown data:', error);
+        showNotification('Lỗi tải dữ liệu dropdown: '+error.message, false);
     }
 };
 
-/*
- *
+/**
  * Hiển thị thông tin sách lên form
- * 
+ * @param {Object} book - The book object to display
  */
 
 export const showInfoBook = (book) => {
@@ -94,10 +99,8 @@ export const showInfoBook = (book) => {
     }
 };
 
-/*
- *
- * GUI books
- * 
+/**
+ * Initializes the book GUI, fetches data, and sets up sorting.
  */
 
 export const bookGUI = () => {
@@ -107,14 +110,15 @@ export const bookGUI = () => {
     fetchBooks(headers);
 };
 
-/*
- *
+/**
  * Fetch toàn bộ bảng books trong CSDL vào biến allBooks
  * sử dụng displayBooks() để hiển thị lên GUI
- * 
+ * @param {NodeList} headers - Table headers for sorting setup
  */
 
 export const fetchBooks = async (headers) => {
+    const loading = document.getElementById('loading');
+    if (loading) loading.style.display = 'block';
     try {
         const response = await fetch(`${API_URL}/books`);
         allBooks = await response.json();
@@ -124,14 +128,14 @@ export const fetchBooks = async (headers) => {
     } catch (error) {
         showNotification(`Lỗi: ${error}`, false);
         console.error('Error fetching books:', error);
+    } finally {
+        if (loading) loading.style.display = 'none';
     }
 };
 
 
-/*
- *
+/**
  * Hiển thị một phần của allBooks trên bảng dựa theo trang hiện tại.
- * 
  */
 
 export const displayBooks = () => {
@@ -142,25 +146,81 @@ export const displayBooks = () => {
 
     booksToDisplay.forEach(book => {
         const row = document.createElement('tr');
-        row.innerHTML = `
-                <td><label>${book.id}</label></td>
-                <td>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <label>${book.name}</label>
-                        <img src="${book.image || ''}">
-                    </div>
-                </td>
-                <td><label>${book.author || ''}</label></td>
-                <td><label>${book.year || ''}</label></td>
-                <td><label>${book.amount || 0}</label></td>
-                <td><label>${book.price || 0}</label></td>
-                <td><label>${book.publisher_name || 'N/A'}</label></td>
-                <td><label>${book.book_type_name || 'N/A'}</label></td>
-                <td class="action-buttons">
-                    <button class="edit-btn" data-id="${book.id}">Sửa</button>
-                    <button class="delete-btn" data-id="${book.id}">Xóa</button>
-                </td>
-            `;
+
+        // Tạo từng cell an toàn
+        const idCell = document.createElement('td');
+        const idLabel = document.createElement('label');
+        idLabel.textContent = book.id;
+        idCell.appendChild(idLabel);
+
+        const nameCell = document.createElement('td');
+        const nameDiv = document.createElement('div');
+        nameDiv.style.display = 'flex';
+        nameDiv.style.justifyContent = 'space-between';
+        nameDiv.style.alignItems = 'center';
+        const nameLabel = document.createElement('label');
+        nameLabel.textContent = book.name;
+        const img = document.createElement('img');
+        img.src = book.image || '';
+        img.alt = 'Book image';
+        img.onerror = () => img.style.display = 'none';
+        nameDiv.appendChild(nameLabel);
+        nameDiv.appendChild(img);
+        nameCell.appendChild(nameDiv);
+
+        const authorCell = document.createElement('td');
+        const authorLabel = document.createElement('label');
+        authorLabel.textContent = book.author || '';
+        authorCell.appendChild(authorLabel);
+
+        const yearCell = document.createElement('td');
+        const yearLabel = document.createElement('label');
+        yearLabel.textContent = book.year || '';
+        yearCell.appendChild(yearLabel);
+
+        const amountCell = document.createElement('td');
+        const amountLabel = document.createElement('label');
+        amountLabel.textContent = book.amount || 0;
+        amountCell.appendChild(amountLabel);
+
+        const priceCell = document.createElement('td');
+        const priceLabel = document.createElement('label');
+        priceLabel.textContent = book.price || 0;
+        priceCell.appendChild(priceLabel);
+
+        const publisherCell = document.createElement('td');
+        const publisherLabel = document.createElement('label');
+        publisherLabel.textContent = book.publisher_name || 'N/A';
+        publisherCell.appendChild(publisherLabel);
+
+        const typeCell = document.createElement('td');
+        const typeLabel = document.createElement('label');
+        typeLabel.textContent = book.book_type_name || 'N/A';
+        typeCell.appendChild(typeLabel);
+
+        const actionCell = document.createElement('td');
+        actionCell.className = 'action-buttons';
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Sửa';
+        editBtn.className = 'edit-btn';
+        editBtn.setAttribute('data-id', book.id);
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Xóa';
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.setAttribute('data-id', book.id);
+        actionCell.appendChild(editBtn);
+        actionCell.appendChild(deleteBtn);
+
+        row.appendChild(idCell);
+        row.appendChild(nameCell);
+        row.appendChild(authorCell);
+        row.appendChild(yearCell);
+        row.appendChild(amountCell);
+        row.appendChild(priceCell);
+        row.appendChild(publisherCell);
+        row.appendChild(typeCell);
+        row.appendChild(actionCell);
+
         tableBody.appendChild(row);
     });
 
@@ -168,10 +228,8 @@ export const displayBooks = () => {
 };
 
 
-/*
- *
+/**
  * Nút thêm/cập nhật sách trong form
- * 
  */
 
 export const addOrUpdatebook = async () => {
@@ -179,40 +237,48 @@ export const addOrUpdatebook = async () => {
     const textarea = informationField.querySelector('textarea');
     const id = infoIdInput.value;
     const bookData = {
-        name: inputList[0].value,
-        author: inputList[1].value || null,
+        name: sanitizeInput(inputList[0].value.trim()),
+        author: sanitizeInput(inputList[1].value || ''),
         year: parseInt(inputList[2].value, 10) || null,
         amount: parseInt(inputList[3].value, 10) || 0,
         price: parseFloat(inputList[4].value) || 0.00,
-        image: inputList[5].value || null,
-        description: textarea.value || null,
+        image: sanitizeInput(inputList[5].value || ''),
+        description: sanitizeInput(textarea.value || ''),
         publisher_id: publisherSelect.value ? parseInt(publisherSelect.value) : null,
         book_type_id: bookTypeSelect.value ? parseInt(bookTypeSelect.value) : null
     };
 
+    const now = new Date();
 
     // Kiểm tra thông tin đưa vào
-    if (bookData.amount < 0 || bookData.price < 0 || (bookData.year != null && bookData.year < 1900)) {
-        let error;
+    if (bookData.amount < 0 || bookData.price < 0 || (bookData.year != null && (bookData.year < 1900 || bookData.year > now.getFullYear))) {
+        let error = [];
         if (bookData.year < 1900) {
-            error = 'Năm nhập vào không hợp lệ (năm > 1900).';
+            error.push('Năm nhập vào không hợp lệ (năm > 1900).');
             bookData.year = 1900;
             inputList[2].value = 1900;
         }
+        else if(bookData.year > now.getFullYear) {
+            error.push('Năm nhập vào không thể lớn hơn năm hiện tại.');
+            bookData.year = now.getFullYear;
+            inputList[2].value = now.getFullYear;
+        }
         if (bookData.amount < 0) {
-            error += ' Số lượng sách phải lớn hơn 0.';
+            error.push('Số lượng sách phải lớn hơn 0.');
             bookData.amount = 0;
             inputList[3].value = 0;
         }
         if (bookData.price < 0) {
-            error += ' Giá sách phải lớn hơn 0.';
+            error.push('Giá sách phải lớn hơn 0.');
             bookData.price = 0;
             inputList[4].value = 0;
         }
-        showNotification(error, false);
+        showNotification(error.join('; '), false);
         return;
     }
 
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Đang xử lý...';
     try {
         let response;
         if (id) {
@@ -236,20 +302,21 @@ export const addOrUpdatebook = async () => {
             bookGUI();
         } else {
             const error = await response.json();
-            showNotification(`Lỗi: ${error.detail}`, false);
+            showNotification(`Lỗi: ${error.detail}` || `Lỗi không xác định`, false);
         }
 
     } catch (error) {
-        console.error(error);
+        console.error('error in addOrUpdatebook:', error);
         showNotification('Có lỗi đã xảy ra!', false);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = id ? 'Sửa' : 'Thêm';
     }
 };
 
 
-/*
- *
+/**
  * Tạo nút phân trang động.
- * 
  */
 
 // Số nút phân trang hiển thị tối đa là PAGE_WILL_SHOW, trang hiện tại sẽ luôn ở giữa nếu có thể
@@ -281,8 +348,10 @@ const createPaginationControls = () => {
             pageBtn.classList.add('active');
         }
         pageBtn.addEventListener('click', () => {
+            pageBtn.disabled = true;
             currentPage = i;
             displayBooks();
+            pageBtn.disabled = false;
         });
         pageNumbersContainer.appendChild(pageBtn);
     }
@@ -299,16 +368,20 @@ const createPaginationControls = () => {
 
 prevBtn.addEventListener('click', () => {
     if (currentPage > 1) {
+        prevBtn.disabled = true;
         currentPage--;
         displayBooks();
+        prevBtn.disabled = false;
     }
 });
 
 nextBtn.addEventListener('click', () => {
     const totalPages = Math.ceil(allBooks.length / BOOKS_PER_PAGE);
     if (currentPage < totalPages) {
+        nextBtn.disabled = true;
         currentPage++;
         displayBooks();
+        nextBtn.disabled = false;
     }
 });
 

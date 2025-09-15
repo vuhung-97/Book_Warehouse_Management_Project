@@ -6,7 +6,7 @@ const notificationBox = document.getElementById('notification-box');
  * 
  */
 export const showNotification = (message, isNotif = true) => {
-    notificationBox.textContent = message;
+    notificationBox.innerHTML = message;
 
     if (!isNotif)
         notificationBox.style.backgroundColor = "#f44336";

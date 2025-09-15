@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (nameTable === 'publishers')
             addOrUpdatePublisher();
         else
-            addOrUpdateBookType;
+            addOrUpdateBookType();
     });
 
     /*
@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let headers = document.querySelectorAll('#main-table thead th')
             if (response.ok) {
-                showNotification('Xóa thành công!');
+                showNotification('Xóa thành công!', true);
                 if (nameTable === 'books')
                     fetchBooks(headers);
                 else if (nameTable === 'book_types')
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
             allBooks = Array.from(id_map.values());
 
             if (allBooks.length > 0)
-                showNotification(`Hoàn thành!`);
+                showNotification(`Hoàn thành!`, true);
             else {
                 throw new Error(`Không tìm thấy nội dung khớp với từ khóa <br>${value}</br>`);
 

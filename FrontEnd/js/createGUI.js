@@ -39,7 +39,7 @@ export const CreateBookGUI = () => {
     publisherInfo.classList.remove('hidden');
     booktypeInfo.classList.remove('hidden');
     searchContainer.classList.remove('hidden');
-    showFormBtn.innerText = 'Thêm sách mới'
+    showFormBtn.innerText = 'Thêm sách mới';
     tr.innerHTML = `
                         <th width="6%"><label data-key="id">ID</label></th>
                         <th width="27%"><label data-key="name">Tên sách</label></th>
@@ -91,13 +91,15 @@ export const CreateBookGUI = () => {
                     `;
 };
 
+
+
 export const CreatePublisherGUI = () => {
     titleHeader.innerText = 'Danh sách Nhà xuất bản';
     paginationContainer.classList.add('hidden');
     publisherInfo.classList.add('hidden');
     booktypeInfo.classList.add('hidden');
     searchContainer.classList.add('hidden');
-    showFormBtn.innerText = 'Thêm NXB mới'
+    showFormBtn.innerText = 'Thêm NXB mới';
     tr.innerHTML = `
                             <th width="10%"><label data-key="id">ID</label></th>
                             <th width="20%"><label data-key="name">Nhà xuất bản</label></th>

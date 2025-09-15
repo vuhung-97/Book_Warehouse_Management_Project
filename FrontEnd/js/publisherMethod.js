@@ -45,7 +45,7 @@ export const publisherGUI = () => {
     CreatePublisherGUI();
     let headers = document.querySelectorAll("#main-table thead th");
     fetchPublishers(headers);
-}
+};
 
 /*
  *
@@ -67,22 +67,57 @@ export const fetchPublishers = async (headers) => {
 };
 
 // Hàm displayPublishers
-const displayPublishers = (allpublishers) => {
-    changeArray(allpublishers);
+export const displayPublishers = (allPublishers) => {
+    changeArray(allPublishers);
     tableBody.innerHTML = '';
-    allpublishers.forEach(publisher => {
+    allPublishers.forEach(publisher => {
         const row = document.createElement('tr');
-        row.innerHTML = `
-                <td><label>${publisher.id}</label></td>
-                <td><label>${publisher.name}</label></td>
-                <td><label>${publisher.address || ''}</label></td>
-                <td><label>${publisher.tax_code}</label></td>
-                <td><label></label></td>
-                <td class="action-buttons">
-                    <button class="edit-btn" data-id="${publisher.id}">Sửa</button>
-                    <button class="delete-btn" data-id="${publisher.id}">Xóa</button>
-                </td>
-            `;
+
+        const idCell = document.createElement('td');
+        const idLabel = document.createElement('label');
+        idLabel.textContent = publisher.id;
+        idCell.appendChild(idLabel);
+
+        const nameCell = document.createElement('td');
+        const nameLabel = document.createElement('label');
+        nameLabel.textContent = publisher.name;
+        nameCell.appendChild(nameLabel);
+
+        const addressCell = document.createElement('td');
+        const addressLabel = document.createElement('label');
+        addressLabel.textContent = publisher.address || '';
+        addressCell.appendChild(addressLabel);
+
+        const taxCodeCell = document.createElement('td');
+        const taxCodeLabel = document.createElement('label');
+        taxCodeLabel.textContent = publisher.tax_code;
+        taxCodeCell.appendChild(taxCodeLabel);
+
+        const amountCell = document.createElement('td');
+        const amountLabel = document.createElement('label');
+        amountLabel.textContent = '';
+        amountCell.appendChild(amountLabel);
+
+        const buttonCell = document.createElement('td');
+        buttonCell.classList.add('action-buttons');
+        const editButton = document.createElement('button');
+        editButton.classList.add('edit-btn');
+        editButton.setAttribute('data-id', publisher.id);
+        editButton.textContent = 'Sửa';
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('delete-btn');
+        deleteButton.setAttribute('data-id', publisher.id);
+        deleteButton.textContent = 'Xóa';
+        buttonCell.appendChild(editButton);
+        buttonCell.appendChild(deleteButton);
+
+        row.appendChild(idCell);
+        row.appendChild(nameCell);
+        row.appendChild(addressCell);
+        row.appendChild(taxCodeCell);
+        row.appendChild(amountCell);
+        row.appendChild(buttonCell);
+
         tableBody.appendChild(row);
     });
 };
@@ -95,26 +130,26 @@ const displayPublishers = (allpublishers) => {
 
 export const addOrUpdatePublisher = async () => {
     const inputList = informationField.querySelectorAll('input');
-    const id = infoIdInput.value;
+    const id = infoIdInput.value || '';
 
     let publisherData = {
         'name': inputList[0].value,
         'address': inputList[1].value,
-        'tax-code': inputList[2].value
+        'tax_code': inputList[2].value
     }
 
     try {
         let response;
-        if (id) {
-            response = await fetch(`${API_URL}/publishers/${id}`, {
-                method: 'PUT',
+        if (!id) {
+            response = await fetch(`${API_URL}/publishers`, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(publisherData)
             });
         }
         else {
-            response = await fetch(`${API_URL}/publishers`, {
-                method: 'POST',
+            response = await fetch(`${API_URL}/publishers/${id}`, {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(publisherData)
             });
