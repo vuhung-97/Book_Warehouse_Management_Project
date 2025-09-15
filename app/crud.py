@@ -7,20 +7,22 @@ from . import database, schemas
 #               BOOK TYPES CRUD
 # ----------------------------------------
 
-def create_book_type_db(db: Session, book_type: schemas.BookTypeBase) -> database.BookType:
+def create_book_type_db(db: Session, book_type: schemas.BookTypeBase) -> schemas.BookType:
     db_book_type = database.BookType(name=book_type.name)
     db.add(db_book_type)
     db.commit()
     db.refresh(db_book_type)
     return db_book_type
 
-def get_all_book_types_db(db: Session) -> List:
+def get_all_book_types_db(db: Session) -> List[schemas.BookTypeWithAmount]:
     results = db.query(
         database.BookType,
         func.count(database.Book.id).label("book_count")
     ).outerjoin(
         database.Book, database.BookType.id == database.Book.book_type_id
     ).group_by(
+        database.BookType.id
+    ).order_by(
         database.BookType.id
     ).all()
 
@@ -30,13 +32,14 @@ def get_all_book_types_db(db: Session) -> List:
         booktypes.append(booktype)
     return booktypes
 
-def get_book_type_by_id_db(book_type_id: int, db: Session) -> Optional[database.BookType]:
+def get_book_type_by_id_db(book_type_id: int, db: Session) -> Optional[schemas.BookType]:
     return db.query(database.BookType).filter(database.BookType.id == book_type_id).first()
 
-def get_book_type_by_name_db(book_type_name: str, db: Session) -> List[database.BookType]:
+#Chưa sử dụng
+def get_book_type_by_name_db(book_type_name: str, db: Session) -> List[schemas.BookType]:
     return db.query(database.BookType).filter(database.BookType.name.ilike(f"%{book_type_name}%")).all()
 
-def update_book_type_db(book_type_id: int, book_type: schemas.BookTypeBase, db: Session) -> Optional[database.BookType]:
+def update_book_type_db(book_type_id: int, book_type: schemas.BookTypeBase, db: Session) -> Optional[schemas.BookType]:
     db_book_type = db.query(database.BookType).filter(database.BookType.id == book_type_id).first()
     if db_book_type:
         db_book_type.name = book_type.name
@@ -56,14 +59,14 @@ def delete_book_type_db(book_type_id: int, db: Session) -> bool:
 #              PUBLISHERS CRUD
 # ----------------------------------------
 
-def create_publisher_db(publisher: schemas.PublisherBase, db: Session) -> database.Publisher:
+def create_publisher_db(publisher: schemas.PublisherBase, db: Session) -> schemas.Publisher:
     db_publisher = database.Publisher(name=publisher.name, address=publisher.address, tax_code=publisher.tax_code)
     db.add(db_publisher)
     db.commit()
     db.refresh(db_publisher)
     return db_publisher
 
-def get_all_publishers_db(db: Session) -> List:
+def get_all_publishers_db(db: Session) -> List[schemas.PublisherWithAmount]:
     results = db.query(
         database.Publisher,
         func.count(database.Book.id).label("book_count")
@@ -71,10 +74,11 @@ def get_all_publishers_db(db: Session) -> List:
         database.Book, database.Publisher.id == database.Book.publisher_id
     ).group_by(
         database.Publisher.id
+    ).order_by(
+        database.Publisher.id
     ).all()
 
     # Gán số lượng sách vào thuộc tính 'amount' của mỗi object Publisher
-    # Schema 'Publisher' của bạn đã có sẵn trường 'amount' nên rất tiện lợi
     publishers = []
     for publisher, book_count in results:
         publisher.amount = book_count
@@ -82,13 +86,14 @@ def get_all_publishers_db(db: Session) -> List:
         
     return publishers
 
-def get_publisher_by_id_db(publisher_id: int, db: Session) -> Optional[database.Publisher]:
+def get_publisher_by_id_db(publisher_id: int, db: Session) -> Optional[schemas.Publisher]:
     return db.query(database.Publisher).filter(database.Publisher.id == publisher_id).first()
 
-def get_publisher_by_name_db(publisher_name: str, db: Session) -> List[database.Publisher]:
+# Chưa sử dụng
+def get_publisher_by_name_db(publisher_name: str, db: Session) -> List[schemas.Publisher]:
     return db.query(database.Publisher).filter(database.Publisher.name.ilike(f"%{publisher_name}%")).all()
 
-def update_publisher_db(publisher_id: int, new_publisher: schemas.PublisherBase, db: Session) -> Optional[database.Publisher]:
+def update_publisher_db(publisher_id: int, new_publisher: schemas.PublisherBase, db: Session) -> Optional[schemas.Publisher]:
     db_publisher = db.query(database.Publisher).filter(database.Publisher.id == publisher_id).first()
     if db_publisher:
         for key, value in new_publisher.model_dump(exclude_unset=True).items():
@@ -109,38 +114,38 @@ def delete_publisher_db(publisher_id: int, db: Session) -> bool:
 #                 BOOKS CRUD
 # ----------------------------------------
 
-def create_book_db(book: schemas.BookBase, db: Session) -> database.Book:
+def create_book_db(book: schemas.BookBase, db: Session) -> schemas.Book:
     db_book = database.Book(**book.model_dump())
     db.add(db_book)
     db.commit()
     db.refresh(db_book)
     return db_book
 
-def get_all_books_db(db: Session) -> List[database.Book]:
-    return db.query(database.Book).all()
+def get_all_books_db(db: Session) -> List[schemas.Book]:
+    return db.query(database.Book).order_by(database.Book.id).all()
 
-def get_book_by_id_db(book_id: int, db: Session) -> Optional[database.Book]:
+def get_book_by_id_db(book_id: int, db: Session) -> Optional[schemas.Book]:
     return db.query(database.Book).filter(database.Book.id == book_id).first()
 
-def get_books_by_name_db(book_name: str, db: Session) -> List[database.Book]:
+def get_books_by_name_db(book_name: str, db: Session) -> List[schemas.Book]:
     return db.query(database.Book).filter(database.Book.name.ilike(f"%{book_name}%")).all()
 
-def get_books_by_author_db(author: str, db: Session) -> List[database.Book]:
+def get_books_by_author_db(author: str, db: Session) -> List[schemas.Book]:
     return db.query(database.Book).filter(database.Book.author.ilike(f"%{author}%")).all()
 
-def get_books_by_publisher_name_db(publisher_name: str, db: Session) -> List[database.Book]:
+def get_books_by_publisher_name_db(publisher_name: str, db: Session) -> List[schemas.Book]:
     return db.query(database.Book).join(database.Publisher).filter(database.Publisher.name.ilike(f"%{publisher_name}%")).all()
 
-def get_books_by_type_name_db(type_name: str, db: Session) -> List[database.Book]:
+def get_books_by_type_name_db(type_name: str, db: Session) -> List[schemas.Book]:
     return db.query(database.Book).join(database.BookType).filter(database.BookType.name.ilike(f"%{type_name}%")).all()
 
-def get_books_by_publisher_id_db(publisher_id: int, db: Session) -> List[database.Book]:
+def get_books_by_publisher_id_db(publisher_id: int, db: Session) -> List[schemas.Book]:
     return db.query(database.Book).filter(database.Book.publisher_id == publisher_id).all()
 
-def get_books_by_type_id_db(type_id: int, db: Session) -> List[database.Book]:
+def get_books_by_type_id_db(type_id: int, db: Session) -> List[schemas.Book]:
     return db.query(database.Book).filter(database.Book.book_type_id == type_id).all()
 
-def update_book_db(book_id: int, updated_book: schemas.BookBase, db: Session) -> Optional[database.Book]:
+def update_book_db(book_id: int, updated_book: schemas.BookBase, db: Session) -> Optional[schemas.Book]:
     db_book = db.query(database.Book).filter(database.Book.id == book_id).first()
     if db_book:
         for key, value in updated_book.model_dump(exclude_unset=True).items():

@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Điều khiển lựa chọn trong left-menu
   menuListItems.forEach((btn, index) => {
     btn.addEventListener("click", () => {
-      menuListItems.forEach((e) => {
+      menuListItems.forEach(e => {
         e.classList.remove("active");
       });
       btn.classList.add("active");
@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // submit form
-  informationForm.addEventListener("submit", async (e) => {
+  informationForm.addEventListener("submit", async e => {
     e.preventDefault();
     if (nameTable === "books") addOrUpdatebook();
     else if (nameTable === "publishers") addOrUpdatePublisher();
@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
    *
    */
 
-  tableBody.addEventListener("click", async (e) => {
+  tableBody.addEventListener("click", async e => {
     const id = parseInt(e.target.dataset.id);
 
     if (isNaN(id) || id <= 0) return;
@@ -184,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Xử lý nút Xóa trong modal
-  modalConfirmBtn.addEventListener("click", async (e) => {
+  modalConfirmBtn.addEventListener("click", async e => {
     const id = e.target.dataset.id;
 
     // Xóa nội dung tương ứng
@@ -243,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => search.parentElement.classList.add("open"), 10);
     searchInput.focus();
 
-    searchInput.addEventListener("keydown", (e) => {
+    searchInput.addEventListener("keydown", e => {
       if (e.key === "Enter") {
         const query = searchInput.value.trim();
         if (!query) {
@@ -268,15 +268,16 @@ document.addEventListener("DOMContentLoaded", () => {
         `${API_URL}/books/search/type?book_type_name=${value}`,
       ];
 
-      const responses = await Promise.all(urls.map((url) => fetch(url)));
-      let allBooks = (await Promise.all(responses.map((res) => res.json())))
-        .filter((arr) => Array.isArray(arr) && arr.length > 0)
+      const responses = await Promise.all(urls.map(url => fetch(url)));
+      let allBooks = (await Promise.all(responses.map(res => res.json())))
+        .filter(arr => Array.isArray(arr) && arr.length > 0)
         .flat()
-        .filter(Boolean); // loại bỏ null/undefined
+        .filter(Boolean) // loại bỏ null/undefined
+        .sort((a, b) => a.id - b.id);
 
       // Loại bỏ sách trùng id
       const id_map = new Map();
-      allBooks.forEach((book) => {
+      allBooks.forEach(book => {
         if (!id_map.has(book.id)) {
           id_map.set(book.id, book);
         }
