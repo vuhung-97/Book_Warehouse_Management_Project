@@ -5,19 +5,23 @@ from pydantic import BaseModel, Field
 
 class BookTypeBase(BaseModel):
     name: str
-    amount: Optional[int]
 
 class BookType(BookTypeBase):
     id: Optional[int]
+
+class BookTypeWithAmount(BookType):
+    amount: Optional[int]
 
 class PublisherBase(BaseModel):
     name: str
     address: Optional[str]
     tax_code: Optional[str]
-    amount: Optional[int]
 
 class Publisher(PublisherBase):
     id: Optional[int]
+
+class PublisherWithAmount(Publisher):
+    amount: Optional[int]
 
 class BookBase(BaseModel):    
     name: str

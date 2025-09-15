@@ -1,22 +1,24 @@
 import { CreatePublisherGUI, tableBody } from "./createGUI.js";
 import { API_URL } from "./api.js";
-import { setupSorting, changeArray } from "./sort.js"
+import { setupSorting, changeArray } from "./sort.js";
 import { showNotification } from "./showNotif.js";
 
-const informationField = document.getElementById('field-info');
-const informationFormContainer = document.getElementById('information-form-container');
-const titleForm = informationFormContainer.getElementsByTagName('h3')[0];
-const submitBtn = document.getElementById('submit-btn');
-const infoIdInput = document.getElementById('info-id');
+const informationField = document.getElementById("field-info");
+const informationFormContainer = document.getElementById(
+    "information-form-container"
+);
+const titleForm = informationFormContainer.getElementsByTagName("h3")[0];
+const submitBtn = document.getElementById("submit-btn");
+const infoIdInput = document.getElementById("info-id");
 
 /*
  *
  * Hiển thị thông tin publisher lên form
- * 
+ *
  */
 
-export const showInfoPublisher = (publisher) => {
-    const inputList = informationField.querySelectorAll('input');
+export const showInfoPublisher = publisher => {
+    const inputList = informationField.querySelectorAll("input");
 
     try {
         //Điền thông tin NXB
@@ -26,19 +28,18 @@ export const showInfoPublisher = (publisher) => {
         inputList[2].value = publisher.tax_code;
 
         // Thay đổi UI khi cập nhật NXB
-        submitBtn.textContent = 'Sửa';
-        titleForm.textContent = 'Cập nhật Nhà xuất bản';
-        informationFormContainer.classList.remove('hidden');
-    }
-    catch (error) {
-        console.error('Lỗi lấy dữ liệu:', error);
+        submitBtn.textContent = "Sửa";
+        titleForm.textContent = "Cập nhật Nhà xuất bản";
+        informationFormContainer.classList.remove("hidden");
+    } catch (error) {
+        console.error("Lỗi lấy dữ liệu:", error);
     }
 };
 
 /*
  *
  * GUI publisher
- * 
+ *
  */
 
 export const publisherGUI = () => {
@@ -50,11 +51,11 @@ export const publisherGUI = () => {
 /*
  *
  * Fetch toàn bộ bảng publishers trong CSDL vào biến allPublishers
- * sử dụng displayPublisher() để hiển thị lên GUI 
- * 
+ * sử dụng displayPublisher() để hiển thị lên GUI
+ *
  */
 
-export const fetchPublishers = async (headers) => {
+export const fetchPublishers = async headers => {
     try {
         const response = await fetch(`${API_URL}/publishers`);
         let allPublishers = await response.json();
@@ -62,52 +63,54 @@ export const fetchPublishers = async (headers) => {
         setupSorting(headers, displayPublishers);
     } catch (error) {
         showNotification(`Lỗi: ${error}`, false);
-        console.error('Error fetching publishers:', error);
+        console.error("Error fetching publishers:", error);
     }
 };
 
 // Hàm displayPublishers
-export const displayPublishers = (allPublishers) => {
+export const displayPublishers = allPublishers => {
     changeArray(allPublishers);
-    tableBody.innerHTML = '';
+    tableBody.innerHTML = "";
     allPublishers.forEach(publisher => {
-        const row = document.createElement('tr');
+        const row = document.createElement("tr");
 
-        const idCell = document.createElement('td');
-        const idLabel = document.createElement('label');
+        const idCell = document.createElement("td");
+        idCell.classList.add("content-center");
+        const idLabel = document.createElement("label");
         idLabel.textContent = publisher.id;
         idCell.appendChild(idLabel);
 
-        const nameCell = document.createElement('td');
-        const nameLabel = document.createElement('label');
+        const nameCell = document.createElement("td");
+        const nameLabel = document.createElement("label");
         nameLabel.textContent = publisher.name;
         nameCell.appendChild(nameLabel);
 
-        const addressCell = document.createElement('td');
-        const addressLabel = document.createElement('label');
-        addressLabel.textContent = publisher.address || '';
+        const addressCell = document.createElement("td");
+        const addressLabel = document.createElement("label");
+        addressLabel.textContent = publisher.address || "";
         addressCell.appendChild(addressLabel);
 
-        const taxCodeCell = document.createElement('td');
-        const taxCodeLabel = document.createElement('label');
+        const taxCodeCell = document.createElement("td");
+        const taxCodeLabel = document.createElement("label");
         taxCodeLabel.textContent = publisher.tax_code;
         taxCodeCell.appendChild(taxCodeLabel);
 
-        const amountCell = document.createElement('td');
-        const amountLabel = document.createElement('label');
+        const amountCell = document.createElement("td");
+        amountCell.classList.add("content-center");
+        const amountLabel = document.createElement("label");
         amountLabel.textContent = publisher.amount;
         amountCell.appendChild(amountLabel);
 
-        const buttonCell = document.createElement('td');
-        buttonCell.classList.add('action-buttons');
-        const editButton = document.createElement('button');
-        editButton.classList.add('edit-btn');
-        editButton.setAttribute('data-id', publisher.id);
-        editButton.textContent = 'Sửa';
-        const deleteButton = document.createElement('button');
-        deleteButton.classList.add('delete-btn');
-        deleteButton.setAttribute('data-id', publisher.id);
-        deleteButton.textContent = 'Xóa';
+        const buttonCell = document.createElement("td");
+        buttonCell.classList.add("action-buttons");
+        const editButton = document.createElement("button");
+        editButton.classList.add("edit-btn");
+        editButton.setAttribute("data-id", publisher.id);
+        editButton.textContent = "Sửa";
+        const deleteButton = document.createElement("button");
+        deleteButton.classList.add("delete-btn");
+        deleteButton.setAttribute("data-id", publisher.id);
+        deleteButton.textContent = "Xóa";
         buttonCell.appendChild(editButton);
         buttonCell.appendChild(deleteButton);
 
@@ -125,45 +128,45 @@ export const displayPublishers = (allPublishers) => {
 /*
  *
  * Nút thêm/cập nhật NXB trên form
- * 
+ *
  */
 
 export const addOrUpdatePublisher = async () => {
-    const inputList = informationField.querySelectorAll('input');
-    const id = infoIdInput.value || '';
+    const inputList = informationField.querySelectorAll("input");
+    const id = infoIdInput.value || "";
 
     let publisherData = {
-        'name': inputList[0].value,
-        'address': inputList[1].value,
-        'tax_code': inputList[2].value
-    }
+        name: inputList[0].value,
+        address: inputList[1].value,
+        tax_code: inputList[2].value,
+    };
 
     try {
         let response;
         if (!id) {
             response = await fetch(`${API_URL}/publishers`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(publisherData)
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(publisherData),
             });
-        }
-        else {
+        } else {
             response = await fetch(`${API_URL}/publishers/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(publisherData)
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(publisherData),
             });
         }
         if (response.ok) {
-            showNotification(id ? 'Cập nhật NXB thành công!' : 'Thêm NXB mới thành công!');
+            showNotification(
+                id ? "Cập nhật NXB thành công!" : "Thêm NXB mới thành công!"
+            );
             publisherGUI();
         } else {
             const error = await response.json();
             showNotification(`Lỗi: ${error.detail}`, false);
         }
-    }
-    catch (error) {
+    } catch (error) {
         console.error(error);
-        showNotification('Có lỗi đã xảy ra!', false);
+        showNotification("Có lỗi đã xảy ra!", false);
     }
 };

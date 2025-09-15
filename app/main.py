@@ -41,7 +41,7 @@ def create_book_type(book_type: schemas.BookTypeBase, db: Session = Depends(get_
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Lỗi: {e}")
 
-@api.get("/book_types", response_model=List[schemas.BookType], summary="Lấy tất cả loại sách")
+@api.get("/book_types", response_model=List[schemas.BookTypeWithAmount], summary="Lấy tất cả loại sách")
 def get_all_book_types(db: Session = Depends(get_db)):
     return crud.get_all_book_types_db(db)
     
@@ -59,7 +59,7 @@ def get_book_type_by_name(book_type_name: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Không tìm thấy loại sách")
     return book_types
 
-@api.put("/book_types/{book_type_id}", response_model=schemas.BookType, summary="Cập nhật loại sách")
+@api.patch("/book_types/{book_type_id}", response_model=schemas.BookTypeBase, summary="Cập nhật loại sách")
 def update_book_type(book_type_id: int, book_type: schemas.BookTypeBase, db: Session = Depends(get_db)):
     updated_book_type = crud.update_book_type_db(book_type_id, book_type, db)
     if not updated_book_type:
@@ -84,7 +84,7 @@ def create_publisher(publisher: schemas.PublisherBase, db: Session = Depends(get
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Lỗi: {e}")
 
-@api.get("/publishers", response_model=List[schemas.Publisher], summary="Lấy tất cả nhà xuất bản")
+@api.get("/publishers", response_model=List[schemas.PublisherWithAmount], summary="Lấy tất cả nhà xuất bản")
 def get_all_publishers(db: Session = Depends(get_db)):
     return crud.get_all_publishers_db(db)
 
@@ -102,8 +102,8 @@ def get_publisher_by_name(publisher_name: str, db: Session=Depends(get_db)):
         raise HTTPException(status_code=404, detail="Không tìm thấy nhà xuất bản")
     return model_publishers
 
-@api.put("/publishers/{publisher_id}", response_model=schemas.Publisher, summary="Cập nhật nhà xuất bản")
-def update_publisher(publisher_id: int, publisher: schemas.Publisher, db: Session = Depends(get_db)):
+@api.patch("/publishers/{publisher_id}", response_model=schemas.PublisherBase, summary="Cập nhật nhà xuất bản")
+def update_publisher(publisher_id: int, publisher: schemas.PublisherBase, db: Session = Depends(get_db)):
     updated_publisher = crud.update_publisher_db( publisher_id, publisher, db)
     if not updated_publisher:
         raise HTTPException(status_code=404, detail="Không tìm thấy nhà xuất bản")
@@ -177,7 +177,7 @@ def get_book_by_id(book_id: int, db: Session = Depends(get_db)):
         book_type_name=book_type_name
     )
 
-@api.put("/books/{book_id}", response_model=schemas.Book, summary="Cập nhật sách")
+@api.patch("/books/{book_id}", response_model=schemas.BookBase, summary="Cập nhật sách")
 def update_book(book_id: int, updated_book: schemas.BookBase, db: Session = Depends(get_db)):
     book = crud.update_book_db(book_id, updated_book, db)
     if not book:
