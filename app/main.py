@@ -287,6 +287,7 @@ def get_books_by_type_name(book_type_name: str, db: Session = Depends(get_db)):
         ))
     return books_with_names
 
+# Chưa sử dụng
 @api.get("/books/search/publisher_id", response_model=List[schemas.BookWithNames], summary="Tìm sách theo ID nhà xuất bản")
 def get_books_by_publisher_id(publisher_id: int, db: Session = Depends(get_db)):
     books = crud.get_books_by_publisher_id_db(publisher_id, db)
@@ -311,6 +312,7 @@ def get_books_by_publisher_id(publisher_id: int, db: Session = Depends(get_db)):
         ))
     return books_with_names
 
+# Chưa sử dụng
 @api.get("/books/search/type_id", response_model=List[schemas.BookWithNames], summary="Tìm sách theo ID loại sách")
 def get_books_by_type_id(type_id: int, db: Session = Depends(get_db)):
     books = crud.get_books_by_type_id_db(type_id, db)

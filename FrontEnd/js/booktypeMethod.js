@@ -94,11 +94,21 @@ export const displayBookTypes = allBookTypes => {
     const editButton = document.createElement("button");
     editButton.classList.add("edit-btn");
     editButton.setAttribute("data-id", booktype.id);
-    editButton.textContent = "Sửa";
     const deleteButton = document.createElement("button");
     deleteButton.classList.add("delete-btn");
     deleteButton.setAttribute("data-id", booktype.id);
-    deleteButton.textContent = "Xóa";
+    const del_icon = document.createElement("icon");
+    del_icon.classList = "bi bi-trash-fill";
+    const del_label = document.createElement("label");
+    del_label.textContent = "Xóa";
+    const edit_icon = document.createElement("icon");
+    edit_icon.classList = "bi bi-pen-fill";
+    const edit_label = document.createElement("label");
+    edit_label.textContent = "Sửa";
+    editButton.appendChild(edit_icon);
+    editButton.appendChild(edit_label);
+    deleteButton.appendChild(del_icon);
+    deleteButton.appendChild(del_label);
     buttonCell.appendChild(editButton);
     buttonCell.appendChild(deleteButton);
 

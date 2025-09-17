@@ -5,9 +5,9 @@
 }
 
 :root {
-  --primary-color: #018f8f;
+  --primary-color: #01bebe;
   /* Deep teal for primary actions */
-  --primary-hover: #015050;
+  --primary-hover: #027070;
   /* Darker teal for hover states */
   --secondary-color: #ff6f61;
   /* Warm coral for secondary actions */
@@ -27,7 +27,7 @@
   /* Near-black for primary text */
   --text-secondary: #4a5a6a;
   /* Muted blue-gray for secondary text */
-  --shadow-color: rgba(0, 0, 0, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.3);
   /* Subtle shadow */
   --border-color: #d3dce6;
   /* Light blue-gray for borders */
@@ -110,6 +110,7 @@ div.all-container {
   border: none;
   border-radius: 20px;
   box-sizing: border-box;
+  box-shadow: 0 0 10px var(--shadow-color);
 }
 
 .hidden {
@@ -212,6 +213,10 @@ header.header h1 {
   transition: all 0.3s ease;
 }
 
+.head-menu > h2 {
+  white-space: nowrap;
+}
+
 /* head-menu>#close-btn */
 .button-close-container {
   position: absolute;
@@ -294,10 +299,9 @@ header.header h1 {
   transition: all 0.3s ease;
 }
 
-.left-menu ul {
-  list-style: none;
+.left-menu ol {
   padding: 0;
-  margin: 0;
+  margin-left: 20px;
 }
 
 .left-menu li {
@@ -351,10 +355,6 @@ header.header h1 {
   margin-bottom: 7px;
 }
 
-#information-form button {
-  padding: 10px;
-}
-
 #information-form select {
   border-radius: 5px;
   border: none;
@@ -381,13 +381,14 @@ header.header h1 {
 }
 
 #information-form button {
+  padding: 10px;
   background-color: var(--secondary-color);
-  color: white;
+  color: var(--card-background);
   border: none;
   cursor: pointer;
-  border-radius: 10px;
-  margin: 10px 0;
-  font-size: 0.9rem;
+  border-radius: 30px;
+  margin: 5px 0;
+  font-size: 1.1rem;
 }
 
 #information-form button#cancel-btn {
@@ -467,17 +468,23 @@ fieldset {
 }
 
 #show-form-btn {
-  display: block;
-  padding: 10px 20px;
+  display: flex;
+  padding: 10px;
   background-color: var(--primary-color);
-  color: white;
+  color: var(--text-primary);
   border: none;
-  border-radius: 5px;
+  border-radius: 40px;
   cursor: pointer;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
 }
 
 #show-form-btn:hover {
   background-color: var(--primary-hover);
+  color: var(--card-background);
 }
 
 /*--- Table Styles ---*/
@@ -511,7 +518,7 @@ th {
 }
 
 .action-buttons button {
-  padding: 5px 10px;
+  padding: 2px 4px;
   margin-right: 5px;
   cursor: pointer;
   border: none;
@@ -520,12 +527,18 @@ th {
 
 .edit-btn,
 .delete-btn {
+  display: flex;
   background-color: var(--primary-color);
   width: 100%;
-  font-size: 0.9rem;
-  margin-bottom: 5px;
-  border-radius: 10px;
+  height: 30px;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 2px;
+  border-radius: 15px;
   transition: all 0.3s ease;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
 }
 
 .delete-btn {
@@ -534,10 +547,12 @@ th {
 
 .edit-btn:hover {
   background-color: var(--primary-hover);
+  color: var(--background-color);
 }
 
 .delete-btn:hover {
   background-color: var(--accent-hover);
+  color: var(--background-color);
 }
 
 /*--- Pagination ---*/
@@ -549,7 +564,7 @@ th {
 }
 
 .pagination button {
-  color: var(--background-color);
+  color: var(--text-primary);
   background-color: var(--primary-color);
   border: 1px solid var(--border-color);
 }
@@ -568,7 +583,8 @@ th {
   border-radius: 5px;
 }
 
-.pagination-btn:disabled {
+.pagination-btn:disabled,
+.pagination-btn:disabled:hover {
   background-color: var(--border-color);
   cursor: not-allowed;
   color: var(--text-secondary);
@@ -577,17 +593,20 @@ th {
 .page-number-btn {
   padding: 8px 12px;
   margin: 0 2px;
+  color: var(--text-primary);
   border: 1px solid var(--border-color);
   background-color: var(--primary-color);
   cursor: pointer;
   border-radius: 5px;
+  transition: all 0.3s ease-in-out;
 }
 
 .page-number-btn:hover {
   background-color: var(--secondary-color);
 }
 
-.page-number-btn.active {
+.page-number-btn.active,
+.page-number-btn.active:hover {
   background-color: var(--secondary-color);
   color: var(--background-color);
   border-color: var(--border-color);
@@ -675,4 +694,16 @@ th {
 /* Ẩn modal */
 .modal-hidden {
   display: none;
+}
+
+/* box-image */
+.box-image {
+  background-color: var(--card-background);
+  padding: 4px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px var(--shadow-color);
+}
+
+.box-image > img {
+  margin-left: 0px !important;
 }

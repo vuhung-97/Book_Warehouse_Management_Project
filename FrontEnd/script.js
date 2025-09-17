@@ -273,7 +273,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .filter(arr => Array.isArray(arr) && arr.length > 0)
         .flat()
         .filter(Boolean) // loại bỏ null/undefined
-        .sort((a, b) => a.id - b.id);
+        .sort((a, b) => a.id - b.id); // Sắp xếp tăng
 
       // Loại bỏ sách trùng id
       const id_map = new Map();

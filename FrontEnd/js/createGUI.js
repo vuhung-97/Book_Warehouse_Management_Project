@@ -19,7 +19,7 @@ export const CreateBookTypeGUI = () => {
   publisherInfo.classList.add("hidden");
   booktypeInfo.classList.add("hidden");
   searchContainer.classList.add("hidden");
-  showFormBtn.innerText = "Thêm thể loại mới";
+  showFormBtn.querySelector("label").textContent = "Thêm thể loại mới";
   tr.innerHTML = `
                         <th width="10%"><label data-key="id">ID</label></th>
                         <th width="50%"><label data-key="name">Thể loại</label></th>
@@ -41,7 +41,7 @@ export const CreateBookGUI = () => {
   publisherInfo.classList.remove("hidden");
   booktypeInfo.classList.remove("hidden");
   searchContainer.classList.remove("hidden");
-  showFormBtn.innerText = "Thêm sách mới";
+  showFormBtn.querySelector("label").textContent = "Thêm sách mới";
   tr.innerHTML = `
                         <th width="6%"><label data-key="id">ID</label></th>
                         <th width="27%"><label data-key="name">Tên sách</label></th>
@@ -99,7 +99,7 @@ export const CreatePublisherGUI = () => {
   publisherInfo.classList.add("hidden");
   booktypeInfo.classList.add("hidden");
   searchContainer.classList.add("hidden");
-  showFormBtn.innerText = "Thêm NXB mới";
+  showFormBtn.querySelector("label").textContent = "Thêm NXB mới";
   tr.innerHTML = `
                             <th width="10%"><label data-key="id">ID</label></th>
                             <th width="20%"><label data-key="name">Nhà xuất bản</label></th>

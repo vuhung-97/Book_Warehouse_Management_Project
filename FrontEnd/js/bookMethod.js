@@ -10,7 +10,7 @@ const informationField = document.getElementById("field-info");
 const publisherSelect = document.getElementById("book-publisher-select");
 const bookTypeSelect = document.getElementById("book-type-select");
 const informationFormContainer = document.getElementById(
-    "information-form-container"
+  "information-form-container"
 );
 const titleForm = informationFormContainer.getElementsByTagName("h3")[0];
 const submitBtn = document.getElementById("submit-btn");
@@ -20,13 +20,13 @@ const infoIdInput = document.getElementById("info-id");
 const prevBtn = document.getElementById("prev-btn");
 const nextBtn = document.getElementById("next-btn");
 
-const BOOKS_PER_PAGE = 10;
+const BOOKS_PER_PAGE = 20;
 const PAGES_WILL_SHOW = 5;
 let allBooks = [];
 let currentPage = 1;
 
 const sanitizeInput = input => {
-    return input.replace(/[<>\"']/g, "");
+  return input.replace(/[<>\"']/g, "");
 };
 
 /**
@@ -34,40 +34,38 @@ const sanitizeInput = input => {
  */
 
 export const fetchPublishersAndTypes = async () => {
-    try {
-        const [publishersRes, bookTypesRes] = await Promise.all([
-            fetch(`${API_URL}/publishers`),
-            fetch(`${API_URL}/book_types`),
-        ]);
-        if (!publishersRes.ok || !bookTypesRes.ok) {
-            throw new Error(
-                "Không thể tải dữ liệu bookTypes, publishers từ server."
-            );
-        }
-        const publishers = await publishersRes.json();
-        const bookTypes = await bookTypesRes.json();
-
-        // Lấy nội dung điền vào dropdown nhà xuất bản
-        publisherSelect.innerHTML = '<option value="">-- Chọn --</option>';
-        publishers.forEach(p => {
-            const option = document.createElement("option");
-            option.value = p.id;
-            option.textContent = p.name;
-            publisherSelect.appendChild(option);
-        });
-
-        // Lấy nội dung điền vào dropdown loại sách
-        bookTypeSelect.innerHTML = '<option value="">-- Chọn --</option>';
-        bookTypes.forEach(t => {
-            const option = document.createElement("option");
-            option.value = t.id;
-            option.textContent = t.name;
-            bookTypeSelect.appendChild(option);
-        });
-    } catch (error) {
-        console.error("Error fetching dropdown data:", error);
-        showNotification("Lỗi tải dữ liệu dropdown: " + error.message, false);
+  try {
+    const [publishersRes, bookTypesRes] = await Promise.all([
+      fetch(`${API_URL}/publishers`),
+      fetch(`${API_URL}/book_types`),
+    ]);
+    if (!publishersRes.ok || !bookTypesRes.ok) {
+      throw new Error("Không thể tải dữ liệu bookTypes, publishers từ server.");
     }
+    const publishers = await publishersRes.json();
+    const bookTypes = await bookTypesRes.json();
+
+    // Lấy nội dung điền vào dropdown nhà xuất bản
+    publisherSelect.innerHTML = '<option value="">-- Chọn --</option>';
+    publishers.forEach(p => {
+      const option = document.createElement("option");
+      option.value = p.id;
+      option.textContent = p.name;
+      publisherSelect.appendChild(option);
+    });
+
+    // Lấy nội dung điền vào dropdown loại sách
+    bookTypeSelect.innerHTML = '<option value="">-- Chọn --</option>';
+    bookTypes.forEach(t => {
+      const option = document.createElement("option");
+      option.value = t.id;
+      option.textContent = t.name;
+      bookTypeSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Error fetching dropdown data:", error);
+    showNotification("Lỗi tải dữ liệu dropdown: " + error.message, false);
+  }
 };
 
 /**
@@ -76,29 +74,29 @@ export const fetchPublishersAndTypes = async () => {
  */
 
 export const showInfoBook = book => {
-    const inputList = informationField.querySelectorAll("input");
-    const textarea = informationField.querySelector("textarea");
-    try {
-        // Điền thông tin sách vào form
-        infoIdInput.value = book.id;
-        inputList[0].value = book.name;
-        inputList[1].value = book.author;
-        inputList[2].value = book.year;
-        inputList[3].value = book.amount;
-        inputList[4].value = book.price;
-        inputList[5].value = book.image;
-        textarea.value = book.description || "";
+  const inputList = informationField.querySelectorAll("input");
+  const textarea = informationField.querySelector("textarea");
+  try {
+    // Điền thông tin sách vào form
+    infoIdInput.value = book.id;
+    inputList[0].value = book.name;
+    inputList[1].value = book.author;
+    inputList[2].value = book.year;
+    inputList[3].value = book.amount;
+    inputList[4].value = book.price;
+    inputList[5].value = book.image;
+    textarea.value = book.description || "";
 
-        publisherSelect.value = book.publisher_id || "";
-        bookTypeSelect.value = book.book_type_id || "";
+    publisherSelect.value = book.publisher_id || "";
+    bookTypeSelect.value = book.book_type_id || "";
 
-        // Thay đổi UI khi cập nhật sách
-        submitBtn.textContent = "Sửa";
-        titleForm.textContent = "Cập nhật Sách";
-        informationFormContainer.classList.remove("hidden");
-    } catch (error) {
-        console.error("Lỗi lấy dữ liệu:", error);
-    }
+    // Thay đổi UI khi cập nhật sách
+    submitBtn.textContent = "Sửa";
+    titleForm.textContent = "Cập nhật Sách";
+    informationFormContainer.classList.remove("hidden");
+  } catch (error) {
+    console.error("Lỗi lấy dữ liệu:", error);
+  }
 };
 
 /**
@@ -106,10 +104,10 @@ export const showInfoBook = book => {
  */
 
 export const bookGUI = () => {
-    CreateBookGUI();
-    fetchPublishersAndTypes();
-    let headers = document.querySelectorAll("#main-table thead th");
-    fetchBooks(headers);
+  CreateBookGUI();
+  fetchPublishersAndTypes();
+  let headers = document.querySelectorAll("#main-table thead th");
+  fetchBooks(headers);
 };
 
 /**
@@ -119,20 +117,20 @@ export const bookGUI = () => {
  */
 
 export const fetchBooks = async headers => {
-    const loading = document.getElementById("loading");
-    if (loading) loading.style.display = "block";
-    try {
-        const response = await fetch(`${API_URL}/books`);
-        allBooks = await response.json();
-        changeAllBooks(allBooks);
-        displayBooks();
-        setupSorting(headers, displayBooks);
-    } catch (error) {
-        showNotification(`Lỗi: ${error}`, false);
-        console.error("Error fetching books:", error);
-    } finally {
-        if (loading) loading.style.display = "none";
-    }
+  const loading = document.getElementById("loading");
+  if (loading) loading.style.display = "block";
+  try {
+    const response = await fetch(`${API_URL}/books`);
+    allBooks = await response.json();
+    changeAllBooks(allBooks);
+    displayBooks();
+    setupSorting(headers, displayBooks);
+  } catch (error) {
+    showNotification(`Lỗi: ${error}`, false);
+    console.error("Error fetching books:", error);
+  } finally {
+    if (loading) loading.style.display = "none";
+  }
 };
 
 /**
@@ -140,99 +138,111 @@ export const fetchBooks = async headers => {
  */
 
 export const displayBooks = () => {
-    tableBody.innerHTML = "";
-    const startIndex = (currentPage - 1) * BOOKS_PER_PAGE;
-    const endIndex = startIndex + BOOKS_PER_PAGE;
-    const booksToDisplay = allBooks.slice(startIndex, endIndex);
+  tableBody.innerHTML = "";
+  const startIndex = (currentPage - 1) * BOOKS_PER_PAGE;
+  const endIndex = startIndex + BOOKS_PER_PAGE;
+  const booksToDisplay = allBooks.slice(startIndex, endIndex);
 
-    booksToDisplay.forEach(book => {
-        const row = document.createElement("tr");
+  booksToDisplay.forEach(book => {
+    const row = document.createElement("tr");
 
-        // Tạo từng cell an toàn
-        const idCell = document.createElement("td");
-        idCell.classList.add("content-center");
-        const idLabel = document.createElement("label");
-        idLabel.textContent = book.id;
-        idCell.appendChild(idLabel);
+    // Tạo từng cell an toàn
+    const idCell = document.createElement("td");
+    idCell.classList.add("content-center");
+    const idLabel = document.createElement("label");
+    idLabel.textContent = book.id;
+    idCell.appendChild(idLabel);
 
-        const nameCell = document.createElement("td");
-        const nameDiv = document.createElement("div");
-        nameDiv.style.display = "flex";
-        nameDiv.style.justifyContent = "space-between";
-        nameDiv.style.alignItems = "center";
-        const nameLabel = document.createElement("label");
-        nameLabel.textContent = book.name;
-        const img = document.createElement("img");
-        img.src = book.image || "";
-        img.alt = "Book image";
-        img.onerror = () => (img.style.display = "none");
-        nameDiv.appendChild(nameLabel);
-        nameDiv.appendChild(img);
-        nameCell.appendChild(nameDiv);
+    const nameCell = document.createElement("td");
+    const nameDiv = document.createElement("div");
+    nameDiv.style.display = "flex";
+    nameDiv.style.justifyContent = "space-between";
+    nameDiv.style.alignItems = "center";
+    const nameLabel = document.createElement("label");
+    nameLabel.textContent = book.name;
+    const div = document.createElement("div");
+    div.classList.add("box-image");
+    const img = document.createElement("img");
+    img.src = book.image || "";
+    img.alt = "Book image";
+    div.appendChild(img);
+    nameDiv.appendChild(nameLabel);
+    nameDiv.appendChild(div);
+    nameCell.appendChild(nameDiv);
 
-        const authorCell = document.createElement("td");
-        authorCell.classList.add("content-center");
-        const authorLabel = document.createElement("label");
-        authorLabel.textContent = book.author || "";
-        authorCell.appendChild(authorLabel);
+    const authorCell = document.createElement("td");
+    authorCell.classList.add("content-center");
+    const authorLabel = document.createElement("label");
+    authorLabel.textContent = book.author || "";
+    authorCell.appendChild(authorLabel);
 
-        const yearCell = document.createElement("td");
-        yearCell.classList.add("content-center");
-        const yearLabel = document.createElement("label");
-        yearLabel.textContent = book.year || "";
-        yearCell.appendChild(yearLabel);
+    const yearCell = document.createElement("td");
+    yearCell.classList.add("content-center");
+    const yearLabel = document.createElement("label");
+    yearLabel.textContent = book.year || "";
+    yearCell.appendChild(yearLabel);
 
-        const amountCell = document.createElement("td");
-        amountCell.classList.add("content-center");
-        const amountLabel = document.createElement("label");
-        amountLabel.textContent = book.amount || 0;
-        amountCell.appendChild(amountLabel);
+    const amountCell = document.createElement("td");
+    amountCell.classList.add("content-center");
+    const amountLabel = document.createElement("label");
+    amountLabel.textContent = book.amount || 0;
+    amountCell.appendChild(amountLabel);
 
-        const priceCell = document.createElement("td");
-        priceCell.classList.add("content-center");
-        const priceLabel = document.createElement("label");
-        priceLabel.textContent = book.price || 0;
-        priceCell.appendChild(priceLabel);
+    const priceCell = document.createElement("td");
+    priceCell.classList.add("content-center");
+    const priceLabel = document.createElement("label");
+    priceLabel.textContent = book.price || 0;
+    priceCell.appendChild(priceLabel);
 
-        const publisherCell = document.createElement("td");
-        publisherCell.classList.add("content-center");
-        const publisherLabel = document.createElement("label");
-        publisherLabel.textContent = book.publisher_name || "N/A";
-        publisherCell.appendChild(publisherLabel);
+    const publisherCell = document.createElement("td");
+    publisherCell.classList.add("content-center");
+    const publisherLabel = document.createElement("label");
+    publisherLabel.textContent = book.publisher_name || "N/A";
+    publisherCell.appendChild(publisherLabel);
 
-        const typeCell = document.createElement("td");
-        typeCell.classList.add("content-center");
-        const typeLabel = document.createElement("label");
-        typeLabel.textContent = book.book_type_name || "N/A";
-        typeCell.appendChild(typeLabel);
+    const typeCell = document.createElement("td");
+    typeCell.classList.add("content-center");
+    const typeLabel = document.createElement("label");
+    typeLabel.textContent = book.book_type_name || "N/A";
+    typeCell.appendChild(typeLabel);
 
-        const actionCell = document.createElement("td");
-        actionCell.className = "action-buttons";
-        const editBtn = document.createElement("button");
-        editBtn.textContent = "Sửa";
-        editBtn.className = "edit-btn";
-        editBtn.setAttribute("data-id", book.id);
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Xóa";
-        deleteBtn.className = "delete-btn";
-        deleteBtn.setAttribute("data-id", book.id);
-        actionCell.appendChild(editBtn);
-        actionCell.appendChild(deleteBtn);
+    const actionCell = document.createElement("td");
+    actionCell.className = "action-buttons";
+    const editBtn = document.createElement("button");
+    editBtn.className = "edit-btn";
+    editBtn.setAttribute("data-id", book.id);
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "delete-btn";
+    deleteBtn.setAttribute("data-id", book.id);
+    const del_icon = document.createElement("icon");
+    del_icon.classList = "bi bi-trash-fill";
+    const del_label = document.createElement("label");
+    del_label.textContent = "Xóa";
+    const edit_icon = document.createElement("icon");
+    edit_icon.classList = "bi bi-pen-fill";
+    const edit_label = document.createElement("label");
+    edit_label.textContent = "Sửa";
+    editBtn.appendChild(edit_icon);
+    editBtn.appendChild(edit_label);
+    deleteBtn.appendChild(del_icon);
+    deleteBtn.appendChild(del_label);
+    actionCell.appendChild(editBtn);
+    actionCell.appendChild(deleteBtn);
 
-        row.appendChild(idCell);
-        row.appendChild(nameCell);
-        row.appendChild(authorCell);
-        row.appendChild(yearCell);
-        row.appendChild(amountCell);
-        row.appendChild(priceCell);
-        row.appendChild(publisherCell);
-        row.appendChild(typeCell);
-        row.appendChild(actionCell);
+    row.appendChild(idCell);
+    row.appendChild(nameCell);
+    row.appendChild(authorCell);
+    row.appendChild(yearCell);
+    row.appendChild(amountCell);
+    row.appendChild(priceCell);
+    row.appendChild(publisherCell);
+    row.appendChild(typeCell);
+    row.appendChild(actionCell);
 
-        tableBody.appendChild(row);
-    });
+    tableBody.appendChild(row);
+  });
 
-    createPaginationControls();
+  createPaginationControls();
 };
 
 /**
@@ -240,97 +250,92 @@ export const displayBooks = () => {
  */
 
 export const addOrUpdatebook = async () => {
-    const inputList = informationField.querySelectorAll("input");
-    const textarea = informationField.querySelector("textarea");
-    const id = infoIdInput.value;
-    const bookData = {
-        name: sanitizeInput(inputList[0].value.trim()),
-        author: sanitizeInput(inputList[1].value || ""),
-        year: parseInt(inputList[2].value, 10) || null,
-        amount: parseInt(inputList[3].value, 10) || 0,
-        price: parseFloat(inputList[4].value) || 0.0,
-        image: sanitizeInput(inputList[5].value || ""),
-        description: sanitizeInput(textarea.value || ""),
-        publisher_id: publisherSelect.value
-            ? parseInt(publisherSelect.value)
-            : null,
-        book_type_id: bookTypeSelect.value
-            ? parseInt(bookTypeSelect.value)
-            : null,
-    };
+  const inputList = informationField.querySelectorAll("input");
+  const textarea = informationField.querySelector("textarea");
+  const id = infoIdInput.value;
+  const bookData = {
+    name: sanitizeInput(inputList[0].value.trim()),
+    author: sanitizeInput(inputList[1].value || ""),
+    year: parseInt(inputList[2].value, 10) || null,
+    amount: parseInt(inputList[3].value, 10) || 0,
+    price: parseFloat(inputList[4].value) || 0.0,
+    image: sanitizeInput(inputList[5].value || ""),
+    description: sanitizeInput(textarea.value || ""),
+    publisher_id: publisherSelect.value
+      ? parseInt(publisherSelect.value)
+      : null,
+    book_type_id: bookTypeSelect.value ? parseInt(bookTypeSelect.value) : null,
+  };
 
-    const now = new Date();
+  const now = new Date();
 
-    // Kiểm tra thông tin đưa vào
-    if (
-        bookData.amount < 0 ||
-        bookData.price < 0 ||
-        (bookData.year != null &&
-            (bookData.year < 1900 || bookData.year > now.getFullYear))
-    ) {
-        let error = [];
-        if (bookData.year < 1900) {
-            error.push("Năm nhập vào không hợp lệ (năm > 1900).");
-            bookData.year = 1900;
-            inputList[2].value = 1900;
-        } else if (bookData.year > now.getFullYear) {
-            error.push("Năm nhập vào không thể lớn hơn năm hiện tại.");
-            bookData.year = now.getFullYear;
-            inputList[2].value = now.getFullYear;
-        }
-        if (bookData.amount < 0) {
-            error.push("Số lượng sách phải lớn hơn 0.");
-            bookData.amount = 0;
-            inputList[3].value = 0;
-        }
-        if (bookData.price < 0) {
-            error.push("Giá sách phải lớn hơn 0.");
-            bookData.price = 0;
-            inputList[4].value = 0;
-        }
-        showNotification(error.join("; "), false);
-        return;
+  // Kiểm tra thông tin đưa vào
+  if (
+    bookData.amount < 0 ||
+    bookData.price < 0 ||
+    (bookData.year != null &&
+      (bookData.year < 1900 || bookData.year > now.getFullYear))
+  ) {
+    let error = [];
+    if (bookData.year < 1900) {
+      error.push("Năm nhập vào không hợp lệ (năm > 1900).");
+      bookData.year = 1900;
+      inputList[2].value = 1900;
+    } else if (bookData.year > now.getFullYear) {
+      error.push("Năm nhập vào không thể lớn hơn năm hiện tại.");
+      bookData.year = now.getFullYear;
+      inputList[2].value = now.getFullYear;
+    }
+    if (bookData.amount < 0) {
+      error.push("Số lượng sách phải lớn hơn 0.");
+      bookData.amount = 0;
+      inputList[3].value = 0;
+    }
+    if (bookData.price < 0) {
+      error.push("Giá sách phải lớn hơn 0.");
+      bookData.price = 0;
+      inputList[4].value = 0;
+    }
+    showNotification(error.join("; "), false);
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Đang xử lý...";
+  try {
+    let response;
+    if (id) {
+      // Cập nhật
+      response = await fetch(`${API_URL}/books/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bookData),
+      });
+    } else {
+      // Thêm mới
+      response = await fetch(`${API_URL}/books`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bookData),
+      });
     }
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Đang xử lý...";
-    try {
-        let response;
-        if (id) {
-            // Cập nhật
-            response = await fetch(`${API_URL}/books/${id}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(bookData),
-            });
-        } else {
-            // Thêm mới
-            response = await fetch(`${API_URL}/books`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(bookData),
-            });
-        }
-
-        if (response.ok) {
-            showNotification(
-                id ? "Cập nhật sách thành công!" : "Thêm sách thành công!"
-            );
-            bookGUI();
-        } else {
-            const error = await response.json();
-            showNotification(
-                `Lỗi: ${error.detail}` || `Lỗi không xác định`,
-                false
-            );
-        }
-    } catch (error) {
-        console.error("error in addOrUpdatebook:", error);
-        showNotification("Có lỗi đã xảy ra!", false);
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = id ? "Sửa" : "Thêm";
+    if (response.ok) {
+      showNotification(
+        id ? "Cập nhật sách thành công!" : "Thêm sách thành công!"
+      );
+      bookGUI();
+    } else {
+      const error = await response.json();
+      showNotification(`Lỗi: ${error.detail}` || `Lỗi không xác định`, false);
     }
+  } catch (error) {
+    console.error("error in addOrUpdatebook:", error);
+    showNotification("Có lỗi đã xảy ra!", false);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = id ? "Sửa" : "Thêm";
+  }
 };
 
 /**
@@ -339,44 +344,42 @@ export const addOrUpdatebook = async () => {
 
 // Số nút phân trang hiển thị tối đa là PAGE_WILL_SHOW, trang hiện tại sẽ luôn ở giữa nếu có thể
 const createPaginationControls = () => {
-    const totalPages = Math.ceil(allBooks.length / BOOKS_PER_PAGE);
-    pageNumbersContainer.innerHTML = "";
+  const totalPages = Math.ceil(allBooks.length / BOOKS_PER_PAGE);
+  pageNumbersContainer.innerHTML = "";
 
-    let start = 1;
-    let end = totalPages;
+  let start = 1;
+  let end = totalPages;
 
-    if (totalPages > PAGES_WILL_SHOW) {
-        if (currentPage <= Math.ceil(PAGES_WILL_SHOW / 2)) {
-            end = PAGES_WILL_SHOW;
-        } else if (
-            currentPage >=
-            totalPages - Math.floor(PAGES_WILL_SHOW / 2)
-        ) {
-            start = totalPages - PAGES_WILL_SHOW + 1;
-        } else {
-            start = currentPage - Math.floor(PAGES_WILL_SHOW / 2);
-            end = currentPage + Math.floor(PAGES_WILL_SHOW / 2);
-        }
+  if (totalPages > PAGES_WILL_SHOW) {
+    if (currentPage <= Math.ceil(PAGES_WILL_SHOW / 2)) {
+      end = PAGES_WILL_SHOW;
+    } else if (currentPage >= totalPages - Math.floor(PAGES_WILL_SHOW / 2)) {
+      start = totalPages - PAGES_WILL_SHOW + 1;
+    } else {
+      start = currentPage - Math.floor(PAGES_WILL_SHOW / 2);
+      end = currentPage + Math.floor(PAGES_WILL_SHOW / 2);
     }
+  }
 
-    for (let i = start; i <= end; i++) {
-        const pageBtn = document.createElement("button");
-        pageBtn.textContent = i;
-        pageBtn.classList.add("page-number-btn");
-        if (i === currentPage) {
-            pageBtn.classList.add("active");
-        }
-        pageBtn.addEventListener("click", () => {
-            pageBtn.disabled = true;
-            currentPage = i;
-            displayBooks();
-            pageBtn.disabled = false;
-        });
-        pageNumbersContainer.appendChild(pageBtn);
+  for (let i = start; i <= end; i++) {
+    const pageBtn = document.createElement("button");
+    pageBtn.textContent = i;
+    pageBtn.classList.add("page-number-btn");
+    if (i === currentPage) {
+      pageBtn.classList.add("active");
     }
+    pageBtn.addEventListener("click", () => {
+      pageBtn.disabled = true;
+      currentPage = i;
+      displayBooks();
+      pageBtn.disabled = false;
+    });
+    pageNumbersContainer.appendChild(pageBtn);
+  }
 
-    prevBtn.disabled = currentPage === 1;
-    nextBtn.disabled = currentPage === totalPages;
+  prevBtn.disabled = currentPage === 1;
+
+  nextBtn.disabled = currentPage === totalPages;
 };
 
 /*
@@ -386,25 +389,21 @@ const createPaginationControls = () => {
  */
 
 prevBtn.addEventListener("click", () => {
-    if (currentPage > 1) {
-        prevBtn.disabled = true;
-        currentPage--;
-        displayBooks();
-        prevBtn.disabled = false;
-    }
+  if (currentPage > 1) {
+    currentPage--;
+    displayBooks();
+  }
 });
 
 nextBtn.addEventListener("click", () => {
-    const totalPages = Math.ceil(allBooks.length / BOOKS_PER_PAGE);
-    if (currentPage < totalPages) {
-        nextBtn.disabled = true;
-        currentPage++;
-        displayBooks();
-        nextBtn.disabled = false;
-    }
+  const totalPages = Math.ceil(allBooks.length / BOOKS_PER_PAGE);
+  if (currentPage < totalPages) {
+    currentPage++;
+    displayBooks();
+  }
 });
 
 export const changeAllBooks = newallbooks => {
-    allBooks = newallbooks;
-    changeArray(allBooks);
+  allBooks = newallbooks;
+  changeArray(allBooks);
 };
