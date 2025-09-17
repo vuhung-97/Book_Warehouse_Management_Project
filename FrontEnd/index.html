@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -24,6 +25,20 @@
                     />
                 </div>
                 <i class="search-icon bi bi-search" id="search-icon"></i>
+        </div>
+    </header>
+
+    <div id="notification-box" class="notification-box hidden">
+        Cập nhật thành công!
+    </div>
+
+    <div id="confirmation-modal" class="modal modal-hidden">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+            <div class="modal-buttons">
+                <button id="modal-cancel-btn" class="btn cancel-btn">Hủy</button>
+                <button id="modal-confirm-btn" class="btn confirm-btn">Xóa</button>
+
             </div>
         </header>
         <!-- End -->
@@ -134,10 +149,10 @@
                     <button type="submit" id="submit-btn">Thêm</button>
                     <button type="button" id="cancel-btn">Hủy</button>
                 </div>
+
             </form>
         </div>
         <!-- End -->
-
         <script type="module" src="script.js"></script>
     </body>
 </html>

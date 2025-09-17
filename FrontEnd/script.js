@@ -1,3 +1,4 @@
+
 import { showInfoBook } from "./js/bookMethod.js";
 import { showInfoBookType } from "./js/booktypeMethod.js";
 import { showInfoPublisher } from "./js/publisherMethod.js";
@@ -23,6 +24,7 @@ import { tableBody } from "./js/createGUI.js";
 import { API_URL } from "./js/api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
+
     // Form chính và các thành phần bảng
     const informationForm = document.getElementById("information-form");
     const informationFormContainer = document.getElementById(
@@ -44,6 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const cancelBtn = document.getElementById("cancel-btn");
 
     // Các thành phần bố cục và điều hướng
+
     const closeBtn = document.getElementById("close-btn");
     const leftMenu = document.querySelector(".left-menu");
     const menuListItems = document.querySelectorAll("#menu-list a");
@@ -163,7 +166,6 @@ document.addEventListener("DOMContentLoaded", () => {
             // Hiển thị modal xác nhận
             modalMessage.innerHTML = `Bạn có chắc chắn muốn xóa <b>"${target.name}"</b> không?`;
             confirmationModal.classList.remove("modal-hidden");
-
             // Gắn bookId vào nút xác nhận để sử dụng sau
             modalConfirmBtn.dataset.id = id;
         } else if (editBtn) {
@@ -191,6 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
     modalCancelBtn.addEventListener("click", () => {
         confirmationModal.classList.add("modal-hidden");
     });
+
 
     // Xử lý nút Xóa trong modal
     modalConfirmBtn.addEventListener("click", async (e) => {
@@ -225,6 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
      *  Search
      *
      */
+
 
     // click vào icon search
     searchIcon.addEventListener("click", () => {
@@ -266,6 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+
 
     // Searching
     async function SearchBook(value) {
@@ -310,7 +315,83 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // Xử lý nút Search
+    searchIcon.addEventListener('click', () => {
+        const searchInput = search.querySelector('input');
+        if (searchInput) {
+            const query = searchInput.value.trim();
+            if (!query) {
+                searchInput.classList.remove('open');
+                setTimeout(() => searchInput.remove(), 300); // đợi animation kết thúc
+            } else {
+                SearchBook(query);
+            }
+        }
+    });
+
+
+
+    // Click vào khung search sẽ mở rộng phần input nhập liệu
+    search.parentElement.addEventListener('click', () => {
+        let searchInput = search.querySelector('input');
+        if (!searchInput) {
+            // Tạo input mới bằng createElement
+            searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            searchInput.placeholder = 'Tìm kiếm...';
+            search.appendChild(searchInput);
+
+            // Delay một chút trước khi thêm class để transition chạy
+            setTimeout(() => searchInput.classList.add('open'), 10);
+            searchInput.focus();
+
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const query = searchInput.value.trim();
+                    if (!query) {
+                        searchInput.classList.remove('open');
+                        setTimeout(() => searchInput.remove(), 300); // đợi animation kết thúc
+                    } else {
+                        SearchBook(query);
+                    }
+                }
+            });
+        }
+    });
+
+    // Tìm kiếm
+    async function SearchBook(value) {
+        try {
+            const urls = [
+                `${API_URL}/books/search/name?book_name=${value}`,
+                `${API_URL}/books/search/publisher?publisher_name=${value}`,
+                `${API_URL}/books/search/author?author=${value}`,
+                `${API_URL}/books/search/type?book_type_name=${value}`
+            ];
+
+            const responses = await Promise.all(urls.map(url => fetch(url)));
+            allBooks = (await Promise.all(responses.map(res => res.json())))
+                .filter(arr => Array.isArray(arr) && arr.length > 0)
+                .flat()
+                .filter(book => book != null); // loại bỏ null/undefined
+
+            if (allBooks.length > 0)
+                showNotification(`Hoàn thành!`);
+            else {
+                throw new Error(`Không tìm thấy nội dung khớp với từ khóa <br>${value}</br>`);
+
+            }
+            console.log(allBooks);
+
+            displayBooks();
+
+        } catch (error) {
+            showNotification(`Lỗi: ${error}`, false);
+        }
+    }
+
     // --- Khởi tạo ---
+
     menuListItems[0].classList.add("active");
     menuListItems[0].click();
 });
