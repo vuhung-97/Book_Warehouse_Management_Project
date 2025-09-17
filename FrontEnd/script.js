@@ -3,303 +3,314 @@ import { showInfoBookType } from "./js/booktypeMethod.js";
 import { showInfoPublisher } from "./js/publisherMethod.js";
 import { showNotification } from "./js/showNotif.js";
 import {
-  addOrUpdatebook,
-  bookGUI,
-  fetchBooks,
-  displayBooks,
-  changeAllBooks,
+    addOrUpdatebook,
+    bookGUI,
+    fetchBooks,
+    displayBooks,
+    changeAllBooks,
 } from "./js/bookMethod.js";
 import {
-  addOrUpdateBookType,
-  booktypeGUI,
-  fetchBookTypes,
+    addOrUpdateBookType,
+    booktypeGUI,
+    fetchBookTypes,
 } from "./js/booktypeMethod.js";
 import {
-  addOrUpdatePublisher,
-  publisherGUI,
-  fetchPublishers,
+    addOrUpdatePublisher,
+    publisherGUI,
+    fetchPublishers,
 } from "./js/publisherMethod.js";
 import { tableBody } from "./js/createGUI.js";
 import { API_URL } from "./js/api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Form chính và các thành phần bảng
-  const informationForm = document.getElementById("information-form");
-  const informationFormContainer = document.getElementById(
-    "information-form-container"
-  );
-  const titleForm = informationFormContainer.getElementsByTagName("h3")[0];
-  const showFormBtn = document.getElementById("show-form-btn");
-  const confirmationModal = document.getElementById("confirmation-modal");
-  const modalMessage = document.getElementById("modal-message");
-  const modalConfirmBtn = document.getElementById("modal-confirm-btn");
-  const modalCancelBtn = document.getElementById("modal-cancel-btn");
-  const mainContainer = document.querySelector(".container");
+    // Form chính và các thành phần bảng
+    const informationForm = document.getElementById("information-form");
+    const informationFormContainer = document.getElementById(
+        "information-form-container"
+    );
+    const titleForm = informationFormContainer.getElementsByTagName("h3")[0];
+    const showFormBtn = document.getElementById("show-form-btn");
+    const confirmationModal = document.getElementById("confirmation-modal");
+    const modalMessage = document.getElementById("modal-message");
+    const modalConfirmBtn = document.getElementById("modal-confirm-btn");
+    const modalCancelBtn = document.getElementById("modal-cancel-btn");
+    const mainContainer = document.querySelector(".container");
 
-  // Các trường input
-  const infoIdInput = document.getElementById("info-id");
+    // Các trường input
+    const infoIdInput = document.getElementById("info-id");
 
-  // Button của Form
-  const submitBtn = document.getElementById("submit-btn");
-  const cancelBtn = document.getElementById("cancel-btn");
+    // Button của Form
+    const submitBtn = document.getElementById("submit-btn");
+    const cancelBtn = document.getElementById("cancel-btn");
 
-  // Các thành phần bố cục và điều hướng
-  const closeBtn = document.getElementById("close-btn");
-  const leftMenu = document.querySelector(".left-menu");
-  const menuListItems = document.querySelectorAll("#menu-list a");
-  const searchContainer = document.getElementById("search-container");
-  const search = document.getElementById("search");
-  const searchIcon = document.getElementById("search-icon");
+    // Các thành phần bố cục và điều hướng
+    const closeBtn = document.getElementById("close-btn");
+    const leftMenu = document.querySelector(".left-menu");
+    const menuListItems = document.querySelectorAll("#menu-list a");
+    const searchContainer = document.getElementById("search-container");
+    const search = document.getElementById("search");
+    const searchIcon = document.getElementById("search-icon");
 
-  // Biến toàn cục
-  let nameTable = "";
+    // Biến toàn cục
+    let nameTable = "";
 
-  // --- Hàm chính ---
+    // --- Hàm chính ---
 
-  /*
-   *
-   * left-menu
-   *
-   */
+    /*
+     *
+     * left-menu
+     *
+     */
 
-  // Điều khiển lựa chọn trong left-menu
-  menuListItems.forEach((btn, index) => {
-    btn.addEventListener("click", () => {
-      menuListItems.forEach(e => {
-        e.classList.remove("active");
-      });
-      btn.classList.add("active");
-      nameTable = btn.id;
-      submitBtn.innerText = "Thêm";
-      switch (btn.id) {
-        case "book_types":
-          booktypeGUI();
-          break;
+    // Điều khiển lựa chọn trong left-menu
+    menuListItems.forEach((btn, index) => {
+        btn.addEventListener("click", () => {
+            menuListItems.forEach((e) => {
+                e.classList.remove("active");
+            });
+            btn.classList.add("active");
+            nameTable = btn.id;
+            submitBtn.innerText = "Thêm";
+            switch (btn.id) {
+                case "book_types":
+                    booktypeGUI();
+                    break;
 
-        case "publishers":
-          publisherGUI();
-          break;
+                case "publishers":
+                    publisherGUI();
+                    break;
 
-        default:
-          bookGUI();
-          break;
-      }
+                default:
+                    bookGUI();
+                    break;
+            }
+        });
     });
-  });
 
-  // Đóng/mở left-menu và thay đổi kích thước main-container.
-  closeBtn.addEventListener("click", () => {
-    leftMenu.classList.toggle("collapsed");
-    mainContainer.classList.toggle("expanded");
-    // closeBtn.innerHTML = leftMenu.classList.contains('collapsed') ? '&#9776;' : '&times;';
-  });
-
-  /*
-   *
-   * Information Form
-   *
-   */
-
-  // reset form
-  const resetForm = () => {
-    informationForm.reset();
-    infoIdInput.value = "";
-
-    let content = "";
-    if (nameTable === "books") content = "Thêm sách mới";
-    else if (nameTable === "publishers") content = "Thêm NXB mới";
-    else content = "Thêm thể loại mới";
-
-    submitBtn.textContent = "Thêm";
-    titleForm.textContent = content;
-  };
-
-  // nút thêm để hiện form
-  showFormBtn.addEventListener("click", () => {
-    informationFormContainer.classList.remove("hidden");
-    resetForm();
-  });
-
-  // nút hủy để ẩn form
-  cancelBtn.addEventListener("click", () => {
-    resetForm();
-    informationFormContainer.classList.add("hidden");
-  });
-
-  // submit form
-  informationForm.addEventListener("submit", async e => {
-    e.preventDefault();
-    if (nameTable === "books") addOrUpdatebook();
-    else if (nameTable === "publishers") addOrUpdatePublisher();
-    else addOrUpdateBookType();
-  });
-
-  /*
-   *
-   *  nút sửa, xóa
-   *
-   */
-
-  tableBody.addEventListener("click", async e => {
-    const id = parseInt(e.target.dataset.id);
-
-    if (isNaN(id) || id <= 0) return;
-
-    const response = await fetch(`${API_URL}/${nameTable}/${id}`);
-
-    const target = await response.json();
-
-    if (e.target.classList.contains("delete-btn")) {
-      // Hiển thị modal xác nhận
-      modalMessage.innerHTML = `Bạn có chắc chắn muốn xóa <b>"${target.name}"</b> không?`;
-      confirmationModal.classList.remove("modal-hidden");
-
-      // Gắn bookId vào nút xác nhận để sử dụng sau
-      modalConfirmBtn.dataset.id = id;
-    }
-    if (e.target.classList.contains("edit-btn")) {
-      switch (nameTable) {
-        case "books":
-          showInfoBook(target);
-          break;
-        case "publishers":
-          showInfoPublisher(target);
-          break;
-        default:
-          showInfoBookType(target);
-          break;
-      }
-    }
-  });
-
-  /*
-   *
-   * Modal yêu cầu xóa
-   *
-   */
-
-  // Xử lý nút Hủy trong modal
-  modalCancelBtn.addEventListener("click", () => {
-    confirmationModal.classList.add("modal-hidden");
-  });
-
-  // Xử lý nút Xóa trong modal
-  modalConfirmBtn.addEventListener("click", async e => {
-    const id = e.target.dataset.id;
-
-    // Xóa nội dung tương ứng
-    try {
-      const response = await fetch(`${API_URL}/${nameTable}/${id}`, {
-        method: "DELETE",
-      });
-
-      let headers = document.querySelectorAll("#main-table thead th");
-      if (response.ok) {
-        showNotification("Xóa thành công!", true);
-        if (nameTable === "books") fetchBooks(headers);
-        else if (nameTable === "book_types") fetchBookTypes(headers);
-        else fetchPublishers(headers);
-      } else {
-        const error = await response.json();
-        showNotification(`Lỗi: ${error.detail}`, false);
-      }
-    } catch (error) {
-      showNotification(`Lỗi: ${error}`, false);
-      console.error("Error deleting:", error);
-    } finally {
-      confirmationModal.classList.add("modal-hidden"); // Ẩn modal sau khi xử lý
-    }
-  });
-
-  /*
-   *
-   *  Search
-   *
-   */
-
-  // click vào icon search
-  searchIcon.addEventListener("click", () => {
-    const searchInput = search.querySelector("input.open");
-    if (searchInput) {
-      const query = searchInput.value.trim();
-      if (!query) {
-        setTimeout(() => {
-          searchInput.classList.remove("open");
-          searchContainer.classList.remove("open");
-        }, 300); // đợi animation kết thúc
-      } else {
-        SearchBook(query);
-      }
-    }
-  });
-
-  // Click vào khung search sẽ mở rộng phần input nhập liệu
-  search.parentElement.addEventListener("click", () => {
-    // Lấy phần tử input
-    const searchInput = search.querySelector("input");
-
-    // Delay một chút trước khi thêm class để transition chạy
-    setTimeout(() => searchInput.classList.add("open"), 10);
-    setTimeout(() => search.parentElement.classList.add("open"), 10);
-    searchInput.focus();
-
-    searchInput.addEventListener("keydown", e => {
-      if (e.key === "Enter") {
-        const query = searchInput.value.trim();
-        if (!query) {
-          setTimeout(() => {
-            searchInput.classList.remove("open");
-            searchContainer.classList.remove("open");
-          }, 300); // đợi animation kết thúc
-        } else {
-          SearchBook(query);
-        }
-      }
+    // Đóng/mở left-menu và thay đổi kích thước main-container.
+    closeBtn.addEventListener("click", () => {
+        leftMenu.classList.toggle("collapsed");
+        mainContainer.classList.toggle("expanded-left");
     });
-  });
 
-  // Searching
-  async function SearchBook(value) {
-    try {
-      const urls = [
-        `${API_URL}/books/search/name?book_name=${value}`,
-        `${API_URL}/books/search/publisher?publisher_name=${value}`,
-        `${API_URL}/books/search/author?author=${value}`,
-        `${API_URL}/books/search/type?book_type_name=${value}`,
-      ];
+    /*
+     *
+     * Information Form
+     *
+     */
 
-      const responses = await Promise.all(urls.map(url => fetch(url)));
-      let allBooks = (await Promise.all(responses.map(res => res.json())))
-        .filter(arr => Array.isArray(arr) && arr.length > 0)
-        .flat()
-        .filter(Boolean) // loại bỏ null/undefined
-        .sort((a, b) => a.id - b.id); // Sắp xếp tăng
+    // reset form
+    const resetForm = () => {
+        informationForm.reset();
+        infoIdInput.value = "";
 
-      // Loại bỏ sách trùng id
-      const id_map = new Map();
-      allBooks.forEach(book => {
-        if (!id_map.has(book.id)) {
-          id_map.set(book.id, book);
+        let content = "";
+        if (nameTable === "books") content = "Thêm sách mới";
+        else if (nameTable === "publishers") content = "Thêm NXB mới";
+        else content = "Thêm thể loại mới";
+
+        submitBtn.textContent = "Thêm";
+        titleForm.textContent = content;
+    };
+
+    // nút thêm để hiện form
+    showFormBtn.addEventListener("click", () => {
+        informationFormContainer.classList.remove("hidden-form");
+        mainContainer.classList.add("expanded-right");
+        resetForm();
+    });
+
+    // nút hủy để ẩn form
+    cancelBtn.addEventListener("click", () => {
+        resetForm();
+        informationFormContainer.classList.add("hidden-form");
+        mainContainer.classList.remove("expanded-right");
+    });
+
+    // submit form
+    informationForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (nameTable === "books") addOrUpdatebook();
+        else if (nameTable === "publishers") addOrUpdatePublisher();
+        else addOrUpdateBookType();
+    });
+
+    /*
+     *
+     *  nút sửa, xóa
+     *
+     */
+
+    tableBody.addEventListener("click", async (e) => {
+        const deleteBtn = e.target.closest(".delete-btn");
+        const editBtn = e.target.closest(".edit-btn");
+
+        let button;
+        if (deleteBtn) button = deleteBtn;
+        else if (editBtn) button = editBtn;
+        else {
+            return;
         }
-      });
 
-      allBooks = Array.from(id_map.values());
+        const id = parseInt(button.dataset.id);
+        if (isNaN(id) || id <= 0) return;
 
-      if (allBooks.length > 0) showNotification(`Hoàn thành!`, true);
-      else {
-        throw new Error(
-          `Không tìm thấy nội dung khớp với từ khóa <br>${value}</br>`
-        );
-      }
+        const response = await fetch(`${API_URL}/${nameTable}/${id}`);
 
-      changeAllBooks(allBooks);
-      displayBooks();
-    } catch (error) {
-      showNotification(`Lỗi: ${error}`, false);
+        const target = await response.json();
+
+        if (deleteBtn) {
+            // Hiển thị modal xác nhận
+            modalMessage.innerHTML = `Bạn có chắc chắn muốn xóa <b>"${target.name}"</b> không?`;
+            confirmationModal.classList.remove("modal-hidden");
+
+            // Gắn bookId vào nút xác nhận để sử dụng sau
+            modalConfirmBtn.dataset.id = id;
+        } else if (editBtn) {
+            switch (nameTable) {
+                case "books":
+                    showInfoBook(target);
+                    break;
+                case "publishers":
+                    showInfoPublisher(target);
+                    break;
+                default:
+                    showInfoBookType(target);
+                    break;
+            }
+        }
+    });
+
+    /*
+     *
+     * Modal yêu cầu xóa
+     *
+     */
+
+    // Xử lý nút Hủy trong modal
+    modalCancelBtn.addEventListener("click", () => {
+        confirmationModal.classList.add("modal-hidden");
+    });
+
+    // Xử lý nút Xóa trong modal
+    modalConfirmBtn.addEventListener("click", async (e) => {
+        const id = e.target.dataset.id;
+
+        // Xóa nội dung tương ứng
+        try {
+            const response = await fetch(`${API_URL}/${nameTable}/${id}`, {
+                method: "DELETE",
+            });
+
+            let headers = document.querySelectorAll("#main-table thead th");
+            if (response.ok) {
+                showNotification("Xóa thành công!", true);
+                if (nameTable === "books") fetchBooks(headers);
+                else if (nameTable === "book_types") fetchBookTypes(headers);
+                else fetchPublishers(headers);
+            } else {
+                const error = await response.json();
+                showNotification(`Lỗi: ${error.detail}`, false);
+            }
+        } catch (error) {
+            showNotification(`Lỗi: ${error}`, false);
+            console.error("Error deleting:", error);
+        } finally {
+            confirmationModal.classList.add("modal-hidden"); // Ẩn modal sau khi xử lý
+        }
+    });
+
+    /*
+     *
+     *  Search
+     *
+     */
+
+    // click vào icon search
+    searchIcon.addEventListener("click", () => {
+        const searchInput = search.querySelector("input.open");
+        if (searchInput) {
+            const query = searchInput.value.trim();
+            if (!query) {
+                setTimeout(() => {
+                    searchInput.classList.remove("open");
+                    searchContainer.classList.remove("open");
+                }, 300); // đợi animation kết thúc
+            } else {
+                SearchBook(query);
+            }
+        }
+    });
+
+    // Click vào khung search sẽ mở rộng phần input nhập liệu
+    search.parentElement.addEventListener("click", () => {
+        // Lấy phần tử input
+        const searchInput = search.querySelector("input");
+
+        // Delay một chút trước khi thêm class để transition chạy
+        setTimeout(() => searchInput.classList.add("open"), 10);
+        setTimeout(() => search.parentElement.classList.add("open"), 10);
+        searchInput.focus();
+
+        searchInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                const query = searchInput.value.trim();
+                if (!query) {
+                    setTimeout(() => {
+                        searchInput.classList.remove("open");
+                        searchContainer.classList.remove("open");
+                    }, 300); // đợi animation kết thúc
+                } else {
+                    SearchBook(query);
+                }
+            }
+        });
+    });
+
+    // Searching
+    async function SearchBook(value) {
+        try {
+            const urls = [
+                `${API_URL}/books/search/name?book_name=${value}`,
+                `${API_URL}/books/search/publisher?publisher_name=${value}`,
+                `${API_URL}/books/search/author?author=${value}`,
+                `${API_URL}/books/search/type?book_type_name=${value}`,
+            ];
+
+            const responses = await Promise.all(urls.map((url) => fetch(url)));
+            let allBooks = (
+                await Promise.all(responses.map((res) => res.json()))
+            )
+                .filter((arr) => Array.isArray(arr) && arr.length > 0)
+                .flat()
+                .filter(Boolean) // loại bỏ null/undefined
+                .sort((a, b) => a.id - b.id); // Sắp xếp tăng
+
+            // Loại bỏ sách trùng id
+            const id_map = new Map();
+            allBooks.forEach((book) => {
+                if (!id_map.has(book.id)) {
+                    id_map.set(book.id, book);
+                }
+            });
+
+            allBooks = Array.from(id_map.values());
+
+            if (allBooks.length > 0) showNotification(`Hoàn thành!`, true);
+            else {
+                throw new Error(
+                    `Không tìm thấy nội dung khớp với từ khóa <br>${value}</br>`
+                );
+            }
+
+            changeAllBooks(allBooks);
+            displayBooks();
+        } catch (error) {
+            showNotification(`Lỗi: ${error}`, false);
+        }
     }
-  }
 
-  // --- Khởi tạo ---
-  menuListItems[0].classList.add("active");
-  menuListItems[0].click();
+    // --- Khởi tạo ---
+    menuListItems[0].classList.add("active");
+    menuListItems[0].click();
 });

@@ -3,8 +3,9 @@ const showFormBtn = document.getElementById("show-form-btn");
 const tr = document.querySelector("#main-table tr");
 const paginationContainer = document.querySelector("div.pagination");
 const informationFormContainer = document.getElementById(
-  "information-form-container"
+    "information-form-container"
 );
+const divSubmit = document.getElementById("div-submit");
 const titleForm = informationFormContainer.getElementsByTagName("h3")[0];
 const informationField = document.getElementById("field-info");
 const publisherInfo = document.getElementById("pub-info");
@@ -14,20 +15,20 @@ const searchContainer = document.getElementById("search-container");
 export const tableBody = document.querySelector("#main-table tbody");
 
 export const CreateBookTypeGUI = () => {
-  titleHeader.innerText = "Danh sách thể loại sách";
-  paginationContainer.classList.add("hidden");
-  publisherInfo.classList.add("hidden");
-  booktypeInfo.classList.add("hidden");
-  searchContainer.classList.add("hidden");
-  showFormBtn.querySelector("label").textContent = "Thêm thể loại mới";
-  tr.innerHTML = `
+    titleHeader.innerText = "Danh sách thể loại sách";
+    paginationContainer.classList.add("hidden");
+    publisherInfo.classList.add("hidden");
+    booktypeInfo.classList.add("hidden");
+    searchContainer.classList.add("hidden");
+    showFormBtn.querySelector("label").textContent = "Thêm thể loại mới";
+    tr.innerHTML = `
                         <th width="10%"><label data-key="id">ID</label></th>
                         <th width="50%"><label data-key="name">Thể loại</label></th>
                         <th width="20%"><label data-key="amount">Số lượng đầu sách</label></th>
                         <th width="20%"></th>
                     `;
-  titleForm.innerText = "Thêm/Cập nhật thể loại sách mới";
-  informationField.innerHTML = `
+    titleForm.innerText = "Thêm/Cập nhật thể loại sách mới";
+    informationField.innerHTML = `
                         <div class="input-group">
                                 <input type="text" id="book-type-name" placeholder=" " required>
                                 <label for="book-type-name">Tên thể loại</label>
@@ -36,13 +37,13 @@ export const CreateBookTypeGUI = () => {
 };
 
 export const CreateBookGUI = () => {
-  titleHeader.innerText = "Danh sách sách trong kho";
-  paginationContainer.classList.remove("hidden");
-  publisherInfo.classList.remove("hidden");
-  booktypeInfo.classList.remove("hidden");
-  searchContainer.classList.remove("hidden");
-  showFormBtn.querySelector("label").textContent = "Thêm sách mới";
-  tr.innerHTML = `
+    titleHeader.innerText = "Danh sách sách trong kho";
+    paginationContainer.classList.remove("hidden");
+    publisherInfo.classList.remove("hidden");
+    booktypeInfo.classList.remove("hidden");
+    searchContainer.classList.remove("hidden");
+    showFormBtn.querySelector("label").textContent = "Thêm sách mới";
+    tr.innerHTML = `
                         <th width="6%"><label data-key="id">ID</label></th>
                         <th width="27%"><label data-key="name">Tên sách</label></th>
                         <th width="13%"><label data-key="author">Tác giả</label></th>
@@ -53,8 +54,8 @@ export const CreateBookGUI = () => {
                         <th width="10%"><label data-key="book_type_name">Thể loại</label></th>
                         <th width="10%"> </th>
                     `;
-  titleForm.innerText = "Thêm/Cập nhật sách mới";
-  informationField.innerHTML = `                        
+    titleForm.innerText = "Thêm/Cập nhật sách mới";
+    informationField.innerHTML = `                        
                             <legend>Thông tin Sách</legend>
                             <div class="input-group">
                                 <input type="text" id="book-name" placeholder=" " required>
@@ -94,13 +95,13 @@ export const CreateBookGUI = () => {
 };
 
 export const CreatePublisherGUI = () => {
-  titleHeader.innerText = "Danh sách Nhà xuất bản";
-  paginationContainer.classList.add("hidden");
-  publisherInfo.classList.add("hidden");
-  booktypeInfo.classList.add("hidden");
-  searchContainer.classList.add("hidden");
-  showFormBtn.querySelector("label").textContent = "Thêm NXB mới";
-  tr.innerHTML = `
+    titleHeader.innerText = "Danh sách Nhà xuất bản";
+    paginationContainer.classList.add("hidden");
+    publisherInfo.classList.add("hidden");
+    booktypeInfo.classList.add("hidden");
+    searchContainer.classList.add("hidden");
+    showFormBtn.querySelector("label").textContent = "Thêm NXB mới";
+    tr.innerHTML = `
                             <th width="10%"><label data-key="id">ID</label></th>
                             <th width="20%"><label data-key="name">Nhà xuất bản</label></th>
                             <th width="30%"><label data-key="address">Địa chỉ</label></th>
@@ -108,8 +109,8 @@ export const CreatePublisherGUI = () => {
                             <th width="10%"><label data-key="amount">Số lượng đầu sách</label></th>
                             <th width="10%"></th>
                         `;
-  titleForm.innerText = "Thêm/Cập nhật NXB mới";
-  informationField.innerHTML = `                        
+    titleForm.innerText = "Thêm/Cập nhật NXB mới";
+    informationField.innerHTML = `                        
                             <legend>Thông tin NXB</legend>
                             <div class="input-group">
                                 <input type="text" id="publisher-name" placeholder=" " required>
