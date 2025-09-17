@@ -3,12 +3,40 @@
 
 Một API RESTful đơn giản được xây dựng bằng Python để quản lý thông tin sách.
 
+## Thư mục dự án
+- Book_Warehouse_Management
+	- app
+		- __init__.py
+		- crud.py
+		- database.py
+		- main.py
+		- models.py
+		- schemas.py
+	- FrontEnd
+		- js
+			- api.js
+			- bookMethod.js
+			- booktypeMehod.js
+			- createGUI.js
+			- publisherMethod.js
+			- showNotif.js
+			- sort.js
+		- index.html
+		- scripts.js
+		- style.css
+	- venv
+	- .env
+	- .gitignore
+	- ERROR.txt
+	- README.md
+	- requirement_python.txt
+
 ## 🌟 Tính năng
-- Thêm sách mới vào kho.
+- CRUD sách
+- CRUD thể loại sách
+- CRUD NXB sách
 - Lấy thông tin của tất cả sách.
-- Lấy thông tin một cuốn sách cụ thể theo ID.
-- Cập nhật thông tin sách.
-- Xóa một cuốn sách khỏi kho.
+- Lấy thông tin một cuốn sách cụ thể theo tên sách, tác giả, thể loại, NXB
 
 ## 🚀 Các bước thực hiện dự án
 
@@ -32,7 +60,11 @@ Một API RESTful đơn giản được xây dựng bằng Python để quản l
     ```
 
 2.  **Kích hoạt môi trường ảo**:
-    * **Windows**: `venv\Scripts\activate`
+    * **Windows**: 
+	```bash
+	python -m venv venv
+	venv\Scripts\activate
+	```
 
 3.  **Cài đặt các thư viện**:
     ```bash
