@@ -1,135 +1,143 @@
 <!DOCTYPE html>
 <html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Quản lý Kho Sách</title>
+        <link rel="stylesheet" href="style.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        />
+    </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Kho Sách</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-</head>
+    <body>
+        <!-- Header -->
+        <header class="header">
+            <h1>Quản lý Kho sách</h1>
+            <div class="search-container" id="search-container">
+                <div class="search" id="search">
+                    <input
+                        id="searchInput"
+                        type="text"
+                        placeholder="Tìm kiếm ... "
+                    />
+                </div>
+                <i class="search-icon bi bi-search" id="search-icon"></i>
+            </div>
+        </header>
+        <!-- End -->
 
-<body>
-    <header class="header">
-        <h1>Quản lý Kho sách</h1>
-        <div class="search-container">
-            <div class="search" id="search"></div>
-            <i class="search-icon fas fa-search" id="search-icon"></i>
+        <!-- Hộp thoại thông báo -->
+        <div id="notification-box" class="notification-box">
+            Cập nhật thành công!
         </div>
-    </header>
+        <!-- End -->
 
-    <div id="notification-box" class="notification-box hidden">
-        Cập nhật thành công!
-    </div>
-
-    <div id="confirmation-modal" class="modal modal-hidden">
-        <div class="modal-content">
-            <p id="modal-message"></p>
-            <div class="modal-buttons">
-                <button id="modal-cancel-btn" class="btn cancel-btn">Hủy</button>
-                <button id="modal-confirm-btn" class="btn confirm-btn">Xóa</button>
+        <!-- Modal -->
+        <div id="confirmation-modal" class="modal modal-hidden">
+            <div class="modal-content">
+                <p id="modal-message"></p>
+                <div class="modal-buttons">
+                    <button id="modal-cancel-btn" class="btn cancel-btn">
+                        Hủy
+                    </button>
+                    <button id="modal-confirm-btn" class="btn confirm-btn">
+                        Xóa
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+        <!-- End -->
 
-    <div class="all-container">
-        <div class="left-menu">
-            <div class="head-menu">
-                <h2>Menu Quản Lý</h2>
-                <button id="close-btn">&times;</button>
-            </div>
-            <div class="content-menu">
-                <ul id="menu-list">
-                    <li><a id="Books">1. Sách</a></li>
-                    <li><a id="Publishers">2. Nhà xuất bản</a></li>
-                    <li><a id="BookTypes">3. Thể loại sách</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="container">
-            <div class="table-section">
-                <div class="table-header">
-                    <h2 id="title-header">Danh sách Sách</h2>
-                    <div class="pagination">
-                        <button id="prev-btn" class="pagination-btn" disabled>&laquo; Trước</button>
-                        <div id="page-numbers"></div>
-                        <button id="next-btn" class="pagination-btn">&raquo; Sau</button>
+        <!-- Main context -->
+        <div class="all-container">
+            <!-- Left menu -->
+            <div class="left-menu">
+                <div class="head-menu">
+                    <h2>
+                        <i class="bi bi-menu-button-wide-fill"></i>
+                        Menu
+                    </h2>
+                    <div class="button-close-container">
+                        <button class="setting-btn" id="close-btn">
+                            <span class="bar bar1"></span>
+                            <span class="bar bar2"></span>
+                            <span class="bar bar3"></span>
+                        </button>
                     </div>
-                    <button id="show-form-btn">Thêm sách mới</button>
                 </div>
-                <table id="main-table">
-                    <thead>
-                        <tr height="70px"></tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+                <div class="content-menu">
+                    <ol id="menu-list">
+                        <li><a id="books" class="">Quản lý Sách</a></li>
+                        <li><a id="publishers">Quản lý Nhà xuất bản</a></li>
+                        <li><a id="book_types">Quản lý Thể loại sách</a></li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="container expanded-left overflow-x-auto">
+                <div class="table-section">
+                    <div class="table-header">
+                        <h2 id="title-header">Danh sách Sách</h2>
+                        <div class="pagination">
+                            <button
+                                id="prev-btn"
+                                class="pagination-btn"
+                                disabled
+                            >
+                                &laquo; Trước
+                            </button>
+                            <div id="page-numbers"></div>
+                            <button id="next-btn" class="pagination-btn">
+                                &raquo; Sau
+                            </button>
+                        </div>
+                        <button id="show-form-btn">
+                            <i class="bi bi-file-earmark-plus-fill"></i>
+                            <label
+                                for="show-form-btn"
+                                id="show-form-btn-content"
+                            ></label>
+                        </button>
+                    </div>
+
+                    <div class="table-responsive-container">
+                        <table id="main-table">
+                            <thead>
+                                <tr height="70px"></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+        <!-- End -->
 
-    <div class="form-section hidden" id="book-form-container">
-        <h3>Thêm/Cập nhật Sách</h3>
-        <form id="book-form">
-            <input type="hidden" id="book-id">
-            <fieldset class="field-info">
-                <legend>Thông tin Sách</legend>
-                <div class="input-group">
-                    <input type="text" id="book-name" placeholder=" " required>
-                    <label for="book-name">Tên sách</label>
+        <!-- Information form -->
+        <div class="form-section hidden-form" id="information-form-container">
+            <h3></h3>
+            <form id="information-form">
+                <input type="hidden" id="info-id" />
+                <fieldset class="field-info" id="field-info"></fieldset>
+                <fieldset class="field-info" id="pub-info">
+                    <legend>Nhà xuất bản</legend>
+                    <select id="book-publisher-select"></select>
+                </fieldset>
+
+                <fieldset class="field-info" id="type-info">
+                    <legend>Thể loại sách</legend>
+                    <select id="book-type-select"></select>
+                </fieldset>
+                <div id="div-submit" style="white-space: wrap">
+                    <button type="submit" id="submit-btn">Thêm</button>
+                    <button type="button" id="cancel-btn">Hủy</button>
                 </div>
+            </form>
+        </div>
+        <!-- End -->
 
-                <div class="input-group">
-                    <input type="text" id="book-author" placeholder=" ">
-                    <label for="book-author">Tên tác giả</label>
-                </div>
-
-                <div class="input-group">
-                    <input type="number" id="book-year" placeholder=" ">
-                    <label for="book-year">Năm xuất bản</label>
-                </div>
-
-                <div class="input-group">
-                    <input type="number" id="book-amount" placeholder=" ">
-                    <label for="book-amount">Số lượng</label>
-                </div>
-
-                <div class="input-group">
-                    <input type="number" id="book-price" placeholder=" ">
-                    <label for="book-price">Đơn giá sách</label>
-                </div>
-
-                <div class="input-group">
-                    <input type="text" id="book-image" placeholder=" ">
-                    <label for="book-image">URL hình ảnh</label>
-                </div>
-
-                <div class="input-group">
-                    <textarea id="book-description" placeholder=""></textarea>
-                    <label for="book-description">Mô tả sách</label>
-                </div>
-            </fieldset>
-
-            <fieldset class="field-info">
-                <legend>Nhà xuất bản</legend>
-                <select id="book-publisher-select">
-                </select>
-            </fieldset>
-
-            <fieldset class="field-info">
-                <legend>Thể loại sách</legend>
-                <select id="book-type-select">
-                </select>
-            </fieldset>
-
-            <button type="submit" id="submit-btn">Thêm Sách</button>
-            <button type="button" id="cancel-btn">Hủy</button>
-        </form>
-    </div>
-
-    <script src="script.js"></script>
-    <script src="config.js"></script>
-</body>
-
+        <script type="module" src="script.js"></script>
+    </body>
 </html>
