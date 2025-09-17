@@ -9,6 +9,9 @@ class BookTypeBase(BaseModel):
 class BookType(BookTypeBase):
     id: Optional[int]
 
+class BookTypeWithAmount(BookType):
+    amount: Optional[int]
+
 class PublisherBase(BaseModel):
     name: str
     address: Optional[str]
@@ -16,6 +19,9 @@ class PublisherBase(BaseModel):
 
 class Publisher(PublisherBase):
     id: Optional[int]
+
+class PublisherWithAmount(Publisher):
+    amount: Optional[int]
 
 class BookBase(BaseModel):    
     name: str
