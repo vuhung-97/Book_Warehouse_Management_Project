@@ -34,7 +34,8 @@
     --color-row: #e6f2ff;
     --color-right: #2196f3;
     --color-error: #f44336;
-    --color-exit: #4b5255;
+    --color-exit-hover: #4b5255;
+    --color-exit: #cacaca;
 }
 
 body {
@@ -57,6 +58,8 @@ h3 {
 img {
     width: 100px;
     height: 150px;
+    min-width: 100px;
+    min-height: 150px;
     margin-left: 10px;
     vertical-align: middle;
     border-radius: 5px;
@@ -216,8 +219,6 @@ header.header h1 {
     color: #888;
     font-size: 20px;
 }
-
-
 
 /*--- Left Menu / Sidebar ---*/
 .left-menu {
@@ -430,11 +431,11 @@ header.header h1 {
 }
 
 #information-form button#cancel-btn {
-    background-color: var(--border-color);
+    background-color: var(--color-exit);
 }
 
 #information-form button#cancel-btn:hover {
-    box-shadow: 0 5px 0 var(--color-exit);
+    box-shadow: 0 5px 0 var(--color-exit-hover);
 }
 
 fieldset {
@@ -496,7 +497,7 @@ fieldset {
 .input-group textarea:not(:placeholder-shown) + label {
     transform: translateY(-250%);
     left: 10px;
-    color: var(--primary-color);
+    color: var(--primary-hover);
 }
 
 #show-form-btn {
@@ -573,10 +574,16 @@ th {
     margin: 20px 0;
 }
 
+.pagination button {
+    font-size: 1rem;
+    border-radius: 50px;
+}
+
 .pagination-btn {
-    padding: 8px 12px;
     margin: 0 5px;
-    border-radius: 5px;
+    width: 80px;
+    height: 40px;
+    padding: auto 10px;
 }
 
 .pagination-btn:disabled {
@@ -591,9 +598,9 @@ th {
 }
 
 .page-number-btn {
-    padding: 8px 12px;
-    margin: 0 2px;
-    border-radius: 5px;
+    width: 35px;
+    height: 35px;
+    margin-left: 2px;
 }
 
 .page-number-btn.active {
@@ -691,6 +698,8 @@ th {
 .box-image {
     background-color: var(--card-background);
     padding: 4px;
+    width: auto;
+    height: auto;
     border-radius: 5px;
     box-shadow: 0 0 5px var(--shadow-color);
 }

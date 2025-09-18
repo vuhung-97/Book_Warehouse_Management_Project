@@ -1,4 +1,3 @@
-
 import { showInfoBook } from "./js/bookMethod.js";
 import { showInfoBookType } from "./js/booktypeMethod.js";
 import { showInfoPublisher } from "./js/publisherMethod.js";
@@ -21,10 +20,9 @@ import {
     fetchPublishers,
 } from "./js/publisherMethod.js";
 import { tableBody } from "./js/createGUI.js";
-import { API_URL } from "./js/api.js";
+import { API_URL, t_ms } from "./js/var.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-
     // Form chính và các thành phần bảng
     const informationForm = document.getElementById("information-form");
     const informationFormContainer = document.getElementById(
@@ -52,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const menuListItems = document.querySelectorAll("#menu-list a");
     const searchContainer = document.getElementById("search-container");
     const search = document.getElementById("search");
+    const searchInput = search.querySelector("input");
     const searchIcon = document.getElementById("search-icon");
 
     // Biến toàn cục
@@ -120,6 +119,10 @@ document.addEventListener("DOMContentLoaded", () => {
     showFormBtn.addEventListener("click", () => {
         informationFormContainer.classList.remove("hidden-form");
         mainContainer.classList.add("expanded-right");
+        showFormBtn.style.pointerEvents = "none";
+        setTimeout(() => {
+            showFormBtn.style.pointerEvents = "auto";
+        }, t_ms);
         resetForm();
     });
 
@@ -154,6 +157,11 @@ document.addEventListener("DOMContentLoaded", () => {
         else {
             return;
         }
+
+        button.style.pointerEvents = "none";
+        setTimeout(() => {
+            button.style.pointerEvents = "auto";
+        }, t_ms);
 
         const id = parseInt(button.dataset.id);
         if (isNaN(id) || id <= 0) return;
@@ -194,7 +202,6 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmationModal.classList.add("modal-hidden");
     });
 
-
     // Xử lý nút Xóa trong modal
     modalConfirmBtn.addEventListener("click", async (e) => {
         const id = e.target.dataset.id;
@@ -229,7 +236,6 @@ document.addEventListener("DOMContentLoaded", () => {
      *
      */
 
-
     // click vào icon search
     searchIcon.addEventListener("click", () => {
         const searchInput = search.querySelector("input.open");
@@ -249,31 +255,32 @@ document.addEventListener("DOMContentLoaded", () => {
     // Click vào khung search sẽ mở rộng phần input nhập liệu
     search.parentElement.addEventListener("click", () => {
         // Lấy phần tử input
-        const searchInput = search.querySelector("input");
 
         // Delay một chút trước khi thêm class để transition chạy
         setTimeout(() => searchInput.classList.add("open"), 10);
         setTimeout(() => search.parentElement.classList.add("open"), 10);
         searchInput.focus();
-
-        searchInput.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-                const query = searchInput.value.trim();
-                if (!query) {
-                    setTimeout(() => {
-                        searchInput.classList.remove("open");
-                        searchContainer.classList.remove("open");
-                    }, 300); // đợi animation kết thúc
-                } else {
-                    SearchBook(query);
-                }
-            }
-        });
     });
 
+    // Event ấn enter trong searchinput
+    searchInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            const query = searchInput.value.trim();
+            if (!query) {
+                setTimeout(() => {
+                    searchInput.classList.remove("open");
+                    searchContainer.classList.remove("open");
+                }, 300); // đợi animation kết thúc
+            } else {
+                SearchBook(query);
+            }
+        }
+    });
 
     // Searching
     async function SearchBook(value) {
+        console.log(value);
+
         try {
             const urls = [
                 `${API_URL}/books/search/name?book_name=${value}`,
@@ -283,6 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ];
 
             const responses = await Promise.all(urls.map((url) => fetch(url)));
+
             let allBooks = (
                 await Promise.all(responses.map((res) => res.json()))
             )
@@ -298,7 +306,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     id_map.set(book.id, book);
                 }
             });
-
             allBooks = Array.from(id_map.values());
 
             if (allBooks.length > 0) showNotification(`Hoàn thành!`, true);
@@ -310,81 +317,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             changeAllBooks(allBooks);
             displayBooks();
-        } catch (error) {
-            showNotification(`Lỗi: ${error}`, false);
-        }
-    }
-
-    // Xử lý nút Search
-    searchIcon.addEventListener('click', () => {
-        const searchInput = search.querySelector('input');
-        if (searchInput) {
-            const query = searchInput.value.trim();
-            if (!query) {
-                searchInput.classList.remove('open');
-                setTimeout(() => searchInput.remove(), 300); // đợi animation kết thúc
-            } else {
-                SearchBook(query);
-            }
-        }
-    });
-
-
-
-    // Click vào khung search sẽ mở rộng phần input nhập liệu
-    search.parentElement.addEventListener('click', () => {
-        let searchInput = search.querySelector('input');
-        if (!searchInput) {
-            // Tạo input mới bằng createElement
-            searchInput = document.createElement('input');
-            searchInput.type = 'text';
-            searchInput.placeholder = 'Tìm kiếm...';
-            search.appendChild(searchInput);
-
-            // Delay một chút trước khi thêm class để transition chạy
-            setTimeout(() => searchInput.classList.add('open'), 10);
-            searchInput.focus();
-
-            searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    const query = searchInput.value.trim();
-                    if (!query) {
-                        searchInput.classList.remove('open');
-                        setTimeout(() => searchInput.remove(), 300); // đợi animation kết thúc
-                    } else {
-                        SearchBook(query);
-                    }
-                }
-            });
-        }
-    });
-
-    // Tìm kiếm
-    async function SearchBook(value) {
-        try {
-            const urls = [
-                `${API_URL}/books/search/name?book_name=${value}`,
-                `${API_URL}/books/search/publisher?publisher_name=${value}`,
-                `${API_URL}/books/search/author?author=${value}`,
-                `${API_URL}/books/search/type?book_type_name=${value}`
-            ];
-
-            const responses = await Promise.all(urls.map(url => fetch(url)));
-            allBooks = (await Promise.all(responses.map(res => res.json())))
-                .filter(arr => Array.isArray(arr) && arr.length > 0)
-                .flat()
-                .filter(book => book != null); // loại bỏ null/undefined
-
-            if (allBooks.length > 0)
-                showNotification(`Hoàn thành!`);
-            else {
-                throw new Error(`Không tìm thấy nội dung khớp với từ khóa <br>${value}</br>`);
-
-            }
-            console.log(allBooks);
-
-            displayBooks();
-
         } catch (error) {
             showNotification(`Lỗi: ${error}`, false);
         }

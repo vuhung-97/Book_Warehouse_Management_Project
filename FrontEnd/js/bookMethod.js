@@ -1,5 +1,5 @@
 import { showNotification } from "./showNotif.js";
-import { API_URL } from "./api.js";
+import { API_URL, t_ms } from "./var.js";
 import { setupSorting, changeArray } from "./sort.js";
 import { CreateBookGUI, tableBody } from "./createGUI.js";
 
@@ -294,7 +294,7 @@ export const addOrUpdatebook = async () => {
         year: parseInt(inputList[2].value, 10) || null,
         amount: parseInt(inputList[3].value, 10) || 0,
         price: parseFloat(inputList[4].value) || 0.0,
-        image: sanitizeInput(inputList[5].value || ""),
+        image: sanitizeInput(inputList[5].value || `./resources/img/book.webp`),
         description: sanitizeInput(textarea.value || ""),
         publisher_id: publisherSelect.value
             ? parseInt(publisherSelect.value)
@@ -364,14 +364,12 @@ export const addOrUpdatebook = async () => {
             bookGUI();
         } else {
             const error = await response.json();
-            showNotification(
-                `Lỗi: ${error.detail}` || `Lỗi không xác định`,
-                false
-            );
+            console.log(error);
+            showNotification(`Lỗi khi thêm/cập nhật dữ liệu`, false);
         }
     } catch (error) {
-        console.error("error in addOrUpdatebook:", error);
-        showNotification("Có lỗi đã xảy ra!", false);
+        console.log(error);
+        showNotification("Lỗi kết nối server!", false);
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = id ? "Sửa" : "Thêm";
@@ -436,6 +434,10 @@ prevBtn.addEventListener("click", () => {
         currentPage--;
         displayBooks();
     }
+    prevBtn.style.pointerEvents = "none";
+    setTimeout(() => {
+        prevBtn.style.pointerEvents = "auto";
+    }, t_ms);
 });
 
 nextBtn.addEventListener("click", () => {
@@ -444,6 +446,10 @@ nextBtn.addEventListener("click", () => {
         currentPage++;
         displayBooks();
     }
+    nextBtn.style.pointerEvents = "none";
+    setTimeout(() => {
+        nextBtn.style.pointerEvents = "auto";
+    }, t_ms);
 });
 
 export const changeAllBooks = (newallbooks) => {

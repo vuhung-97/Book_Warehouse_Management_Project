@@ -1,5 +1,5 @@
 import { CreatePublisherGUI, tableBody } from "./createGUI.js";
-import { API_URL } from "./api.js";
+import { API_URL } from "./var.js";
 import { setupSorting, changeArray } from "./sort.js";
 import { showNotification } from "./showNotif.js";
 
@@ -198,10 +198,11 @@ export const addOrUpdatePublisher = async () => {
             publisherGUI();
         } else {
             const error = await response.json();
-            showNotification(`Lỗi: ${error.detail}`, false);
+            console.log(error);
+            showNotification(`Lỗi khi thêm/cập nhật dữ liệu`, false);
         }
     } catch (error) {
         console.error(error);
-        showNotification("Có lỗi đã xảy ra!", false);
+        showNotification("Lỗi kết nối server!", false);
     }
 };
