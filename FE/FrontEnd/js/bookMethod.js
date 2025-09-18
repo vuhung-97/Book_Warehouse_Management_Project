@@ -338,7 +338,6 @@ export const addOrUpdatebook = async () => {
     }
 
     submitBtn.disabled = true;
-    submitBtn.textContent = "Đang xử lý...";
     try {
         let response;
         if (id) {

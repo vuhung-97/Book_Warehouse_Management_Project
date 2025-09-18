@@ -136,6 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // submit form
     informationForm.addEventListener("submit", async (e) => {
         e.preventDefault();
+
         if (nameTable === "books") addOrUpdatebook();
         else if (nameTable === "publishers") addOrUpdatePublisher();
         else addOrUpdateBookType();
@@ -159,9 +160,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         button.style.pointerEvents = "none";
+        console.log("none");
+
         setTimeout(() => {
             button.style.pointerEvents = "auto";
         }, t_ms);
+        console.log("auto");
 
         const id = parseInt(button.dataset.id);
         if (isNaN(id) || id <= 0) return;
