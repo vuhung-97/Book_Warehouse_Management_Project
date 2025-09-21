@@ -1,0 +1,207 @@
+/*--- main table ---*/
+div.all-container {
+    display: flex;
+}
+
+.container {
+    flex: 1;
+    background-color: var(--card-background);
+    padding: 20px;
+    box-shadow: 0 0 10px var(--shadow-color);
+    box-sizing: border-box;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    margin-left: 60px;
+    margin-right: 0px;
+}
+
+.container img {
+    width: 100px;
+    height: 150px;
+    min-width: 100px;
+    min-height: 150px;
+    margin-left: 10px;
+    vertical-align: middle;
+    border-radius: 5px;
+    box-shadow: 0 0 5px var(--shadow-color);
+    object-fit: cover;
+}
+
+.container button {
+    color: var(--text-primary);
+    border: none;
+    background-color: var(--primary-color);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.container button:hover {
+    color: var(--background-color);
+    transform: translateY(-5px);
+    box-shadow: 0 5px 0 var(--primary-hover);
+}
+
+.container.expanded-left {
+    margin-left: calc(20% + 20px);
+}
+
+.container.expanded-right {
+    margin-right: calc(24% + 20px);
+}
+
+.table-responsive-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.overflow-x-auto {
+    overflow-x: auto;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+tr label.valid {
+    padding: 10px 5px;
+    box-shadow: 0 0 5px var(--color-exit);
+    border: solid 2px var(--card-background);
+    background-color: var(--color-valid);
+    border-radius: 20px;
+}
+
+tr label.invalid {
+    padding: 10px 5px;
+    box-shadow: 0 0 5px var(--color-exit);
+    border: solid 2px var(--card-background);
+    background-color: var(--color-invalid);
+    border-radius: 20px;
+}
+
+#show-form-btn {
+    display: flex;
+    padding: 10px;
+    border-radius: 40px;
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+/*--- Table Styles ---*/
+.container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.container th,
+.container td {
+    border: 1px solid var(--border-color);
+    padding: 8px;
+    text-align: left;
+}
+
+.container th {
+    background-color: var(--background-color);
+    text-align: center;
+}
+
+#main-table tbody tr:nth-child(odd) {
+    background-color: var(--color-row);
+}
+
+#main-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.action-buttons button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2px 4px;
+    cursor: pointer;
+    width: 100%;
+    height: 30px;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 5px;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    gap: 5px;
+}
+
+.delete-btn {
+    background-color: var(--color-error) !important;
+}
+
+.delete-btn:hover {
+    box-shadow: 0 5px 0 var(--accent-hover) !important;
+}
+
+/*--- Pagination ---*/
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.pagination button {
+    font-size: 1rem;
+    border-radius: 50px;
+}
+
+.pagination-btn {
+    margin-left: 2px;
+    width: 35px;
+    height: 35px;
+}
+
+.pagination-btn:disabled {
+    background-color: var(--border-color);
+    cursor: not-allowed;
+}
+
+.pagination-btn:disabled:hover {
+    color: var(--text-primary);
+    transform: none;
+    box-shadow: none;
+}
+
+.page-number-btn {
+    width: 35px;
+    height: 35px;
+    margin-left: 2px;
+}
+
+.page-number-btn.active {
+    background-color: var(--secondary-color);
+}
+.page-number-btn.active:hover {
+    box-shadow: 0 5px 0 var(--secondary-hover);
+}
+
+#page-numbers {
+    display: flex;
+}
+/* box-image */
+.box-image {
+    background-color: var(--card-background);
+    padding: 4px;
+    width: auto;
+    height: auto;
+    border-radius: 5px;
+    box-shadow: 0 0 5px var(--shadow-color);
+}
+
+.box-image > img {
+    margin-left: 0px !important;
+}

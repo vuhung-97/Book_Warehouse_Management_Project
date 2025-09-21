@@ -161,6 +161,7 @@ def create_book_db(book: schemas.BookBase, db: Session) -> schemas.Book:
         db.rollback()
         raise e
 
+# Muốn phân trang api thì dùng .ofset(skip).limit(limit).all()
 def get_all_books_db(db: Session) -> List[schemas.Book]:
     return db.query(database.Book).order_by(database.Book.id).all()
 

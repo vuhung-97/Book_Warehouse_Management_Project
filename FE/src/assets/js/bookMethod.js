@@ -203,6 +203,7 @@ export const displayBooks = () => {
 
         const amountLabel = document.createElement("label");
         amountLabel.textContent = book.amount || 0;
+        amountLabel.classList = book.amount ? "valid" : "invalid";
         amountCell.appendChild(amountLabel);
 
         // Tạo ô price
@@ -211,6 +212,7 @@ export const displayBooks = () => {
 
         const priceLabel = document.createElement("label");
         priceLabel.textContent = book.price || 0;
+        priceLabel.classList = book.price ? "valid" : "invalid";
         priceCell.appendChild(priceLabel);
 
         // Tạo ô publisher

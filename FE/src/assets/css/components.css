@@ -1,0 +1,22 @@
+/*--- General Styles ---*/
+* {
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+h1,
+h3 {
+    color: var(--text-primary);
+    text-align: center;
+}
+
+h3 {
+    margin-block-start: 0.5rem;
+}

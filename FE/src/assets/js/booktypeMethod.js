@@ -95,6 +95,7 @@ export const displayBookTypes = (allBookTypes) => {
 
         const amountLabel = document.createElement("label");
         amountLabel.textContent = booktype.amount;
+        amountLabel.classList = booktype.amount ? "valid" : "invalid";
         amountCell.appendChild(amountLabel);
 
         // Tạo ô button

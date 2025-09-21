@@ -111,6 +111,7 @@ export const displayPublishers = (allPublishers) => {
 
         const amountLabel = document.createElement("label");
         amountLabel.textContent = publisher.amount;
+        amountLabel.classList = publisher.amount ? "valid" : "invalid";
         amountCell.appendChild(amountLabel);
 
         // Tạo ô button

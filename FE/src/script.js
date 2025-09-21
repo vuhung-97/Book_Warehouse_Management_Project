@@ -1,26 +1,26 @@
-import { showInfoBook } from "./js/bookMethod.js";
-import { showInfoBookType } from "./js/booktypeMethod.js";
-import { showInfoPublisher } from "./js/publisherMethod.js";
-import { showNotification } from "./js/showNotif.js";
+import { showInfoBook } from "./assets/js/bookMethod.js";
+import { showInfoBookType } from "./assets/js/booktypeMethod.js";
+import { showInfoPublisher } from "./assets/js/publisherMethod.js";
+import { showNotification } from "./assets/js/showNotif.js";
 import {
     addOrUpdatebook,
     bookGUI,
     fetchBooks,
     displayBooks,
     changeAllBooks,
-} from "./js/bookMethod.js";
+} from "./assets/js/bookMethod.js";
 import {
     addOrUpdateBookType,
     booktypeGUI,
     fetchBookTypes,
-} from "./js/booktypeMethod.js";
+} from "./assets/js/booktypeMethod.js";
 import {
     addOrUpdatePublisher,
     publisherGUI,
     fetchPublishers,
-} from "./js/publisherMethod.js";
-import { tableBody } from "./js/createGUI.js";
-import { API_URL, t_ms } from "./js/var.js";
+} from "./assets/js/publisherMethod.js";
+import { tableBody } from "./assets/js/createGUI.js";
+import { API_URL, t_ms } from "./assets/js/var.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     // Form chính và các thành phần bảng
@@ -174,9 +174,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const target = await response.json();
 
+        const table =
+            nameTable === "books"
+                ? "sách"
+                : nameTable === "publishers"
+                ? "NXB"
+                : "thể loại";
         if (deleteBtn) {
             // Hiển thị modal xác nhận
-            modalMessage.innerHTML = `Bạn có chắc chắn muốn xóa <b>"${target.name}"</b> không?`;
+            modalMessage.innerHTML = `Bạn có chắc chắn muốn xóa </br><i>${table}</i> <b>"${target.name}"</b> không?`;
             confirmationModal.classList.remove("modal-hidden");
             // Gắn bookId vào nút xác nhận để sử dụng sau
             modalConfirmBtn.dataset.id = id;

@@ -1,0 +1,143 @@
+/*--- Form Elements ---*/
+#information-form input,
+#information-form textarea,
+#information-form select,
+#information-form button {
+    width: 100%;
+    margin-bottom: 7px;
+}
+
+#information-form select {
+    border-radius: 5px;
+    border: none;
+    border-bottom: 2px solid var(--border-color);
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    padding: 10px;
+}
+
+#information-form select:focus,
+#information-form select:not(:placeholder-shown) {
+    outline: none;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+#information-form option {
+    border-radius: 5px;
+}
+
+#information-form label {
+    display: block;
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+}
+
+#information-form button {
+    padding: 10px;
+    background-color: var(--secondary-color);
+    color: var(--text-primary);
+    border: none;
+    cursor: pointer;
+    border-radius: 30px;
+    margin: 5px 0;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+#information-form button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 0 var(--secondary-hover);
+    color: var(--background-color);
+}
+
+#information-form button#cancel-btn {
+    background-color: var(--color-exit);
+}
+
+#information-form button#cancel-btn:hover {
+    box-shadow: 0 5px 0 var(--color-exit-hover);
+}
+
+fieldset {
+    border: 1px solid var(--border-color);
+    padding: 7px 7px 5px 10px;
+    margin: 15px 0;
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 5px;
+}
+
+.input-group input,
+.input-group textarea {
+    width: 100%;
+    padding: 15px 10px 5px 10px;
+    border: none;
+    border-bottom: 2px solid var(--border-color);
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    margin-top: 10px;
+}
+
+.input-group textarea {
+    max-height: 60px;
+    margin-top: 15px;
+}
+
+.input-group label {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    color: var(--primary-hover);
+    pointer-events: none;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.input-group input:focus,
+.input-group input:not(:placeholder-shown),
+.input-group textarea:focus,
+.input-group textarea:not(:placeholder-shown) {
+    outline: none;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.input-group input:focus + label,
+.input-group input:not(:placeholder-shown) + label {
+    transform: translateY(-190%);
+    left: 10px;
+}
+
+.input-group textarea:focus + label,
+.input-group textarea:not(:placeholder-shown) + label {
+    transform: translateY(-250%);
+    left: 10px;
+    color: var(--primary-hover);
+}
+.form-section {
+    position: fixed;
+    width: 24%;
+    top: 60px;
+    right: 20px;
+    background-color: var(--card-background);
+    margin-bottom: 20px;
+    padding: 20px;
+    border: none;
+    border-radius: 20px;
+    box-sizing: border-box;
+    box-shadow: 0 0 10px var(--shadow-color);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.hidden-form {
+    width: 0px;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}

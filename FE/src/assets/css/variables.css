@@ -1,0 +1,35 @@
+:root {
+    --primary-color: #01bebe;
+    /* Deep teal for primary actions */
+    --primary-hover: #027070;
+    /* Darker teal for hover states */
+    --secondary-color: #ff6f61;
+    /* Warm coral for secondary actions */
+    --secondary-hover: #bb473e;
+    /* Darker coral for hover */
+    --accent-color: #b22222;
+    /* Muted red for delete actions */
+    --accent-hover: #8b1a1a;
+    /* Darker red for delete hover */
+    --background-color: #f0f4f8;
+    /* Soft pastel blue for body background */
+    --card-background: #ffffff;
+    /* Clean white for cards and main content */
+    --menu-background: #2c3e50;
+    /* Dark slate blue for sidebar */
+    --text-primary: #1a1a1a;
+    /* Near-black for primary text */
+    --text-secondary: #4a5a6a;
+    /* Muted blue-gray for secondary text */
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    /* Subtle shadow */
+    --border-color: #d3dce6;
+    /* Light blue-gray for borders */
+    --color-row: #e6f2ff;
+    --color-right: #2196f3;
+    --color-error: #f44336;
+    --color-exit-hover: #4b5255;
+    --color-exit: #cacaca;
+    --color-valid: #98ff98;
+    --color-invalid: #ffb676ff;
+}
