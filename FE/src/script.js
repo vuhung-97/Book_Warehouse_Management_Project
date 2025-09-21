@@ -1,8 +1,6 @@
-import { showInfoBook } from "./assets/js/bookMethod.js";
-import { showInfoBookType } from "./assets/js/booktypeMethod.js";
-import { showInfoPublisher } from "./assets/js/publisherMethod.js";
-import { showNotification } from "./assets/js/showNotif.js";
+// Import các hàm & biến cần thiết
 import {
+    showInfoBook,
     addOrUpdatebook,
     bookGUI,
     fetchBooks,
@@ -10,78 +8,49 @@ import {
     changeAllBooks,
 } from "./assets/js/bookMethod.js";
 import {
+    showInfoBookType,
     addOrUpdateBookType,
     booktypeGUI,
     fetchBookTypes,
 } from "./assets/js/booktypeMethod.js";
 import {
+    showInfoPublisher,
     addOrUpdatePublisher,
     publisherGUI,
     fetchPublishers,
 } from "./assets/js/publisherMethod.js";
+import { showNotification } from "./assets/js/showNotif.js";
 import { tableBody } from "./assets/js/createGUI.js";
 import { API_URL, t_ms } from "./assets/js/var.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-    // Form chính và các thành phần bảng
-    const informationForm = document.getElementById("information-form");
-    const informationFormContainer = document.getElementById(
-        "information-form-container"
-    );
-    const titleForm = informationFormContainer.getElementsByTagName("h3")[0];
-    const showFormBtn = document.getElementById("show-form-btn");
-    const confirmationModal = document.getElementById("confirmation-modal");
-    const modalMessage = document.getElementById("modal-message");
-    const modalConfirmBtn = document.getElementById("modal-confirm-btn");
-    const modalCancelBtn = document.getElementById("modal-cancel-btn");
-    const mainContainer = document.querySelector(".container");
+// Biến toàn cục
+let nameTable = "";
 
-    // Các trường input
-    const infoIdInput = document.getElementById("info-id");
-
-    // Button của Form
-    const submitBtn = document.getElementById("submit-btn");
-    const cancelBtn = document.getElementById("cancel-btn");
-
-    // Các thành phần bố cục và điều hướng
-
+/* ----------------------------
+ * Menu
+ * ---------------------------- */
+function initMenu() {
     const closeBtn = document.getElementById("close-btn");
     const leftMenu = document.querySelector(".left-menu");
+    const mainContainer = document.querySelector(".container");
     const menuListItems = document.querySelectorAll("#menu-list a");
-    const searchContainer = document.getElementById("search-container");
-    const search = document.getElementById("search");
-    const searchInput = search.querySelector("input");
-    const searchIcon = document.getElementById("search-icon");
+    const submitBtn = document.getElementById("submit-btn");
 
-    // Biến toàn cục
-    let nameTable = "";
-
-    // --- Hàm chính ---
-
-    /*
-     *
-     * left-menu
-     *
-     */
-
-    // Điều khiển lựa chọn trong left-menu
-    menuListItems.forEach((btn, index) => {
+    menuListItems.forEach((btn) => {
         btn.addEventListener("click", () => {
-            menuListItems.forEach((e) => {
-                e.classList.remove("active");
-            });
+            menuListItems.forEach((e) => e.classList.remove("active"));
             btn.classList.add("active");
+
             nameTable = btn.id;
             submitBtn.innerText = "Thêm";
+
             switch (btn.id) {
                 case "book_types":
                     booktypeGUI();
                     break;
-
                 case "publishers":
                     publisherGUI();
                     break;
-
                 default:
                     bookGUI();
                     break;
@@ -89,19 +58,30 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Đóng/mở left-menu và thay đổi kích thước main-container.
     closeBtn.addEventListener("click", () => {
         leftMenu.classList.toggle("collapsed");
         mainContainer.classList.toggle("expanded-left");
     });
 
-    /*
-     *
-     * Information Form
-     *
-     */
+    // Trả về menuListItems để dùng cho init mặc định
+    return menuListItems;
+}
 
-    // reset form
+/* ----------------------------
+ * Form
+ * ---------------------------- */
+function initForm() {
+    const informationForm = document.getElementById("information-form");
+    const informationFormContainer = document.getElementById(
+        "information-form-container"
+    );
+    const titleForm = informationFormContainer.querySelector("h3");
+    const showFormBtn = document.getElementById("show-form-btn");
+    const submitBtn = document.getElementById("submit-btn");
+    const cancelBtn = document.getElementById("cancel-btn");
+    const infoIdInput = document.getElementById("info-id");
+    const mainContainer = document.querySelector(".container");
+
     const resetForm = () => {
         informationForm.reset();
         infoIdInput.value = "";
@@ -115,7 +95,6 @@ document.addEventListener("DOMContentLoaded", () => {
         titleForm.textContent = content;
     };
 
-    // nút thêm để hiện form
     showFormBtn.addEventListener("click", () => {
         informationFormContainer.classList.remove("hidden-form");
         mainContainer.classList.add("expanded-right");
@@ -126,14 +105,12 @@ document.addEventListener("DOMContentLoaded", () => {
         resetForm();
     });
 
-    // nút hủy để ẩn form
     cancelBtn.addEventListener("click", () => {
         resetForm();
         informationFormContainer.classList.add("hidden-form");
         mainContainer.classList.remove("expanded-right");
     });
 
-    // submit form
     informationForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
@@ -141,12 +118,15 @@ document.addEventListener("DOMContentLoaded", () => {
         else if (nameTable === "publishers") addOrUpdatePublisher();
         else addOrUpdateBookType();
     });
+}
 
-    /*
-     *
-     *  nút sửa, xóa
-     *
-     */
+/* ----------------------------
+ * Table (Sửa, xóa)
+ * ---------------------------- */
+function initTable() {
+    const confirmationModal = document.getElementById("confirmation-modal");
+    const modalMessage = document.getElementById("modal-message");
+    const modalConfirmBtn = document.getElementById("modal-confirm-btn");
 
     tableBody.addEventListener("click", async (e) => {
         const deleteBtn = e.target.closest(".delete-btn");
@@ -155,36 +135,28 @@ document.addEventListener("DOMContentLoaded", () => {
         let button;
         if (deleteBtn) button = deleteBtn;
         else if (editBtn) button = editBtn;
-        else {
-            return;
-        }
+        else return;
 
         button.style.pointerEvents = "none";
-        console.log("none");
-
-        setTimeout(() => {
-            button.style.pointerEvents = "auto";
-        }, t_ms);
-        console.log("auto");
+        setTimeout(() => (button.style.pointerEvents = "auto"), t_ms);
 
         const id = parseInt(button.dataset.id);
         if (isNaN(id) || id <= 0) return;
 
         const response = await fetch(`${API_URL}/${nameTable}/${id}`);
-
         const target = await response.json();
 
-        const table =
-            nameTable === "books"
-                ? "sách"
-                : nameTable === "publishers"
-                ? "NXB"
-                : "thể loại";
+        const mapTableName = {
+            books: "sách",
+            publishers: "NXB",
+            book_types: "thể loại",
+        };
+
+        const tableName = mapTableName[nameTable];
+
         if (deleteBtn) {
-            // Hiển thị modal xác nhận
-            modalMessage.innerHTML = `Bạn có chắc chắn muốn xóa </br><i>${table}</i> <b>"${target.name}"</b> không?`;
+            modalMessage.innerHTML = `Bạn có chắc chắn muốn xóa </br><i>${tableName}</i> <b>"${target.name}"</b> không?`;
             confirmationModal.classList.remove("modal-hidden");
-            // Gắn bookId vào nút xác nhận để sử dụng sau
             modalConfirmBtn.dataset.id = id;
         } else if (editBtn) {
             switch (nameTable) {
@@ -200,23 +172,23 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     });
+}
 
-    /*
-     *
-     * Modal yêu cầu xóa
-     *
-     */
+/* ----------------------------
+ * Modal
+ * ---------------------------- */
+function initModal() {
+    const confirmationModal = document.getElementById("confirmation-modal");
+    const modalCancelBtn = document.getElementById("modal-cancel-btn");
+    const modalConfirmBtn = document.getElementById("modal-confirm-btn");
 
-    // Xử lý nút Hủy trong modal
     modalCancelBtn.addEventListener("click", () => {
         confirmationModal.classList.add("modal-hidden");
     });
 
-    // Xử lý nút Xóa trong modal
     modalConfirmBtn.addEventListener("click", async (e) => {
         const id = e.target.dataset.id;
 
-        // Xóa nội dung tương ứng
         try {
             const response = await fetch(`${API_URL}/${nameTable}/${id}`, {
                 method: "DELETE",
@@ -230,49 +202,49 @@ document.addEventListener("DOMContentLoaded", () => {
                 else fetchPublishers(headers);
             } else {
                 const error = await response.json();
-                showNotification(`Lỗi: ${error.detail}`, false);
+                throw error;
             }
         } catch (error) {
-            showNotification(`Lỗi: ${error}`, false);
+            showNotification(
+                `Lỗi: ${error.error?.message || "Không xác định"}`,
+                false
+            );
             console.error("Error deleting:", error);
         } finally {
-            confirmationModal.classList.add("modal-hidden"); // Ẩn modal sau khi xử lý
+            confirmationModal.classList.add("modal-hidden");
         }
     });
+}
 
-    /*
-     *
-     *  Search
-     *
-     */
+/* ----------------------------
+ * Search
+ * ---------------------------- */
+function initSearch() {
+    const searchContainer = document.getElementById("search-container");
+    const search = document.getElementById("search");
+    const searchInput = search.querySelector("input");
+    const searchIcon = document.getElementById("search-icon");
 
-    // click vào icon search
     searchIcon.addEventListener("click", () => {
-        const searchInput = search.querySelector("input.open");
-        if (searchInput) {
-            const query = searchInput.value.trim();
+        const query = searchInput.value.trim();
+        if (searchInput.classList.contains("open")) {
             if (!query) {
                 setTimeout(() => {
                     searchInput.classList.remove("open");
                     searchContainer.classList.remove("open");
-                }, 300); // đợi animation kết thúc
+                }, 300);
             } else {
                 SearchBook(query);
             }
         }
     });
 
-    // Click vào khung search sẽ mở rộng phần input nhập liệu
     search.parentElement.addEventListener("click", () => {
-        // Lấy phần tử input
-
-        // Delay một chút trước khi thêm class để transition chạy
         setTimeout(() => searchInput.classList.add("open"), 10);
         setTimeout(() => search.parentElement.classList.add("open"), 10);
         searchInput.focus();
     });
 
-    // Event ấn enter trong searchinput
     searchInput.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
             const query = searchInput.value.trim();
@@ -280,17 +252,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 setTimeout(() => {
                     searchInput.classList.remove("open");
                     searchContainer.classList.remove("open");
-                }, 300); // đợi animation kết thúc
+                }, 300);
             } else {
                 SearchBook(query);
             }
         }
     });
 
-    // Searching
     async function SearchBook(value) {
-        console.log(value);
-
         try {
             const urls = [
                 `${API_URL}/books/search/name?book_name=${value}`,
@@ -300,16 +269,14 @@ document.addEventListener("DOMContentLoaded", () => {
             ];
 
             const responses = await Promise.all(urls.map((url) => fetch(url)));
-
             let allBooks = (
                 await Promise.all(responses.map((res) => res.json()))
             )
                 .filter((arr) => Array.isArray(arr) && arr.length > 0)
                 .flat()
-                .filter(Boolean) // loại bỏ null/undefined
-                .sort((a, b) => a.id - b.id); // Sắp xếp tăng
+                .filter(Boolean)
+                .sort((a, b) => a.id - b.id);
 
-            // Loại bỏ sách trùng id
             const id_map = new Map();
             allBooks.forEach((book) => {
                 if (!id_map.has(book.id)) {
@@ -318,8 +285,9 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             allBooks = Array.from(id_map.values());
 
-            if (allBooks.length > 0) showNotification(`Hoàn thành!`, true);
-            else {
+            if (allBooks.length > 0) {
+                showNotification(`Hoàn thành!`, true);
+            } else {
                 throw new Error(
                     `Không tìm thấy nội dung khớp với từ khóa <br>${value}</br>`
                 );
@@ -328,12 +296,29 @@ document.addEventListener("DOMContentLoaded", () => {
             changeAllBooks(allBooks);
             displayBooks();
         } catch (error) {
-            showNotification(`Lỗi: ${error}`, false);
+            console.log(error);
+
+            showNotification(
+                `Lỗi: ${
+                    error.error?.message || error.message || "Không xác định"
+                }`,
+                false
+            );
         }
     }
+}
 
-    // --- Khởi tạo ---
+/* ----------------------------
+ * Chạy init sau khi DOM load
+ * ---------------------------- */
+document.addEventListener("DOMContentLoaded", () => {
+    const menuListItems = initMenu();
+    initForm();
+    initTable();
+    initModal();
+    initSearch();
 
+    // Chọn mặc định menu đầu tiên
     menuListItems[0].classList.add("active");
     menuListItems[0].click();
 });

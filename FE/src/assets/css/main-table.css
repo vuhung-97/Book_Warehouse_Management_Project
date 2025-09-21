@@ -205,3 +205,7 @@ tr label.invalid {
 .box-image > img {
     margin-left: 0px !important;
 }
+
+td.content-center {
+    text-align: center;
+}

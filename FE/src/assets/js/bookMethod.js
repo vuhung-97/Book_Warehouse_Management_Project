@@ -67,7 +67,12 @@ export const fetchPublishersAndTypes = async () => {
         });
     } catch (error) {
         console.error("Error fetching dropdown data:", error);
-        showNotification("Lỗi tải dữ liệu dropdown: " + error.message, false);
+        showNotification(
+            `Lỗi tải dữ liệu dropdown: ${
+                error.error?.message || "Không xác định"
+            }`,
+            false
+        );
     }
 };
 
@@ -130,7 +135,10 @@ export const fetchBooks = async (headers) => {
         displayBooks();
         setupSorting(headers, displayBooks);
     } catch (error) {
-        showNotification(`Lỗi: ${error}`, false);
+        showNotification(
+            `Lỗi: ${error.error?.message || "Không xác định"}`,
+            false
+        );
         console.error("Error fetching books:", error);
     } finally {
         if (loading) loading.style.display = "none";
@@ -296,7 +304,9 @@ export const addOrUpdatebook = async () => {
         year: parseInt(inputList[2].value, 10) || null,
         amount: parseInt(inputList[3].value, 10) || 0,
         price: parseFloat(inputList[4].value) || 0.0,
-        image: sanitizeInput(inputList[5].value || `./resources/img/book.webp`),
+        image: sanitizeInput(
+            inputList[5].value || `../src/assets/img/book.webp`
+        ),
         description: sanitizeInput(textarea.value || ""),
         publisher_id: publisherSelect.value
             ? parseInt(publisherSelect.value)
@@ -313,17 +323,17 @@ export const addOrUpdatebook = async () => {
         bookData.amount < 0 ||
         bookData.price < 0 ||
         (bookData.year != null &&
-            (bookData.year < 1900 || bookData.year > now.getFullYear))
+            (bookData.year < 1900 || bookData.year > now.getFullYear()))
     ) {
         let error = [];
         if (bookData.year < 1900) {
             error.push("Năm nhập vào không hợp lệ (năm > 1900).");
             bookData.year = 1900;
             inputList[2].value = 1900;
-        } else if (bookData.year > now.getFullYear) {
+        } else if (bookData.year > now.getFullYear()) {
             error.push("Năm nhập vào không thể lớn hơn năm hiện tại.");
-            bookData.year = now.getFullYear;
-            inputList[2].value = now.getFullYear;
+            bookData.year = now.getFullYear();
+            inputList[2].value = now.getFullYear();
         }
         if (bookData.amount < 0) {
             error.push("Số lượng sách phải lớn hơn 0.");
@@ -366,11 +376,14 @@ export const addOrUpdatebook = async () => {
         } else {
             const error = await response.json();
             console.log(error);
-            showNotification(`Lỗi khi thêm/cập nhật dữ liệu`, false);
+            throw error;
         }
     } catch (error) {
         console.log(error);
-        showNotification("Lỗi kết nối server!", false);
+        showNotification(
+            `Lỗi: ${error.error?.message || "Không xác định"}`,
+            false
+        );
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = id ? "Sửa" : "Thêm";
@@ -411,10 +424,8 @@ const createPaginationControls = () => {
             pageBtn.classList.add("active");
         }
         pageBtn.addEventListener("click", () => {
-            pageBtn.disabled = true;
             currentPage = i;
             displayBooks();
-            pageBtn.disabled = false;
         });
         pageNumbersContainer.appendChild(pageBtn);
     }

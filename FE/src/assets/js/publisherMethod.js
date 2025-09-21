@@ -64,7 +64,10 @@ export const fetchPublishers = async (headers) => {
         displayPublishers(allPublishers);
         setupSorting(headers, displayPublishers);
     } catch (error) {
-        showNotification(`Lỗi: ${error}`, false);
+        showNotification(
+            `Lỗi: ${error.error?.message || "Không xác định"}`,
+            false
+        );
         console.error("Error fetching publishers:", error);
     }
 };
@@ -200,10 +203,13 @@ export const addOrUpdatePublisher = async () => {
         } else {
             const error = await response.json();
             console.log(error);
-            showNotification(`Lỗi khi thêm/cập nhật dữ liệu`, false);
+            throw error;
         }
     } catch (error) {
         console.error(error);
-        showNotification("Lỗi kết nối server!", false);
+        showNotification(
+            `Lỗi: ${error.error?.message || "Không xác định"}`,
+            false
+        );
     }
 };

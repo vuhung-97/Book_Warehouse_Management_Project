@@ -1,11 +1,18 @@
-from typing import List, Optional
-from fastapi import FastAPI, HTTPException, Depends
+import os
+from typing import List
+
+from fastapi import FastAPI, Depends, Request, HTTPException
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError, DataError, OperationalError
+
 from .database import get_db, Base, engine
 from . import crud, schemas
-from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-import os
 
 # Create database tables if they don't exist
 Base.metadata.create_all(bind=engine)
@@ -13,22 +20,67 @@ Base.metadata.create_all(bind=engine)
 api = FastAPI(
     title="API Quản lý Kho Sách",
     description="Một API đơn giản để quản lý thông tin sách với PostgreSQL.",
-    version="1.0.0"
+    version="1.0.0",
 )
 
-# Cấu hình CORS để cho phép các yêu cầu từ frontend
+# ----------------------------------------
+#              CORS
+# ----------------------------------------
 load_dotenv()
-
 origins = os.getenv("FRONTEND_URLS", "").split(",")
 
 api.add_middleware(
     CORSMiddleware,
-    allow_origins=[origin.strip() for origin in origins if origin.strip()],
+    allow_origins=[origin.strip() for origin in origins if origin.strip()] or ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# ----------------------------------------
+#          GLOBAL ERROR HANDLERS
+# ----------------------------------------
+
+# 400 Bad Request → Request sai (dữ liệu không hợp lệ, validate fail).
+# 404 Not Found → Không tìm thấy tài nguyên (ID không tồn tại).
+# 409 Conflict → Trùng lặp dữ liệu (ví dụ unique constraint).
+# 422 Unprocessable Entity → FastAPI hay dùng khi body JSON không khớp schema.
+# 500 Internal Server Error → Lỗi không xác định trong server.
+def error_response(status_code: int, code: str, message: str):
+    return JSONResponse(
+        status_code=status_code,
+        content={"error": {"code": code, "message": message}},
+    )
+
+# Bắt lỗi HTTPException
+@api.exception_handler(404)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    return error_response(404, "NOT_FOUND", "Không tìm thấy tài nguyên được yêu cầu.")
+
+# Bắt lỗi validate request body / query
+@api.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return error_response(422, "VALIDATION_ERROR", "Dữ liệu không hợp lệ.")
+
+# Bắt lỗi database IntegrityError từ SQLAlchemy
+@api.exception_handler(IntegrityError)
+async def integrity_error_handler(request: Request, exc: IntegrityError):
+    return error_response(409, "DUPLICATE_DATA", "Dữ liệu bị trùng.")
+
+# Bắt lỗi DataError từ SQLAlchemy
+@api.exception_handler(DataError)
+async def sqlalchemy_dataerror(request: Request, exc: DataError):
+    return error_response(400, "DATA_TOO_LONG", "Dữ liệu nhập vào vượt quá giới hạn.")
+
+# Bắt lỗi OperationalError từ SQLAlchemy
+@api.exception_handler(OperationalError)
+async def sqlalchemy_operational_error(request: Request, exc: OperationalError):
+    return error_response(500, "DB_OPERATIONAL_ERROR", "Database không hoạt động.")
+
+# Bắt lỗi tổng quát
+@api.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    return error_response(500, "INTERNAL_SERVER_ERROR", "Lỗi hệ thống, vui lòng thử lại sau.")
 
 # ----------------------------------------
 #              BOOK TYPES ENDPOINTS
@@ -36,10 +88,7 @@ api.add_middleware(
 
 @api.post("/book_types", response_model=schemas.BookType, status_code=201, summary="Thêm loại sách mới")
 def create_book_type(book_type: schemas.BookTypeBase, db: Session = Depends(get_db)):
-    try:
-        return crud.create_book_type_db(db, book_type)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Lỗi: {e}")
+    return crud.create_book_type_db(db, book_type)
 
 @api.get("/book_types", response_model=List[schemas.BookTypeWithAmount], summary="Lấy tất cả loại sách")
 def get_all_book_types(db: Session = Depends(get_db)):
@@ -48,30 +97,26 @@ def get_all_book_types(db: Session = Depends(get_db)):
 @api.get("/book_types/{book_type_id}", response_model=schemas.BookType, summary="Tìm loại sách theo ID")
 def get_book_type_by_id(book_type_id: int, db: Session = Depends(get_db)):
     book_type = crud.get_book_type_by_id_db(book_type_id, db)
-    if not book_type:
-        raise HTTPException(status_code=404, detail="Không tìm thấy loại sách")
     return book_type
 
 @api.get("/book_types/search/name", response_model = List[schemas.BookType], summary="Tìm loại sách theo tên loại")
 def get_book_type_by_name(book_type_name: str, db: Session = Depends(get_db)):
     book_types = crud.get_book_type_by_name_db(book_type_name, db)
-    if not book_types:
-        raise HTTPException(status_code=404, detail="Không tìm thấy loại sách")
     return book_types
 
 @api.patch("/book_types/{book_type_id}", response_model=schemas.BookTypeBase, summary="Cập nhật loại sách")
 def update_book_type(book_type_id: int, book_type: schemas.BookTypeBase, db: Session = Depends(get_db)):
     updated_book_type = crud.update_book_type_db(book_type_id, book_type, db)
-    if not updated_book_type:
-        raise HTTPException(status_code=404, detail="Không tìm thấy loại sách")
+    if updated_book_type is None:
+        raise HTTPException(status_code=404)
     return updated_book_type
 
 @api.delete("/book_types/{book_type_id}", summary="Xóa loại sách")
 def delete_book_type(book_type_id: int, db: Session = Depends(get_db)):
     deleted = crud.delete_book_type_db(book_type_id, db)
-    if not deleted:
-        raise HTTPException(status_code=404, detail="Không tìm thấy loại sách")
-    return {"message": "Loại sách đã được xóa thành công"}
+    if deleted is None: 
+        raise HTTPException(status_code = 404)
+    return {"message": f"Đã xóa thể loại sách {deleted}"}
 
 # ----------------------------------------
 #              PUBLISHERS ENDPOINTS
@@ -79,10 +124,7 @@ def delete_book_type(book_type_id: int, db: Session = Depends(get_db)):
 
 @api.post("/publishers", response_model=schemas.Publisher, status_code=201, summary="Thêm nhà xuất bản mới")
 def create_publisher(publisher: schemas.PublisherBase, db: Session = Depends(get_db)):
-    try:
-        return crud.create_publisher_db(publisher, db)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Lỗi: {e}")
+    return crud.create_publisher_db(publisher, db)
 
 @api.get("/publishers", response_model=List[schemas.PublisherWithAmount], summary="Lấy tất cả nhà xuất bản")
 def get_all_publishers(db: Session = Depends(get_db)):
@@ -91,30 +133,26 @@ def get_all_publishers(db: Session = Depends(get_db)):
 @api.get("/publishers/{publisher_id}", response_model=schemas.Publisher, summary="Tìm nhà xuất bản theo ID")
 def get_publisher_by_id(publisher_id: int, db: Session = Depends(get_db)):
     publisher = crud.get_publisher_by_id_db(publisher_id, db)
-    if not publisher:
-        raise HTTPException(status_code=404, detail="Không tìm thấy nhà xuất bản")
     return publisher
 
 @api.get("/publishers/search/name", response_model=List[schemas.Publisher], summary="Tìm nhà xuất bản theo tên")
 def get_publisher_by_name(publisher_name: str, db: Session=Depends(get_db)):
     model_publishers = crud.get_publisher_by_name_db(publisher_name, db)
-    if not model_publishers:
-        raise HTTPException(status_code=404, detail="Không tìm thấy nhà xuất bản")
     return model_publishers
 
 @api.patch("/publishers/{publisher_id}", response_model=schemas.PublisherBase, summary="Cập nhật nhà xuất bản")
 def update_publisher(publisher_id: int, publisher: schemas.PublisherBase, db: Session = Depends(get_db)):
     updated_publisher = crud.update_publisher_db( publisher_id, publisher, db)
-    if not updated_publisher:
-        raise HTTPException(status_code=404, detail="Không tìm thấy nhà xuất bản")
+    if updated_publisher is None:
+        raise HTTPException(status_code=404)
     return updated_publisher
 
 @api.delete("/publishers/{publisher_id}", summary="Xóa nhà xuất bản")
 def delete_publisher(publisher_id: int, db: Session = Depends(get_db)):
     deleted = crud.delete_publisher_db(publisher_id, db)
-    if not deleted:
-        raise HTTPException(status_code=404, detail="Không tìm thấy nhà xuất bản")
-    return {"message": "Nhà xuất bản đã được xóa thành công"}
+    if deleted is None:
+        raise HTTPException(status_code=404)
+    return {"message": f"Đã xóa NXB {deleted}"}
 
 # ----------------------------------------
 #                 BOOKS ENDPOINTS
@@ -122,183 +160,58 @@ def delete_publisher(publisher_id: int, db: Session = Depends(get_db)):
 
 @api.post("/books", response_model=schemas.Book, status_code=201, summary="Thêm sách mới")
 def create_book(book: schemas.BookBase, db: Session = Depends(get_db)):
-    try:
-        return crud.create_book_db(book, db)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Lỗi: {e}")
+    return crud.create_book_db(book, db)
 
 @api.get("/books", response_model=List[schemas.BookWithNames], summary="Lấy tất cả sách với tên liên kết")
 def get_all_books(db: Session = Depends(get_db)):
-    books_with_names = []
     books = crud.get_all_books_db(db)
-    for book in books:
-        book_type_name = book.book_type.name if book.book_type else None
-        publisher_name = book.publisher.name if book.publisher else None
-        books_with_names.append(schemas.BookWithNames(
-            id=book.id,
-            name=book.name,
-            author=book.author,
-            year=book.year,
-            amount=book.amount,
-            price=book.price,
-            image=book.image,
-            description=book.description,
-            publisher_name=publisher_name,
-            book_type_name=book_type_name
-        ))
-    return books_with_names
+    return convert_books_to_book_with_names(books)
 
 @api.get("/books/{book_id}", response_model=schemas.Book, summary="Tìm sách theo ID")
 def get_book_by_id(book_id: int, db:Session = Depends(get_db)):
     book = crud.get_book_by_id_db(book_id, db)
-    if not book:
-        raise HTTPException(status_code=404, detail="Không tìm thấy sách")
     return book
-
-@api.get("/books/add_name{book_id}", response_model=schemas.BookWithNames, summary="Tìm sách theo ID với tên liên kết")
-def get_book_by_id(book_id: int, db: Session = Depends(get_db)):
-    book = crud.get_book_by_id_db(book_id, db)
-    if not book:
-        raise HTTPException(status_code=404, detail="Không tìm thấy sách")
-
-    book_type_name = book.book_type.name if book.book_type else None
-    publisher_name = book.publisher.name if book.publisher else None
-    
-    return schemas.BookWithNames(
-        id=book.id,
-        name=book.name,
-        author=book.author,
-        year=book.year,
-        amount=book.amount,
-        price=book.price,
-        image=book.image,
-        description=book.description,
-        publisher_name=publisher_name,
-        book_type_name=book_type_name
-    )
 
 @api.patch("/books/{book_id}", response_model=schemas.BookBase, summary="Cập nhật sách")
-def update_book(book_id: int, updated_book: schemas.BookBase, db: Session = Depends(get_db)):
-    book = crud.update_book_db(book_id, updated_book, db)
-    if not book:
-        raise HTTPException(status_code=404, detail="Không tìm thấy sách")
-    return book
+def update_book(book_id: int, book: schemas.BookBase, db: Session = Depends(get_db)):
+    updated_book = crud.update_book_db(book_id, book, db)
+    if updated_book is None:
+        raise HTTPException(status_code=404)
+    return updated_book
 
 @api.delete("/books/{book_id}", summary="Xóa sách")
 def delete_book(book_id: int, db: Session = Depends(get_db)):
     deleted = crud.delete_book_db(book_id, db)
-    if not deleted:
-        raise HTTPException(status_code=404, detail="Không tìm thấy sách")
-    return {"message": "Sách đã được xóa thành công"}
+    if deleted is None:
+        raise HTTPException(status_code=404)
+    return {"message": f"Đã xóa sách {deleted}"}
 
 @api.get("/books/search/name", response_model=List[schemas.BookWithNames], summary="Tìm sách theo tên sách")
 def get_books_by_name(book_name: str, db: Session = Depends(get_db)):
     books = crud.get_books_by_name_db(book_name, db)
-    if not books:
-        raise HTTPException(status_code=404, detail="Không tìm thấy sách nào cho tên này")
-    
-    books_with_names = []
-    for book in books:
-        book_type_name = book.book_type.name if book.book_type else None
-        publisher_name = book.publisher.name if book.publisher else None
-        books_with_names.append(schemas.BookWithNames(
-            id=book.id,
-            name=book.name,
-            author=book.author,
-            year=book.year,
-            amount=book.amount,
-            price=book.price,
-            image=book.image,
-            description=book.description,
-            publisher_name=publisher_name,
-            book_type_name=book_type_name
-        ))
-    return books_with_names
+    return convert_books_to_book_with_names(books)
 
 @api.get("/books/search/author", response_model=List[schemas.BookWithNames], summary="Tìm sách theo tên tác giả")
 def get_books_by_author(author: str, db: Session = Depends(get_db)):
     books = crud.get_books_by_author_db(author, db)
-    if not books:
-        raise HTTPException(status_code=404, detail="Không tìm thấy sách nào cho tác giả này")
-    
-    books_with_names = []
-    for book in books:
-        book_type_name = book.book_type.name if book.book_type else None
-        publisher_name = book.publisher.name if book.publisher else None
-        books_with_names.append(schemas.BookWithNames(
-            id=book.id,
-            name=book.name,
-            author=book.author,
-            year=book.year,
-            amount=book.amount,
-            price=book.price,
-            image=book.image,
-            description=book.description,
-            publisher_name=publisher_name,
-            book_type_name=book_type_name
-        ))
-    return books_with_names
+    return convert_books_to_book_with_names(books)
 
 @api.get("/books/search/publisher", response_model=List[schemas.BookWithNames], summary="Tìm sách theo tên nhà xuất bản")
 def get_books_by_publisher_name(publisher_name: str, db: Session = Depends(get_db)):
     books = crud.get_books_by_publisher_name_db(publisher_name, db)
-    if not books:
-        raise HTTPException(status_code=404, detail="Không tìm thấy sách nào cho nhà xuất bản này")
-    
-    books_with_names = []
-    for book in books:
-        book_type_name = book.book_type.name if book.book_type else None
-        publisher_name = book.publisher.name if book.publisher else None
-        books_with_names.append(schemas.BookWithNames(
-            id=book.id,
-            name=book.name,
-            author=book.author,
-            year=book.year,
-            amount=book.amount,
-            price=book.price,
-            image=book.image,
-            description=book.description,
-            publisher_name=publisher_name,
-            book_type_name=book_type_name
-        ))
-    return books_with_names
+    return convert_books_to_book_with_names(books)
 
 @api.get("/books/search/type", response_model=List[schemas.BookWithNames], summary="Tìm sách theo tên loại sách")
 def get_books_by_type_name(book_type_name: str, db: Session = Depends(get_db)):
     books = crud.get_books_by_type_name_db(book_type_name, db)
-    if not books:
-        raise HTTPException(status_code=404, detail="Không tìm thấy sách nào cho loại sách này")
-    
-    books_with_names = []
-    for book in books:
-        book_type_name = book.book_type.name if book.book_type else None
-        publisher_name = book.publisher.name if book.publisher else None
-        books_with_names.append(schemas.BookWithNames(
-            id=book.id,
-            name=book.name,
-            author=book.author,
-            year=book.year,
-            amount=book.amount,
-            price=book.price,
-            image=book.image,
-            description=book.description,
-            publisher_name=publisher_name,
-            book_type_name=book_type_name
-        ))
-    return books_with_names
+    return convert_books_to_book_with_names(books)
 
-# Chưa sử dụng
-@api.get("/books/search/publisher_id", response_model=List[schemas.BookWithNames], summary="Tìm sách theo ID nhà xuất bản")
-def get_books_by_publisher_id(publisher_id: int, db: Session = Depends(get_db)):
-    books = crud.get_books_by_publisher_id_db(publisher_id, db)
-    if not books:
-        raise HTTPException(status_code=404, detail="Không tìm thấy sách nào cho nhà xuất bản này")
-    
-    books_with_names = []
+def convert_books_to_book_with_names(books: List[schemas.Book]) -> List[schemas.BookWithNames]:
+    book_with_names = []
     for book in books:
         book_type_name = book.book_type.name if book.book_type else None
         publisher_name = book.publisher.name if book.publisher else None
-        books_with_names.append(schemas.BookWithNames(
+        book_with_names.append(schemas.BookWithNames(
             id=book.id,
             name=book.name,
             author=book.author,
@@ -310,29 +223,4 @@ def get_books_by_publisher_id(publisher_id: int, db: Session = Depends(get_db)):
             publisher_name=publisher_name,
             book_type_name=book_type_name
         ))
-    return books_with_names
-
-# Chưa sử dụng
-@api.get("/books/search/type_id", response_model=List[schemas.BookWithNames], summary="Tìm sách theo ID loại sách")
-def get_books_by_type_id(type_id: int, db: Session = Depends(get_db)):
-    books = crud.get_books_by_type_id_db(type_id, db)
-    if not books:
-        raise HTTPException(status_code=404, detail="Không tìm thấy sách nào cho loại sách này")
-    
-    books_with_names = []
-    for book in books:
-        book_type_name = book.book_type.name if book.book_type else None
-        publisher_name = book.publisher.name if book.publisher else None
-        books_with_names.append(schemas.BookWithNames(
-            id=book.id,
-            name=book.name,
-            author=book.author,
-            year=book.year,
-            amount=book.amount,
-            price=book.price,
-            image=book.image,
-            description=book.description,
-            publisher_name=publisher_name,
-            book_type_name=book_type_name
-        ))
-    return books_with_names
+    return book_with_names

@@ -43,10 +43,6 @@ def get_all_book_types_db(db: Session) -> List[schemas.BookTypeWithAmount]:
 def get_book_type_by_id_db(book_type_id: int, db: Session) -> Optional[schemas.BookType]:
     return db.get(database.BookType, book_type_id)
 
-#Chưa sử dụng
-def get_book_type_by_name_db(book_type_name: str, db: Session) -> List[schemas.BookType]:
-    return db.query(database.BookType).filter(database.BookType.name.ilike(f"%{book_type_name}%")).all()
-
 def update_book_type_db(book_type_id: int, update_book_type: schemas.BookTypeBase, db: Session) -> Optional[schemas.BookType]:
     db_book_type = db.query(database.BookType).filter(database.BookType.id == book_type_id).first()
     if not db_book_type:
@@ -61,14 +57,14 @@ def update_book_type_db(book_type_id: int, update_book_type: schemas.BookTypeBas
         db.rollback()
         raise e
 
-def delete_book_type_db(book_type_id: int, db: Session) -> bool:
+def delete_book_type_db(book_type_id: int, db: Session) -> str:
     db_book_type = db.query(database.BookType).filter(database.BookType.id == book_type_id).first()
     if not db_book_type:
-        return False
+        return None
     try:
         db.delete(db_book_type)
         db.commit()
-        return True
+        return db_book_type.name
     except SQLAlchemyError as e:
         db.rollback()
         raise e
@@ -116,10 +112,6 @@ def get_all_publishers_db(db: Session) -> List[schemas.PublisherWithAmount]:
 def get_publisher_by_id_db(publisher_id: int, db: Session) -> Optional[schemas.Publisher]:
     return db.get(database.Publisher, publisher_id)
 
-# Chưa sử dụng
-def get_publisher_by_name_db(publisher_name: str, db: Session) -> List[schemas.Publisher]:
-    return db.query(database.Publisher).filter(database.Publisher.name.ilike(f"%{publisher_name}%")).all()
-
 def update_publisher_db(publisher_id: int, update_publisher: schemas.PublisherBase, db: Session) -> Optional[schemas.Publisher]:
     db_publisher = db.query(database.Publisher).filter(database.Publisher.id == publisher_id).first()
     if not db_publisher:
@@ -134,14 +126,14 @@ def update_publisher_db(publisher_id: int, update_publisher: schemas.PublisherBa
         db.rollback()
         raise e
 
-def delete_publisher_db(publisher_id: int, db: Session) -> bool:
+def delete_publisher_db(publisher_id: int, db: Session) -> str:
     db_publisher = db.query(database.Publisher).filter(database.Publisher.id == publisher_id).first()
     if not db_publisher:
-        return False
+        return None
     try:
         db.delete(db_publisher)
         db.commit()
-        return True
+        return db_publisher.name
     except SQLAlchemyError as e:
         db.rollback()
         raise e
@@ -200,14 +192,14 @@ def update_book_db(book_id: int, updated_book: schemas.BookBase, db: Session) ->
         db.rollback()
         raise e
 
-def delete_book_db(book_id: int, db: Session) -> bool:
+def delete_book_db(book_id: int, db: Session) -> str:
     db_book = db.query(database.Book).filter(database.Book.id == book_id).first()
     if not db_book:
-        return False
+        return None
     try:
         db.delete(db_book)
         db.commit()
-        return True
+        return db_book.name
     except SQLAlchemyError as e:
         db.rollback()
         raise e
